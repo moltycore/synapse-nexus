@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:wght@600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 20% 4%;
+    --foreground: 0 0% 95%;
+    --card: 240 15% 8%;
+    --card-foreground: 0 0% 95%;
+    --popover: 240 15% 8%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 271 91% 65%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 15% 12%;
+    --secondary-foreground: 0 0% 90%;
+    --muted: 240 10% 14%;
+    --muted-foreground: 240 5% 55%;
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 10% 16%;
+    --input: 240 10% 16%;
+    --ring: 271 91% 65%;
+    --radius: 1rem;
+
+    --synapse-purple: 271 91% 65%;
+    --synapse-blue: 217 91% 60%;
+    --synapse-gold: 38 92% 50%;
+    --synapse-red: 0 72% 55%;
+    --synapse-surface: 240 15% 8%;
+    --synapse-glass: 240 15% 12%;
+    --synapse-glow-purple: 271 91% 65%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'DM Sans', sans-serif;
+  }
+}
+
+@layer utilities {
+  .glass { @apply bg-synapse-glass/40 backdrop-blur-xl border border-white/[0.06] shadow-lg; }
+  .glass-strong { @apply bg-synapse-glass/60 backdrop-blur-2xl border border-white/[0.08] shadow-xl; }
+  .glow-purple { box-shadow: 0 0 20px hsl(var(--synapse-purple) / 0.15), 0 0 60px hsl(var(--synapse-purple) / 0.08); }
+  .font-display { font-family: 'Playfair Display', serif; }
+  .text-gradient-purple {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(var(--synapse-purple)) 0%, hsl(var(--synapse-blue)) 100%);
+  }
+}
+
+@keyframes pulse-send {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--synapse-purple) / 0.4); }
+  50% { box-shadow: 0 0 0 8px hsl(var(--synapse-purple) / 0); }
+}
+
+.animate-pulse-send { animation: pulse-send 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
