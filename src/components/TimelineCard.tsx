@@ -3,8 +3,8 @@ import { useState } from "react";
 
 interface TimelineCardProps {
   icon: string;
-  title: string;
-  subtitle: string;
+  title?: string;
+  subtitle?: string;
   accentClass: string;
   glowClass: string;
   items: string[];
@@ -55,8 +55,8 @@ const TimelineCard = ({
           className="w-full flex items-center justify-between p-3.5 text-left active:scale-[0.98] transition-transform"
         >
           <div>
-            <h3 className={`text-sm font-semibold ${accentClass}`}>{title}</h3>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{subtitle}</p>
+            {title && <h3 className={`text-sm font-semibold ${accentClass}`}>{title}</h3>}
+            {subtitle && <p className="text-[10px] text-muted-foreground mt-0.5">{subtitle}</p>}
           </div>
           <ChevronDown
             className={`w-4 h-4 text-muted-foreground transition-transform duration-300 ${
