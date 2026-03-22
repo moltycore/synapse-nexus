@@ -19,8 +19,8 @@ const BattleTimeline = ({ isActive, phase }: BattleTimelineProps) => {
       <div className="pl-1">
         <TimelineCard
           icon="🔍"
-          title="Researcher V2"
-          subtitle="Deep analysis · 3 data points"
+          title=""
+          subtitle=""
           accentClass="text-synapse-blue"
           glowClass="glow-blue"
           items={[
@@ -34,8 +34,8 @@ const BattleTimeline = ({ isActive, phase }: BattleTimelineProps) => {
 
         <TimelineCard
           icon="⚖️"
-          title="Critical Reviewer"
-          subtitle="Red-lining researcher claims"
+          title=""
+          subtitle=""
           accentClass="text-synapse-red"
           glowClass="glow-red"
           items={[
@@ -50,8 +50,8 @@ const BattleTimeline = ({ isActive, phase }: BattleTimelineProps) => {
 
         <TimelineCard
           icon="💡"
-          title="Visionary"
-          subtitle="Disruptor mode · 10x pivot"
+          title=""
+          subtitle=""
           accentClass="text-synapse-gold"
           glowClass="glow-gold"
           items={[
