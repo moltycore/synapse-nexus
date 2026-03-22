@@ -1,8 +1,14 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import SynapseAppBar from "@/components/SynapseAppBar";
 import DecisionCard from "@/components/DecisionCard";
 import BattleTimeline from "@/components/BattleTimeline";
 import SynapseInput from "@/components/SynapseInput";
+
+interface HistoryItem {
+  id: number;
+  soru: string;
+  karar: string;
+}
 
 export default function Index() {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -12,6 +18,12 @@ export default function Index() {
   const [arastirma, setArastirma] = useState<string | undefined>();
   const [denetleme, setDenetleme] = useState<string | undefined>();
   const [vizyon, setVizyon] = useState<string | undefined>();
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [history, decision]);
 
   const handleSubmit = useCallback(async (text: string) => {
     if (isProcessing) return;
@@ -42,11 +54,14 @@ export default function Index() {
       setArastirma(data.arastirma);
       setDenetleme(data.denetleme);
       setVizyon(data.vizyon);
-      setDecision(data.final_karar ?? JSON.stringify(data));
+      const karar = data.final_karar ?? JSON.stringify(data);
+      setDecision(karar);
       setIsDecisionActive(true);
+      setHistory((prev) => [...prev, { id: Date.now(), soru: text, karar }]);
     } catch (error) {
       console.error("Hata:", error);
-      setDecision(`⚠️ ${error instanceof Error ? error.message : "Bağlantı koptu."}`);
+      const errMsg = `⚠️ ${error instanceof Error ? error.message : "Bağlantı koptu."}`;
+      setDecision(errMsg);
       setIsDecisionActive(true);
     } finally {
       setIsProcessing(false);
@@ -58,6 +73,21 @@ export default function Index() {
       <SynapseAppBar />
 
       <main className="flex-1 overflow-y-auto pb-20">
+        {/* Geçmiş */}
+        {history.length > 0 && (
+          <div className="px-4 pt-4 space-y-3">
+            {history.map((item) => (
+              <div key={item.id} className="glass rounded-2xl p-4 border border-white/[0.06]">
+                <p className="text-[10px] text-muted-foreground/50 uppercase tracking-widest mb-1">
+                  {item.soru.length > 60 ? item.soru.slice(0, 60) + "…" : item.soru}
+                </p>
+                <p className="text-sm text-foreground/80 leading-relaxed">{item.karar}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Aktif sonuç */}
         <DecisionCard
           decision={decision}
           isActive={isDecisionActive}
@@ -70,9 +100,10 @@ export default function Index() {
           denetleme={denetleme}
           vizyon={vizyon}
         />
+        <div ref={bottomRef} />
       </main>
 
       <SynapseInput onSubmit={handleSubmit} isProcessing={isProcessing} />
     </div>
   );
-}
+      }
