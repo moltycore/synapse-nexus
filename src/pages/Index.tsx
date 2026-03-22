@@ -23,9 +23,7 @@ export default function Index() {
 
       const response = await fetch("https://synapse-api-b8oc.onrender.com/analyze", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text }),
       });
 
@@ -48,7 +46,11 @@ export default function Index() {
       <SynapseAppBar />
 
       <main className="flex-1 overflow-y-auto pb-20">
-        <DecisionCard decision={decision} isActive={isDecisionActive} />
+        <DecisionCard
+          decision={decision}
+          isActive={isDecisionActive}
+          isProcessing={isProcessing}
+        />
         <BattleTimeline isActive={phase > 0} phase={phase} />
       </main>
 
