@@ -6,11 +6,7 @@ interface DecisionCardProps {
   isProcessing?: boolean;
 }
 
-const loadingSteps = [
-  "Araştırıyor",
-  "Değerlendiriyor",
-  "Sentezliyor",
-];
+const loadingSteps = ["Araştırıyor", "Değerlendiriyor", "Sentezliyor"];
 
 const DecisionCard = ({ decision, isActive, isProcessing = false }: DecisionCardProps) => {
   const [displayed, setDisplayed] = useState("");
@@ -18,7 +14,6 @@ const DecisionCard = ({ decision, isActive, isProcessing = false }: DecisionCard
   const [loadingStep, setLoadingStep] = useState(0);
   const [loadingVisible, setLoadingVisible] = useState(true);
 
-  // Typewriter effect
   useEffect(() => {
     if (!decision) {
       setDisplayed("");
@@ -38,7 +33,6 @@ const DecisionCard = ({ decision, isActive, isProcessing = false }: DecisionCard
     return () => clearInterval(interval);
   }, [decision]);
 
-  // Loading step cycle
   useEffect(() => {
     if (!isProcessing) {
       setLoadingStep(0);
@@ -82,7 +76,7 @@ const DecisionCard = ({ decision, isActive, isProcessing = false }: DecisionCard
               <span className="animate-pulse">...</span>
             </p>
           </div>
-        ) : displayed ? (
+        ) : decision ? (
           <p className="font-display text-xl leading-snug text-foreground">
             {displayed}
             {typing && (
