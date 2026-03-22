@@ -4,9 +4,12 @@ import { Search, Scale, Lightbulb } from "lucide-react";
 interface BattleTimelineProps {
   isActive: boolean;
   phase: number;
+  arastirma?: string;
+  denetleme?: string;
+  vizyon?: string;
 }
 
-const nodes = [
+const nodeConfig = [
   {
     Icon: Search,
     label: "Araştırmacı",
@@ -15,11 +18,7 @@ const nodes = [
     borderColor: "border-blue-500/40",
     bgActive: "bg-blue-500/15",
     bgIdle: "bg-white/5",
-    items: [
-      "Market verisi hedef segmentte %34 YoY büyüme gösteriyor.",
-      "Üç rakip çözüm mevcut ancak hiçbiri entegrasyon boşluğunu kapatmıyor.",
-      "Kullanıcı araştırması (n=847) $29/ay seviyesinde güçlü ödeme isteği gösteriyor.",
-    ],
+    strikethrough: false,
   },
   {
     Icon: Scale,
@@ -30,11 +29,6 @@ const nodes = [
     bgActive: "bg-red-500/15",
     bgIdle: "bg-white/5",
     strikethrough: true,
-    items: [
-      "%34 büyüme rakamı elverişli çeyrekler seçiliyor — 12 aylık ortalama %19.",
-      "İki rakibin pivot duyuruları bekliyor — ekosistem dengesiz.",
-      "Fiyatlandırma metodolojisinde çıpalama önyargısı var — gerçek rakam %15-22 daha düşük.",
-    ],
   },
   {
     Icon: Lightbulb,
@@ -44,16 +38,26 @@ const nodes = [
     borderColor: "border-yellow-500/40",
     bgActive: "bg-yellow-500/15",
     bgIdle: "bg-white/5",
-    items: [
-      "Segmenti tamamen yoksay — entegrasyon katmanını açık protokol olarak inşa et.",
-      "Doğrudan abonelik değil ekosistem lisanslama ile monetize et — 10x TAM genişlemesi.",
-      "Protokol yaklaşımında öncü olmak rakipler pivot yapmadan önce ağ etkilerini kilitler.",
-    ],
+    strikethrough: false,
   },
 ];
 
-const BattleTimeline = ({ isActive, phase }: BattleTimelineProps) => {
+function parseItems(text?: string): string[] {
+  if (!text) return [];
+  return text
+    .split("\n")
+    .map((line) => line.replace(/^\s*[\d\-\*\•\·]+[\.\):]?\s*/, "").replace(/\*\*/g, "").trim())
+    .filter((line) => line.length > 0);
+}
+
+const BattleTimeline = ({ isActive, phase, arastirma, denetleme, vizyon }: BattleTimelineProps) => {
   const [activeNode, setActiveNode] = useState<number | null>(null);
+
+  const apiItems = [
+    parseItems(arastirma),
+    parseItems(denetleme),
+    parseItems(vizyon),
+  ];
 
   const handleNode = (i: number) => {
     if (!isActive || phase < i + 1) return;
@@ -62,9 +66,8 @@ const BattleTimeline = ({ isActive, phase }: BattleTimelineProps) => {
 
   return (
     <div className="px-4 pb-6">
-      {/* Horizontal node row */}
       <div className="flex items-center gap-2 mb-3">
-        {nodes.map((node, i) => {
+        {nodeConfig.map((node, i) => {
           const { Icon } = node;
           const unlocked = isActive && phase >= i + 1;
           const selected = activeNode === i;
@@ -76,7 +79,7 @@ const BattleTimeline = ({ isActive, phase }: BattleTimelineProps) => {
                   className="w-6 h-px rounded-full transition-all duration-700"
                   style={{
                     background: unlocked
-                      ? `linear-gradient(90deg, ${nodes[i - 1].glowColor}, ${node.glowColor})`
+                      ? `linear-gradient(90deg, ${nodeConfig[i - 1].glowColor}, ${node.glowColor})`
                       : "rgba(255,255,255,0.08)",
                   }}
                 />
@@ -100,7 +103,6 @@ const BattleTimeline = ({ isActive, phase }: BattleTimelineProps) => {
                   className={`transition-colors duration-300 ${unlocked ? node.accentClass : "text-muted-foreground/30"}`}
                   strokeWidth={1.75}
                 />
-                {/* Pulse ring when unlocked */}
                 {unlocked && !selected && (
                   <span
                     className="absolute inset-0 rounded-full animate-ping opacity-20"
@@ -113,21 +115,20 @@ const BattleTimeline = ({ isActive, phase }: BattleTimelineProps) => {
         })}
       </div>
 
-      {/* Expanded content */}
       {activeNode !== null && isActive && (
         <div
-          className={`glass rounded-2xl p-4 border transition-all duration-300 ${nodes[activeNode].borderColor}`}
-          style={{ boxShadow: `0 0 18px ${nodes[activeNode].glowColor}18` }}
+          className={`glass rounded-2xl p-4 border transition-all duration-300 ${nodeConfig[activeNode].borderColor}`}
+          style={{ boxShadow: `0 0 18px ${nodeConfig[activeNode].glowColor}18` }}
         >
-          <p className={`text-[10px] font-semibold tracking-widest uppercase mb-3 ${nodes[activeNode].accentClass}`}>
-            {nodes[activeNode].label}
+          <p className={`text-[10px] font-semibold tracking-widest uppercase mb-3 ${nodeConfig[activeNode].accentClass}`}>
+            {nodeConfig[activeNode].label}
           </p>
           <div className="space-y-2">
-            {nodes[activeNode].items.map((item, i) => (
+            {apiItems[activeNode].map((item, i) => (
               <div
                 key={i}
                 className={`text-xs leading-relaxed flex items-start gap-2 ${
-                  (nodes[activeNode] as any).strikethrough
+                  nodeConfig[activeNode].strikethrough
                     ? "line-through text-red-400/50 decoration-red-400/30"
                     : "text-foreground/75"
                 }`}
