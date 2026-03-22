@@ -9,12 +9,18 @@ export default function Index() {
   const [phase, setPhase] = useState(0);
   const [decision, setDecision] = useState<string | null>(null);
   const [isDecisionActive, setIsDecisionActive] = useState(false);
+  const [arastirma, setArastirma] = useState<string | undefined>();
+  const [denetleme, setDenetleme] = useState<string | undefined>();
+  const [vizyon, setVizyon] = useState<string | undefined>();
 
   const handleSubmit = useCallback(async (text: string) => {
     if (isProcessing) return;
     setIsProcessing(true);
     setDecision(null);
     setIsDecisionActive(false);
+    setArastirma(undefined);
+    setDenetleme(undefined);
+    setVizyon(undefined);
     setPhase(1);
 
     try {
@@ -33,6 +39,9 @@ export default function Index() {
       }
 
       const data = await response.json();
+      setArastirma(data.arastirma);
+      setDenetleme(data.denetleme);
+      setVizyon(data.vizyon);
       setDecision(data.final_karar ?? JSON.stringify(data));
       setIsDecisionActive(true);
     } catch (error) {
@@ -54,7 +63,13 @@ export default function Index() {
           isActive={isDecisionActive}
           isProcessing={isProcessing}
         />
-        <BattleTimeline isActive={phase > 0} phase={phase} />
+        <BattleTimeline
+          isActive={phase > 0}
+          phase={phase}
+          arastirma={arastirma}
+          denetleme={denetleme}
+          vizyon={vizyon}
+        />
       </main>
 
       <SynapseInput onSubmit={handleSubmit} isProcessing={isProcessing} />
