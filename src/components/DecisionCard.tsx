@@ -3,12 +3,22 @@ import { useEffect, useState } from "react";
 interface DecisionCardProps {
   decision: string | null;
   isActive: boolean;
+  isProcessing?: boolean;
 }
 
-const DecisionCard = ({ decision, isActive }: DecisionCardProps) => {
+const loadingSteps = [
+  "Araştırıyor",
+  "Değerlendiriyor",
+  "Sentezliyor",
+];
+
+const DecisionCard = ({ decision, isActive, isProcessing = false }: DecisionCardProps) => {
   const [displayed, setDisplayed] = useState("");
   const [typing, setTyping] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
+  const [loadingVisible, setLoadingVisible] = useState(true);
 
+  // Typewriter effect
   useEffect(() => {
     if (!decision) {
       setDisplayed("");
@@ -28,6 +38,23 @@ const DecisionCard = ({ decision, isActive }: DecisionCardProps) => {
     return () => clearInterval(interval);
   }, [decision]);
 
+  // Loading step cycle
+  useEffect(() => {
+    if (!isProcessing) {
+      setLoadingStep(0);
+      setLoadingVisible(true);
+      return;
+    }
+    const cycle = setInterval(() => {
+      setLoadingVisible(false);
+      setTimeout(() => {
+        setLoadingStep((s) => (s + 1) % loadingSteps.length);
+        setLoadingVisible(true);
+      }, 300);
+    }, 1800);
+    return () => clearInterval(cycle);
+  }, [isProcessing]);
+
   return (
     <div className="px-4 pt-6 pb-4">
       <div
@@ -37,14 +64,25 @@ const DecisionCard = ({ decision, isActive }: DecisionCardProps) => {
       >
         <div className="flex items-center gap-2 mb-4">
           <div className={`w-2 h-2 rounded-full transition-colors duration-500 ${
-            isActive ? "bg-synapse-purple animate-pulse" : "bg-muted-foreground/30"
+            isActive || isProcessing ? "bg-synapse-purple animate-pulse" : "bg-muted-foreground/30"
           }`} />
           <span className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground font-medium">
-            Synapse Final Decision
+            Sinaptik Yanıt
           </span>
         </div>
 
-        {displayed ? (
+        {isProcessing ? (
+          <div className="flex items-center gap-2 min-h-[32px]">
+            <p
+              className={`font-display text-lg text-synapse-purple/80 transition-opacity duration-300 ${
+                loadingVisible ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              {loadingSteps[loadingStep]}
+              <span className="animate-pulse">...</span>
+            </p>
+          </div>
+        ) : displayed ? (
           <p className="font-display text-xl leading-snug text-foreground">
             {displayed}
             {typing && (
