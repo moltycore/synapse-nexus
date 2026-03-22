@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import SynapseAppBar from "@/components/SynapseAppBar";
-import DecisionCard from "@/components/DecisionCard";
 import BattleTimeline from "@/components/BattleTimeline";
 import SynapseInput from "@/components/SynapseInput";
 
@@ -8,31 +7,28 @@ interface HistoryItem {
   id: number;
   soru: string;
   karar: string;
+  arastirma?: string;
+  denetleme?: string;
+  vizyon?: string;
 }
 
 export default function Index() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [phase, setPhase] = useState(0);
-  const [decision, setDecision] = useState<string | null>(null);
-  const [isDecisionActive, setIsDecisionActive] = useState(false);
-  const [arastirma, setArastirma] = useState<string | undefined>();
-  const [denetleme, setDenetleme] = useState<string | undefined>();
-  const [vizyon, setVizyon] = useState<string | undefined>();
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [activeItem, setActiveItem] = useState<HistoryItem | null>(null);
+  const [currentSoru, setCurrentSoru] = useState<string>("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [history, decision]);
+  }, [history, isProcessing]);
 
   const handleSubmit = useCallback(async (text: string) => {
     if (isProcessing) return;
     setIsProcessing(true);
-    setDecision(null);
-    setIsDecisionActive(false);
-    setArastirma(undefined);
-    setDenetleme(undefined);
-    setVizyon(undefined);
+    setActiveItem(null);
+    setCurrentSoru(text);
     setPhase(1);
 
     try {
@@ -51,20 +47,28 @@ export default function Index() {
       }
 
       const data = await response.json();
-      setArastirma(data.arastirma);
-      setDenetleme(data.denetleme);
-      setVizyon(data.vizyon);
-      const karar = data.final_karar ?? JSON.stringify(data);
-      setDecision(karar);
-      setIsDecisionActive(true);
-      setHistory((prev) => [...prev, { id: Date.now(), soru: text, karar }]);
+      const newItem: HistoryItem = {
+        id: Date.now(),
+        soru: text,
+        karar: data.final_karar ?? JSON.stringify(data),
+        arastirma: data.arastirma,
+        denetleme: data.denetleme,
+        vizyon: data.vizyon,
+      };
+      setHistory((prev) => [...prev, newItem]);
+      setActiveItem(newItem);
     } catch (error) {
-      console.error("Hata:", error);
       const errMsg = `⚠️ ${error instanceof Error ? error.message : "Bağlantı koptu."}`;
-      setDecision(errMsg);
-      setIsDecisionActive(true);
+      const errItem: HistoryItem = {
+        id: Date.now(),
+        soru: text,
+        karar: errMsg,
+      };
+      setHistory((prev) => [...prev, errItem]);
+      setActiveItem(errItem);
     } finally {
       setIsProcessing(false);
+      setPhase(0);
     }
   }, [isProcessing]);
 
@@ -72,38 +76,66 @@ export default function Index() {
     <div className="min-h-screen flex flex-col bg-background">
       <SynapseAppBar />
 
-      <main className="flex-1 overflow-y-auto pb-20">
-        {/* Geçmiş */}
-        {history.length > 0 && (
-          <div className="px-4 pt-4 space-y-3">
-            {history.map((item) => (
-              <div key={item.id} className="glass rounded-2xl p-4 border border-white/[0.06]">
-                <p className="text-[10px] text-muted-foreground/50 uppercase tracking-widest mb-1">
-                  {item.soru.length > 60 ? item.soru.slice(0, 60) + "…" : item.soru}
-                </p>
-                <p className="text-sm text-foreground/80 leading-relaxed">{item.karar}</p>
+      <main className="flex-1 overflow-y-auto pb-24 pt-2">
+        <div className="px-4 space-y-3">
+
+          {history.map((item) => (
+            <div key={item.id} className="space-y-2">
+              {/* Kullanıcı sorusu — sağda */}
+              <div className="flex justify-end">
+                <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 py-2.5">
+                  <p className="text-sm text-foreground/90 leading-relaxed">{item.soru}</p>
+                </div>
               </div>
-            ))}
+
+              {/* Synapse cevabı — solda */}
+              <div className="flex justify-start">
+                <div className="max-w-[78%] glass border border-white/[0.07] rounded-2xl rounded-tl-sm px-4 py-2.5">
+                  <p className="text-[9px] text-synapse-purple/60 uppercase tracking-widest mb-1 font-semibold">Sinaptik Yanıt</p>
+                  <p className="text-sm text-foreground/85 leading-relaxed">{item.karar}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {/* Yükleniyor */}
+          {isProcessing && (
+            <div className="space-y-2">
+              <div className="flex justify-end">
+                <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 py-2.5">
+                  <p className="text-sm text-foreground/90 leading-relaxed">{currentSoru}</p>
+                </div>
+              </div>
+              <div className="flex justify-start">
+                <div className="glass border border-white/[0.07] rounded-2xl rounded-tl-sm px-4 py-3">
+                  <div className="flex gap-1.5 items-center">
+                    <span className="w-1.5 h-1.5 rounded-full bg-synapse-purple/60 animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-synapse-purple/60 animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-synapse-purple/60 animate-bounce" style={{ animationDelay: "300ms" }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div ref={bottomRef} />
+        </div>
+
+        {/* Node'lar sadece aktif item varsa */}
+        {activeItem && !isProcessing && (
+          <div className="mt-4">
+            <BattleTimeline
+              isActive={true}
+              phase={3}
+              arastirma={activeItem.arastirma}
+              denetleme={activeItem.denetleme}
+              vizyon={activeItem.vizyon}
+            />
           </div>
         )}
-
-        {/* Aktif sonuç */}
-        <DecisionCard
-          decision={decision}
-          isActive={isDecisionActive}
-          isProcessing={isProcessing}
-        />
-        <BattleTimeline
-          isActive={phase > 0}
-          phase={phase}
-          arastirma={arastirma}
-          denetleme={denetleme}
-          vizyon={vizyon}
-        />
-        <div ref={bottomRef} />
       </main>
 
       <SynapseInput onSubmit={handleSubmit} isProcessing={isProcessing} />
     </div>
   );
-      }
+                }
