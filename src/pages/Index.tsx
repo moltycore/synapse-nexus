@@ -28,15 +28,16 @@ export default function Index() {
       });
 
       if (!response.ok) {
-  const errBody = await response.text();
-  throw new Error(`HTTP ${response.status}: ${errBody}`);
-}
+        const errBody = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errBody}`);
+      }
 
-const data = await response.json();
-setDecision(data.final_karar ?? JSON.stringify(data));
+      const data = await response.json();
+      setDecision(data.final_karar ?? JSON.stringify(data));
+      setIsDecisionActive(true);
     } catch (error) {
       console.error("Hata:", error);
-      setDecision("⚠️ Bağlantı koptu. Motor cevap vermiyor.");
+      setDecision(`⚠️ ${error instanceof Error ? error.message : "Bağlantı koptu."}`);
       setIsDecisionActive(true);
     } finally {
       setIsProcessing(false);
