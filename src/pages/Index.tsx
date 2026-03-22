@@ -46,7 +46,7 @@ const Index = () => {
       <SynapseAppBar />
       <main className="flex-1 px-4 pb-24 pt-4 space-y-6">
         <DecisionCard decision={decision} isActive={isDecisionActive} />
-        <BattleTimeline phase={phase} />
+        <BattleTimeline phase={phase} isActive={isDecisionActive} />
       </main>
       <SynapseInput onSubmit={handleSubmit} isProcessing={isProcessing} />
     </div>
