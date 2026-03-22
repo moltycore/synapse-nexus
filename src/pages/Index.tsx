@@ -1,3 +1,15 @@
+import { useState, useCallback } from "react";
+import SynapseAppBar from "@/components/SynapseAppBar";
+import DecisionCard from "@/components/DecisionCard";
+import BattleTimeline from "@/components/BattleTimeline";
+import SynapseInput from "@/components/SynapseInput";
+
+const Index = () => {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [decision, setDecision] = useState<string | null>(null);
+  const [isDecisionActive, setIsDecisionActive] = useState(false);
+  const [phase, setPhase] = useState(0);
+
   const handleSubmit = useCallback(async (text: string) => {
     if (isProcessing) return;
     setIsProcessing(true);
@@ -11,9 +23,7 @@
 
       const response = await fetch("https://synapse-api-b8oc.onrender.com/analyze", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text }),
       });
 
@@ -30,3 +40,17 @@
       setIsProcessing(false);
     }
   }, [isProcessing]);
+
+  return (
+    <div className="min-h-screen flex flex-col bg-background">
+      <SynapseAppBar />
+      <main className="flex-1 px-4 pb-24 pt-4 space-y-6">
+        <DecisionCard decision={decision} isActive={isDecisionActive} />
+        <BattleTimeline phase={phase} />
+      </main>
+      <SynapseInput onSubmit={handleSubmit} isProcessing={isProcessing} />
+    </div>
+  );
+};
+
+export default Index;
