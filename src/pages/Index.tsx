@@ -6,9 +6,9 @@ import SynapseInput from "@/components/SynapseInput";
 
 const Index = () => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [phase, setPhase] = useState(0);
   const [decision, setDecision] = useState<string | null>(null);
   const [isDecisionActive, setIsDecisionActive] = useState(false);
-  const [phase, setPhase] = useState(0);
 
   const handleSubmit = useCallback(async (text: string) => {
     if (isProcessing) return;
@@ -23,7 +23,9 @@ const Index = () => {
 
       const response = await fetch("https://synapse-api-b8oc.onrender.com/analyze", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ text }),
       });
 
@@ -44,10 +46,12 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SynapseAppBar />
-      <main className="flex-1 px-4 pb-24 pt-4 space-y-6">
+
+      <main className="flex-1 overflow-y-auto pb-20">
         <DecisionCard decision={decision} isActive={isDecisionActive} />
-        <BattleTimeline phase={phase} isActive={isDecisionActive} />
+        <BattleTimeline isActive={phase > 0} phase={phase} />
       </main>
+
       <SynapseInput onSubmit={handleSubmit} isProcessing={isProcessing} />
     </div>
   );
