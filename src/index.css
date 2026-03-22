@@ -8,35 +8,25 @@
   :root {
     --background: 240 20% 4%;
     --foreground: 0 0% 95%;
-
     --card: 240 15% 8%;
     --card-foreground: 0 0% 95%;
-
     --popover: 240 15% 8%;
     --popover-foreground: 0 0% 95%;
-
     --primary: 271 91% 65%;
     --primary-foreground: 0 0% 100%;
-
     --secondary: 240 15% 12%;
     --secondary-foreground: 0 0% 90%;
-
     --muted: 240 10% 14%;
     --muted-foreground: 240 5% 55%;
-
     --accent: 217 91% 60%;
     --accent-foreground: 0 0% 100%;
-
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-
     --border: 240 10% 16%;
     --input: 240 10% 16%;
     --ring: 271 91% 65%;
-
     --radius: 1rem;
 
-    /* Synapse custom tokens */
     --synapse-purple: 271 91% 65%;
     --synapse-blue: 217 91% 60%;
     --synapse-gold: 38 92% 50%;
@@ -44,23 +34,11 @@
     --synapse-surface: 240 15% 8%;
     --synapse-glass: 240 15% 12%;
     --synapse-glow-purple: 271 91% 65%;
-
-    --sidebar-background: 240 15% 6%;
-    --sidebar-foreground: 0 0% 90%;
-    --sidebar-primary: 271 91% 65%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 15% 12%;
-    --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 240 10% 16%;
-    --sidebar-ring: 271 91% 65%;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
+  * { @apply border-border; }
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'DM Sans', sans-serif;
@@ -68,99 +46,22 @@
 }
 
 @layer utilities {
-  .glass {
-    @apply bg-synapse-glass/40 backdrop-blur-xl border border-white/[0.06] shadow-lg;
-  }
+  .glass { @apply bg-synapse-glass/40 backdrop-blur-xl border border-white/[0.06] shadow-lg; }
+  .glass-strong { @apply bg-synapse-glass/60 backdrop-blur-2xl border border-white/[0.08] shadow-xl; }
+  
+  .glow-purple { box-shadow: 0 0 20px hsl(var(--synapse-purple) / 0.15), 0 0 60px hsl(var(--synapse-purple) / 0.08); }
+  .glow-purple-active { box-shadow: 0 0 30px hsl(var(--synapse-purple) / 0.3), 0 0 80px hsl(var(--synapse-purple) / 0.15); }
 
-  .glass-strong {
-    @apply bg-synapse-glass/60 backdrop-blur-2xl border border-white/[0.08] shadow-xl;
-  }
-
-  .glow-purple {
-    box-shadow:
-      0 0 20px hsl(var(--synapse-purple) / 0.15),
-      0 0 60px hsl(var(--synapse-purple) / 0.08),
-      inset 0 1px 0 hsl(0 0% 100% / 0.05);
-  }
-
-  .glow-purple-active {
-    box-shadow:
-      0 0 30px hsl(var(--synapse-purple) / 0.3),
-      0 0 80px hsl(var(--synapse-purple) / 0.15),
-      0 0 120px hsl(var(--synapse-purple) / 0.05),
-      inset 0 1px 0 hsl(0 0% 100% / 0.08);
-  }
-
-  .glow-gold {
-    box-shadow:
-      0 0 20px hsl(var(--synapse-gold) / 0.15),
-      0 0 60px hsl(var(--synapse-gold) / 0.08);
-  }
-
-  .glow-red {
-    box-shadow:
-      0 0 15px hsl(var(--synapse-red) / 0.15),
-      0 0 40px hsl(var(--synapse-red) / 0.06);
-  }
-
-  .glow-blue {
-    box-shadow:
-      0 0 15px hsl(var(--synapse-blue) / 0.15),
-      0 0 40px hsl(var(--synapse-blue) / 0.06);
-  }
-
-  .font-display {
-    font-family: 'Playfair Display', serif;
-  }
-
+  .font-display { font-family: 'Playfair Display', serif; }
   .text-gradient-purple {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(
-      135deg,
-      hsl(var(--synapse-purple)) 0%,
-      hsl(var(--synapse-blue)) 100%
-    );
-  }
-
-  .timeline-connector {
-    @apply w-px bg-gradient-to-b from-white/10 via-white/5 to-transparent;
+    background-image: linear-gradient(135deg, hsl(var(--synapse-purple)) 0%, hsl(var(--synapse-blue)) 100%);
   }
 }
 
-/* Pulse animation for send button */
 @keyframes pulse-send {
   0%, 100% { box-shadow: 0 0 0 0 hsl(var(--synapse-purple) / 0.4); }
   50% { box-shadow: 0 0 0 8px hsl(var(--synapse-purple) / 0); }
 }
 
-@keyframes float-glow {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.02); }
-}
-
-@keyframes reveal-up {
-  from { opacity: 0; transform: translateY(16px); filter: blur(4px); }
-  to { opacity: 1; transform: translateY(0); filter: blur(0); }
-}
-
-@keyframes flash-in {
-  0% { opacity: 0; transform: scale(0.96); }
-  50% { opacity: 1; transform: scale(1.01); }
-  100% { opacity: 1; transform: scale(1); }
-}
-
-.animate-pulse-send {
-  animation: pulse-send 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.animate-float-glow {
-  animation: float-glow 3s ease-in-out infinite;
-}
-
-.animate-reveal-up {
-  animation: reveal-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-flash-in {
-  animation: flash-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
+.animate-pulse-send { animation: pulse-send 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
