@@ -27,11 +27,13 @@ export default function Index() {
         body: JSON.stringify({ text }),
       });
 
-      if (!response.ok) throw new Error("Sunucu patladı.");
+      if (!response.ok) {
+  const errBody = await response.text();
+  throw new Error(`HTTP ${response.status}: ${errBody}`);
+}
 
-      const data = await response.json();
-      setDecision(data.final_karar);
-      setIsDecisionActive(true);
+const data = await response.json();
+setDecision(data.final_karar ?? JSON.stringify(data));
     } catch (error) {
       console.error("Hata:", error);
       setDecision("⚠️ Bağlantı koptu. Motor cevap vermiyor.");
