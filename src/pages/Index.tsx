@@ -4,7 +4,7 @@ import DecisionCard from "@/components/DecisionCard";
 import BattleTimeline from "@/components/BattleTimeline";
 import SynapseInput from "@/components/SynapseInput";
 
-const Index = () => {
+export default function Index() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [phase, setPhase] = useState(0);
   const [decision, setDecision] = useState<string | null>(null);
@@ -55,6 +55,4 @@ const Index = () => {
       <SynapseInput onSubmit={handleSubmit} isProcessing={isProcessing} />
     </div>
   );
-};
-
-export default Index;
+}
