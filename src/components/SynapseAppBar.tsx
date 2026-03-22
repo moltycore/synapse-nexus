@@ -2,7 +2,7 @@ import { Menu, User } from "lucide-react";
 
 const SynapseAppBar = () => {
   return (
-    <header className="glass sticky top-0 z-50 px-5 pt-3 pb-2">
+    <header className="glass sticky top-0 z-50 px-5 pt-3 pb-3">
       <div className="flex items-center justify-between">
         <button className="p-2 -ml-2 rounded-lg transition-colors hover:bg-white/[0.06] active:scale-95">
           <Menu className="w-5 h-5 text-muted-foreground" />
@@ -20,9 +20,6 @@ const SynapseAppBar = () => {
           </div>
         </button>
       </div>
-      <p className="text-[10px] text-center text-muted-foreground tracking-[0.2em] uppercase mt-0.5 pb-1">
-        Strategic Decision Unit
-      </p>
     </header>
   );
 };
