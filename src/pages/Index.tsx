@@ -24,7 +24,7 @@ export default function Index() {
       const response = await fetch("https://synapse-api-b8oc.onrender.com/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ soru: text }),
+        body: JSON.stringify({ text }),
       });
 
       if (!response.ok) throw new Error("Sunucu patladı.");
