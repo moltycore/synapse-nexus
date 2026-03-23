@@ -1,99 +1,46 @@
-const CustomHamburger = () => (
-  <svg width="28" height="20" viewBox="0 0 28 20" fill="none">
-    {/* Üst kısa çizgi */}
-    <rect x="0" y="0" width="10" height="2" rx="1" fill="#EDEFF3" fillOpacity="0.9" />
-    {/* Üst çizgi yanındaki nokta */}
-    <circle cx="17" cy="1" r="1.5" fill="#EDEFF3" fillOpacity="0.9" />
-    {/* Orta çizgi */}
-    <rect x="0" y="9" width="18" height="2" rx="1" fill="#EDEFF3" fillOpacity="0.9" />
-    {/* Alt çizgi */}
-    <rect x="0" y="18" width="18" height="2" rx="1" fill="#EDEFF3" fillOpacity="0.9" />
-  </svg>
-);
+import { useState } from "react";
+import { SendHorizontal } from "lucide-react";
 
-const KebabMenu = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-    <circle cx="8" cy="2" r="1.5" fill="#EDEFF3" fillOpacity="0.85" />
-    <circle cx="8" cy="8" r="1.5" fill="#EDEFF3" fillOpacity="0.85" />
-    <circle cx="8" cy="14" r="1.5" fill="#EDEFF3" fillOpacity="0.85" />
-  </svg>
-);
+interface SynapseInputProps {
+  onSubmit: (text: string) => void;
+  isProcessing: boolean;
+}
 
-const SynapseAppBar = () => {
+const SynapseInput = ({ onSubmit, isProcessing }: SynapseInputProps) => {
+  const [text, setText] = useState("");
+
+  const handleSend = () => {
+    if (text.trim() && !isProcessing) {
+      onSubmit(text);
+      setText("");
+    }
+  };
+
   return (
-    <header
-      className="sticky top-0 z-50 flex items-center justify-between px-4"
-      style={{
-        height: "60px",
-        backgroundColor: "#0F1115",
-        borderBottom: "1px solid rgba(28, 31, 38, 0.6)",
-      }}
-    >
-      {/* Sol: Custom hamburger */}
-      <button
-        className="flex items-center justify-center"
-        style={{
-          minWidth: "40px",
-          minHeight: "40px",
-          transition: "opacity 120ms ease, transform 120ms ease",
-        }}
-        onTouchStart={(e) => {
-          e.currentTarget.style.transform = "scale(0.95)";
-          e.currentTarget.style.opacity = "0.7";
-        }}
-        onTouchEnd={(e) => {
-          e.currentTarget.style.transform = "scale(1)";
-          e.currentTarget.style.opacity = "1";
-        }}
-      >
-        <CustomHamburger />
-      </button>
-
-      {/* Orta: Title */}
-      <div className="flex flex-col items-center" style={{ gap: "2px" }}>
-        <span
-          style={{
-            fontFamily: "Inter, SF Pro, sans-serif",
-            fontWeight: 600,
-            fontSize: "19px",
-            color: "#EDEFF3",
-            letterSpacing: "-0.2px",
+    <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-md border-t border-white/[0.05]">
+      <div className="max-w-2xl mx-auto relative flex items-center gap-2">
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Analiz için bir metin girin..."
+          className="w-full bg-white/[0.03] border border-white/[0.1] rounded-2xl px-4 py-3 pr-12 text-sm focus:outline-none focus:border-synapse-purple/50 transition-all resize-none h-12 flex items-center"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSend();
+            }
           }}
+        />
+        <button
+          onClick={handleSend}
+          disabled={isProcessing || !text.trim()}
+          className="absolute right-2 p-2 text-synapse-purple disabled:opacity-30 disabled:grayscale transition-all"
         >
-          Synapse
-        </span>
-        <span
-          style={{
-            fontSize: "12px",
-            color: "#9CA3AF",
-            fontWeight: 400,
-          }}
-        >
-          AI assistant
-        </span>
+          <SendHorizontal size={20} />
+        </button>
       </div>
-
-      {/* Sağ: Kebab menu */}
-      <button
-        className="flex items-center justify-center"
-        style={{
-          minWidth: "40px",
-          minHeight: "40px",
-          transition: "opacity 120ms ease, transform 120ms ease",
-        }}
-        onTouchStart={(e) => {
-          e.currentTarget.style.transform = "scale(0.95)";
-          e.currentTarget.style.opacity = "0.7";
-        }}
-        onTouchEnd={(e) => {
-          e.currentTarget.style.transform = "scale(1)";
-          e.currentTarget.style.opacity = "1";
-        }}
-      >
-        <KebabMenu />
-      </button>
-    </header>
+    </div>
   );
 };
 
-export default SynapseAppBar;
+export default SynapseInput;
