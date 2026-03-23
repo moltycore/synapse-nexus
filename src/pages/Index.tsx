@@ -91,7 +91,6 @@ export default function Index() {
               {/* Synapse cevabı — solda */}
               <div className="flex justify-start">
                 <div className="max-w-[78%] glass border border-white/[0.07] rounded-2xl rounded-tl-sm px-4 py-2.5">
-                  <p className="text-[9px] text-synapse-purple/60 uppercase tracking-widest mb-1 font-semibold">Sinaptik Yanıt</p>
                   <p className="text-sm text-foreground/85 leading-relaxed">{item.karar}</p>
                 </div>
               </div>
@@ -138,4 +137,4 @@ export default function Index() {
       <SynapseInput onSubmit={handleSubmit} isProcessing={isProcessing} />
     </div>
   );
-                }
+        }
