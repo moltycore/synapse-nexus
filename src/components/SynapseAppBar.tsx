@@ -1,3 +1,4 @@
+console.log("YENI APPBAR GELDI");
 const CustomHamburger = () => {
   return (
     <div className="w-5 h-5 flex flex-col justify-center gap-[3px]">
