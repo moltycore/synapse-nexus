@@ -65,18 +65,19 @@ const BattleTimeline = ({ isActive, phase, arastirma, denetleme, vizyon }: Battl
   };
 
   return (
-    <div className="px-4 pb-6">
-      <div className="flex items-center gap-2 mb-3">
+    <div className="px-4 pb-4">
+      {/* Sol tarafa hizalı küçük node'lar */}
+      <div className="flex items-center gap-1.5 mb-2">
         {nodeConfig.map((node, i) => {
           const { Icon } = node;
           const unlocked = isActive && phase >= i + 1;
           const selected = activeNode === i;
 
           return (
-            <div key={i} className="flex items-center gap-2">
+            <div key={i} className="flex items-center gap-1.5">
               {i > 0 && (
                 <div
-                  className="w-6 h-px rounded-full transition-all duration-700"
+                  className="w-4 h-px rounded-full transition-all duration-700"
                   style={{
                     background: unlocked
                       ? `linear-gradient(90deg, ${nodeConfig[i - 1].glowColor}, ${node.glowColor})`
@@ -89,24 +90,24 @@ const BattleTimeline = ({ isActive, phase, arastirma, denetleme, vizyon }: Battl
                 onClick={() => handleNode(i)}
                 disabled={!unlocked}
                 className={`
-                  relative flex items-center justify-center w-9 h-9 rounded-full border transition-all duration-400
+                  relative flex items-center justify-center w-6 h-6 rounded-full border transition-all duration-400
                   ${unlocked ? node.bgActive + " " + node.borderColor : node.bgIdle + " border-white/10"}
                   ${selected ? "scale-110" : "scale-100"}
                   ${unlocked ? "cursor-pointer hover:scale-105" : "cursor-default opacity-30"}
                 `}
                 style={{
-                  boxShadow: unlocked && selected ? `0 0 16px ${node.glowColor}` : "none",
+                  boxShadow: unlocked && selected ? `0 0 10px ${node.glowColor}` : "none",
                 }}
               >
                 <Icon
-                  size={16}
+                  size={12}
                   className={`transition-colors duration-300 ${unlocked ? node.accentClass : "text-muted-foreground/30"}`}
                   strokeWidth={1.75}
                 />
                 {unlocked && !selected && (
                   <span
                     className="absolute inset-0 rounded-full animate-ping opacity-20"
-                    style={{ border: `1.5px solid ${node.glowColor}` }}
+                    style={{ border: `1px solid ${node.glowColor}` }}
                   />
                 )}
               </button>
