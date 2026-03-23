@@ -19,12 +19,14 @@ const SynapseInput = ({ onSubmit, isProcessing }: SynapseInputProps) => {
 
   return (
     <div className="sticky bottom-0 z-50 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 bg-background/30 backdrop-blur-xl border-t border-white/[0.05]">
-      <div className="glass-strong rounded-2xl flex items-end gap-1 p-1.5">
+      <div className="flex items-end gap-2">
+        {/* Sol ikon */}
         <button className="p-2.5 rounded-xl bg-white/[0.10] border border-white/[0.08] text-muted-foreground/30 hover:bg-white/[0.14] active:scale-95 transition-all shrink-0">
           <Plus className="w-5 h-5" />
         </button>
 
-        <div className="flex-1 min-w-0">
+        {/* Yazı kutusu */}
+        <div className="flex-1 bg-white/[0.10] border border-white/[0.08] rounded-2xl px-3 py-2">
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -36,12 +38,13 @@ const SynapseInput = ({ onSubmit, isProcessing }: SynapseInputProps) => {
             }}
             placeholder="Ask Synapse to synthesize"
             rows={1}
-            className="w-full bg-transparent text-sm text-foreground placeholder:text-white/15 resize-none py-2.5 px-1 focus:outline-none overflow-wrap-break-word"
+            className="w-full bg-transparent text-sm text-foreground placeholder:text-white/25 resize-none focus:outline-none overflow-wrap-break-word"
             style={{ maxHeight: "120px" }}
             disabled={isProcessing}
           />
         </div>
 
+        {/* Sağ ikonlar */}
         <button className="p-2.5 rounded-xl bg-white/[0.10] border border-white/[0.08] text-muted-foreground/30 hover:bg-white/[0.14] active:scale-95 transition-all shrink-0">
           <Mic className="w-5 h-5" />
         </button>
@@ -51,7 +54,7 @@ const SynapseInput = ({ onSubmit, isProcessing }: SynapseInputProps) => {
           disabled={!hasText || isProcessing}
           className={`p-2.5 rounded-xl shrink-0 transition-all active:scale-95 ${
             hasText && !isProcessing
-              ? "bg-synapse-purple text-primary-foreground animate-pulse-send"
+              ? "bg-synapse-purple text-primary-foreground"
               : "bg-white/[0.10] border border-white/[0.08] text-muted-foreground/30"
           }`}
         >
