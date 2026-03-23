@@ -90,7 +90,7 @@ export default function Index() {
 
               {/* Synapse cevabı — solda */}
               <div className="flex justify-start">
-                <div className="max-w-[78%] glass border border-white/[0.07] rounded-2xl rounded-tl-sm px-4 py-2.5">
+                <div className="w-full glass border border-white/[0.07] rounded-2xl px-4 py-2.5">
                   <p className="text-sm text-foreground/85 leading-relaxed">{item.karar}</p>
                 </div>
               </div>
