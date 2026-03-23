@@ -1,47 +1,97 @@
-<h1>TEST APPBAR</h1>
-const CustomHamburger = () => {
-  return (
-    <div className="w-5 h-5 flex flex-col justify-center gap-[3px]">
-      <span className="w-3 h-[2px] bg-muted-foreground rounded"></span>
-      <span className="w-5 h-[2px] bg-muted-foreground rounded"></span>
-      <span className="w-4 h-[2px] bg-muted-foreground rounded"></span>
-    </div>
-  );
-};
+const CustomHamburger = () => (
+  <svg width="28" height="20" viewBox="0 0 28 20" fill="none">
+    {/* Üst kısa çizgi */}
+    <rect x="0" y="0" width="10" height="2" rx="1" fill="#EDEFF3" fillOpacity="0.9" />
+    {/* Üst çizgi yanındaki nokta */}
+    <circle cx="17" cy="1" r="1.5" fill="#EDEFF3" fillOpacity="0.9" />
+    {/* Orta çizgi */}
+    <rect x="0" y="9" width="18" height="2" rx="1" fill="#EDEFF3" fillOpacity="0.9" />
+    {/* Alt çizgi */}
+    <rect x="0" y="18" width="18" height="2" rx="1" fill="#EDEFF3" fillOpacity="0.9" />
+  </svg>
+);
 
-const KebabMenu = () => {
-  return (
-    <div className="w-5 h-5 flex flex-col items-center justify-center gap-[2px]">
-      <span className="w-[3px] h-[3px] bg-muted-foreground rounded-full"></span>
-      <span className="w-[3px] h-[3px] bg-muted-foreground rounded-full"></span>
-      <span className="w-[3px] h-[3px] bg-muted-foreground rounded-full"></span>
-    </div>
-  );
-};
+const KebabMenu = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <circle cx="8" cy="2" r="1.5" fill="#EDEFF3" fillOpacity="0.85" />
+    <circle cx="8" cy="8" r="1.5" fill="#EDEFF3" fillOpacity="0.85" />
+    <circle cx="8" cy="14" r="1.5" fill="#EDEFF3" fillOpacity="0.85" />
+  </svg>
+);
 
 const SynapseAppBar = () => {
   return (
-    <header className="glass sticky top-0 z-50 px-5 pt-3 pb-3">
-      <div className="flex items-center justify-between">
-        
-        {/* Sol: Custom Hamburger */}
-        <button className="p-2 -ml-2 rounded-lg transition-colors hover:bg-white/[0.06] active:scale-95">
-          <CustomHamburger />
-        </button>
+    <header
+      className="sticky top-0 z-50 flex items-center justify-between px-4"
+      style={{
+        height: "60px",
+        backgroundColor: "#0F1115",
+        borderBottom: "1px solid rgba(28, 31, 38, 0.6)",
+      }}
+    >
+      {/* Sol: Custom hamburger */}
+      <button
+        className="flex items-center justify-center"
+        style={{
+          minWidth: "40px",
+          minHeight: "40px",
+          transition: "opacity 120ms ease, transform 120ms ease",
+        }}
+        onTouchStart={(e) => {
+          e.currentTarget.style.transform = "scale(0.95)";
+          e.currentTarget.style.opacity = "0.7";
+        }}
+        onTouchEnd={(e) => {
+          e.currentTarget.style.transform = "scale(1)";
+          e.currentTarget.style.opacity = "1";
+        }}
+      >
+        <CustomHamburger />
+      </button>
 
-        {/* Orta: Logo */}
-        <div className="flex flex-col items-center">
-          <h1 className="text-xl font-bold tracking-tight">
-            <span className="font-display text-gradient-purple">Synapse</span>
-          </h1>
-        </div>
-
-        {/* Sağ: Kebab Menu */}
-        <button className="p-2 -mr-2 rounded-lg transition-colors hover:bg-white/[0.06] active:scale-95">
-          <KebabMenu />
-        </button>
-
+      {/* Orta: Title */}
+      <div className="flex flex-col items-center" style={{ gap: "2px" }}>
+        <span
+          style={{
+            fontFamily: "Inter, SF Pro, sans-serif",
+            fontWeight: 600,
+            fontSize: "19px",
+            color: "#EDEFF3",
+            letterSpacing: "-0.2px",
+          }}
+        >
+          Synapse
+        </span>
+        <span
+          style={{
+            fontSize: "12px",
+            color: "#9CA3AF",
+            fontWeight: 400,
+          }}
+        >
+          AI assistant
+        </span>
       </div>
+
+      {/* Sağ: Kebab menu */}
+      <button
+        className="flex items-center justify-center"
+        style={{
+          minWidth: "40px",
+          minHeight: "40px",
+          transition: "opacity 120ms ease, transform 120ms ease",
+        }}
+        onTouchStart={(e) => {
+          e.currentTarget.style.transform = "scale(0.95)";
+          e.currentTarget.style.opacity = "0.7";
+        }}
+        onTouchEnd={(e) => {
+          e.currentTarget.style.transform = "scale(1)";
+          e.currentTarget.style.opacity = "1";
+        }}
+      >
+        <KebabMenu />
+      </button>
     </header>
   );
 };
