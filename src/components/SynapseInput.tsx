@@ -18,7 +18,7 @@ const SynapseInput = ({ onSubmit, isProcessing }: SynapseInputProps) => {
   const hasText = text.trim().length > 0;
 
   return (
-    <div className="sticky bottom-0 z-50 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 bg-background/50 backdrop-blur-xl border-t border-white/[0.05]">
+    <div className="sticky bottom-0 z-50 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 bg-background/30 backdrop-blur-xl border-t border-white/[0.05]">
       <div className="glass-strong rounded-2xl flex items-end gap-1 p-1.5">
         <button className="p-2.5 rounded-xl text-muted-foreground hover:bg-white/[0.06] active:scale-95 transition-all shrink-0">
           <Plus className="w-5 h-5" />
