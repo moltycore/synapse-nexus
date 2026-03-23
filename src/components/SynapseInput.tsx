@@ -36,7 +36,7 @@ const SynapseInput = ({ onSubmit, isProcessing }: SynapseInputProps) => {
             }}
             placeholder="Ask Synapse to synthesize"
             rows={1}
-            className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/20 resize-none py-2.5 px-1 focus:outline-none overflow-wrap-break-word"
+            className="w-full bg-transparent text-sm text-foreground placeholder:text-white/10 resize-none py-2.5 px-1 focus:outline-none overflow-wrap-break-word"
             style={{ maxHeight: "120px" }}
             disabled={isProcessing}
           />
