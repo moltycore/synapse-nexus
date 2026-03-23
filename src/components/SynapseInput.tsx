@@ -1,68 +1,99 @@
-import { ArrowUp, Mic, Plus } from "lucide-react";
-import { useState } from "react";
+const CustomHamburger = () => (
+  <svg width="28" height="20" viewBox="0 0 28 20" fill="none">
+    {/* Üst kısa çizgi */}
+    <rect x="0" y="0" width="10" height="2" rx="1" fill="#EDEFF3" fillOpacity="0.9" />
+    {/* Üst çizgi yanındaki nokta */}
+    <circle cx="17" cy="1" r="1.5" fill="#EDEFF3" fillOpacity="0.9" />
+    {/* Orta çizgi */}
+    <rect x="0" y="9" width="18" height="2" rx="1" fill="#EDEFF3" fillOpacity="0.9" />
+    {/* Alt çizgi */}
+    <rect x="0" y="18" width="18" height="2" rx="1" fill="#EDEFF3" fillOpacity="0.9" />
+  </svg>
+);
 
-interface SynapseInputProps {
-  onSubmit: (text: string) => void;
-  isProcessing: boolean;
-}
+const KebabMenu = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <circle cx="8" cy="2" r="1.5" fill="#EDEFF3" fillOpacity="0.85" />
+    <circle cx="8" cy="8" r="1.5" fill="#EDEFF3" fillOpacity="0.85" />
+    <circle cx="8" cy="14" r="1.5" fill="#EDEFF3" fillOpacity="0.85" />
+  </svg>
+);
 
-const SynapseInput = ({ onSubmit, isProcessing }: SynapseInputProps) => {
-  const [text, setText] = useState("");
-
-  const handleSubmit = () => {
-    if (!text.trim() || isProcessing) return;
-    onSubmit(text.trim());
-    setText("");
-  };
-
-  const hasText = text.trim().length > 0;
-
+const SynapseAppBar = () => {
   return (
-    <div className="sticky bottom-0 z-50 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 bg-background/30 backdrop-blur-xl border-t border-white/[0.05]">
-      <div className="flex items-end gap-2">
-        {/* Sol ikon */}
-        <button className="p-2.5 rounded-xl bg-white/[0.10] border border-white/[0.08] text-muted-foreground/30 hover:bg-white/[0.14] active:scale-95 transition-all shrink-0">
-          <Plus className="w-5 h-5" />
-        </button>
+    <header
+      className="sticky top-0 z-50 flex items-center justify-between px-4"
+      style={{
+        height: "60px",
+        backgroundColor: "#0F1115",
+        borderBottom: "1px solid rgba(28, 31, 38, 0.6)",
+      }}
+    >
+      {/* Sol: Custom hamburger */}
+      <button
+        className="flex items-center justify-center"
+        style={{
+          minWidth: "40px",
+          minHeight: "40px",
+          transition: "opacity 120ms ease, transform 120ms ease",
+        }}
+        onTouchStart={(e) => {
+          e.currentTarget.style.transform = "scale(0.95)";
+          e.currentTarget.style.opacity = "0.7";
+        }}
+        onTouchEnd={(e) => {
+          e.currentTarget.style.transform = "scale(1)";
+          e.currentTarget.style.opacity = "1";
+        }}
+      >
+        <CustomHamburger />
+      </button>
 
-        {/* Yazı kutusu */}
-        <div className="flex-1 bg-white/[0.10] border border-white/[0.08] rounded-2xl px-3 py-2">
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit();
-              }
-            }}
-            placeholder="Ask Synapse to synthesize"
-            rows={1}
-            className="w-full bg-transparent text-sm text-foreground placeholder:text-white/25 resize-none focus:outline-none overflow-wrap-break-word"
-            style={{ maxHeight: "120px" }}
-            disabled={isProcessing}
-          />
-        </div>
-
-        {/* Sağ ikonlar */}
-        <button className="p-2.5 rounded-xl bg-white/[0.10] border border-white/[0.08] text-muted-foreground/30 hover:bg-white/[0.14] active:scale-95 transition-all shrink-0">
-          <Mic className="w-5 h-5" />
-        </button>
-
-        <button
-          onClick={handleSubmit}
-          disabled={!hasText || isProcessing}
-          className={`p-2.5 rounded-xl shrink-0 transition-all active:scale-95 ${
-            hasText && !isProcessing
-              ? "bg-synapse-purple text-primary-foreground"
-              : "bg-white/[0.10] border border-white/[0.08] text-muted-foreground/30"
-          }`}
+      {/* Orta: Title */}
+      <div className="flex flex-col items-center" style={{ gap: "2px" }}>
+        <span
+          style={{
+            fontFamily: "Inter, SF Pro, sans-serif",
+            fontWeight: 600,
+            fontSize: "19px",
+            color: "#EDEFF3",
+            letterSpacing: "-0.2px",
+          }}
         >
-          <ArrowUp className="w-5 h-5" />
-        </button>
+          Synapse
+        </span>
+        <span
+          style={{
+            fontSize: "12px",
+            color: "#9CA3AF",
+            fontWeight: 400,
+          }}
+        >
+          AI assistant
+        </span>
       </div>
-    </div>
+
+      {/* Sağ: Kebab menu */}
+      <button
+        className="flex items-center justify-center"
+        style={{
+          minWidth: "40px",
+          minHeight: "40px",
+          transition: "opacity 120ms ease, transform 120ms ease",
+        }}
+        onTouchStart={(e) => {
+          e.currentTarget.style.transform = "scale(0.95)";
+          e.currentTarget.style.opacity = "0.7";
+        }}
+        onTouchEnd={(e) => {
+          e.currentTarget.style.transform = "scale(1)";
+          e.currentTarget.style.opacity = "1";
+        }}
+      >
+        <KebabMenu />
+      </button>
+    </header>
   );
 };
 
-export default SynapseInput;
+export default SynapseAppBar;
