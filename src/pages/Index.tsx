@@ -3,13 +3,15 @@ import SynapseAppBar from "@/components/SynapseAppBar";
 import BattleTimeline from "@/components/BattleTimeline";
 import SynapseInput from "@/components/SynapseInput";
 
+// 1. AŞAMA: Backend'den gelecek yeni yapıya göre Interface'i güncelledik
 interface HistoryItem {
   id: number;
   soru: string;
-  karar: string;
+  karar: string; // Cohere'in son sentezi (final_karar)
+  sme?: string;
   arastirma?: string;
   denetleme?: string;
-  vizyon?: string;
+  moderator?: string;
 }
 
 export default function Index() {
@@ -46,15 +48,19 @@ export default function Index() {
         throw new Error(`HTTP ${response.status}: ${errBody}`);
       }
 
+      // 2. AŞAMA: Gelen JSON'ı karşılıyoruz
       const data = await response.json();
+      
       const newItem: HistoryItem = {
         id: Date.now(),
         soru: text,
-        karar: data.final_karar ?? JSON.stringify(data),
+        karar: data.final_karar ?? "Karar alınamadı.",
+        sme: data.sme,
         arastirma: data.arastirma,
         denetleme: data.denetleme,
-        vizyon: data.vizyon,
+        moderator: data.moderator,
       };
+      
       setHistory((prev) => [...prev, newItem]);
       setActiveItem(newItem);
     } catch (error) {
@@ -78,17 +84,14 @@ export default function Index() {
 
       <main className="flex-1 overflow-y-auto pb-24 pt-2">
         <div className="px-4 space-y-3">
-
           {history.map((item) => (
             <div key={item.id} className="space-y-2">
-              {/* Kullanıcı sorusu — sağda */}
               <div className="flex justify-end">
                 <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 py-2.5">
                   <p className="text-sm text-foreground/90 leading-relaxed">{item.soru}</p>
                 </div>
               </div>
 
-              {/* Synapse cevabı — solda */}
               <div className="flex justify-start">
                 <div className="w-full glass border border-white/[0.07] rounded-2xl px-4 py-2.5">
                   <p className="text-sm text-foreground/85 leading-relaxed">{item.karar}</p>
@@ -97,7 +100,6 @@ export default function Index() {
             </div>
           ))}
 
-          {/* Yükleniyor */}
           {isProcessing && (
             <div className="space-y-2">
               <div className="flex justify-end">
@@ -120,15 +122,16 @@ export default function Index() {
           <div ref={bottomRef} />
         </div>
 
-        {/* Node'lar sadece aktif item varsa */}
+        {/* 3. AŞAMA: BattleTimeline bileşenine yeni propları gönderiyoruz */}
         {activeItem && !isProcessing && (
           <div className="mt-4">
             <BattleTimeline
               isActive={true}
-              phase={3}
+              phase={3} // Phase mantığını gerekirse BattleTimeline içinde de revize ederiz
+              sme={activeItem.sme}
               arastirma={activeItem.arastirma}
               denetleme={activeItem.denetleme}
-              vizyon={activeItem.vizyon}
+              moderator={activeItem.moderator}
             />
           </div>
         )}
@@ -137,4 +140,4 @@ export default function Index() {
       <SynapseInput onSubmit={handleSubmit} isProcessing={isProcessing} />
     </div>
   );
-        }
+}
