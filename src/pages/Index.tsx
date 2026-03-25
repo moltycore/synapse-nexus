@@ -101,8 +101,8 @@ export default function Index() {
           {isProcessing && (
             <div className="space-y-2">
               <div className="flex justify-end">
-                <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 py-2.5">
-                  <p className="text-sm text-foreground/90 leading-relaxed">{currentSoru}</p>
+                <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 py-2.5 overflow-hidden">
+                  <p className="text-sm text-foreground/90 leading-relaxed break-words [overflow-wrap:break-word]">{currentSoru}</p>
                 </div>
               </div>
               <div className="flex justify-start">
