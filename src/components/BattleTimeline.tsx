@@ -1,18 +1,30 @@
-import { useState } from "react";
-import { Search, Scale, Lightbulb } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Database, Search, ShieldAlert, Gavel } from "lucide-react";
 
 interface BattleTimelineProps {
   isActive: boolean;
   phase: number;
+  isProcessing?: boolean; // Bekleme tiyatrosunu tetikleyecek anahtar
+  sme?: string;
   arastirma?: string;
   denetleme?: string;
-  vizyon?: string;
+  moderator?: string;
 }
 
 const nodeConfig = [
   {
+    Icon: Database,
+    label: "SME (Teknik Veri)",
+    accentClass: "text-slate-400",
+    glowColor: "rgba(148,163,184,0.6)",
+    borderColor: "border-slate-500/40",
+    bgActive: "bg-slate-500/15",
+    bgIdle: "bg-white/5",
+    strikethrough: false,
+  },
+  {
     Icon: Search,
-    label: "Araştırmacı",
+    label: "Saha Araştırmacısı",
     accentClass: "text-blue-400",
     glowColor: "rgba(59,130,246,0.6)",
     borderColor: "border-blue-500/40",
@@ -21,22 +33,22 @@ const nodeConfig = [
     strikethrough: false,
   },
   {
-    Icon: Scale,
-    label: "Eleştirici",
+    Icon: ShieldAlert,
+    label: "Denetçi (Siyah Kuğu)",
     accentClass: "text-red-400",
     glowColor: "rgba(239,68,68,0.6)",
     borderColor: "border-red-500/40",
     bgActive: "bg-red-500/15",
     bgIdle: "bg-white/5",
-    strikethrough: true,
+    strikethrough: true, // Denetçi vurdu mu çizer
   },
   {
-    Icon: Lightbulb,
-    label: "Vizyoner",
-    accentClass: "text-yellow-400",
-    glowColor: "rgba(234,179,8,0.6)",
-    borderColor: "border-yellow-500/40",
-    bgActive: "bg-yellow-500/15",
+    Icon: Gavel,
+    label: "Moderatör (DeepSeek)",
+    accentClass: "text-emerald-400",
+    glowColor: "rgba(16,185,129,0.6)",
+    borderColor: "border-emerald-500/40",
+    bgActive: "bg-emerald-500/15",
     bgIdle: "bg-white/5",
     strikethrough: false,
   },
@@ -50,34 +62,43 @@ function parseItems(text?: string): string[] {
     .filter((line) => line.length > 0);
 }
 
-const BattleTimeline = ({ isActive, phase, arastirma, denetleme, vizyon }: BattleTimelineProps) => {
+const BattleTimeline = ({ isActive, phase, isProcessing, sme, arastirma, denetleme, moderator }: BattleTimelineProps) => {
   const [activeNode, setActiveNode] = useState<number | null>(null);
 
+  // Veri geldiğinde ilk node'u (SME) otomatik açmak için
+  useEffect(() => {
+    if (!isProcessing && sme) {
+      setActiveNode(0);
+    }
+  }, [isProcessing, sme]);
+
   const apiItems = [
+    parseItems(sme),
     parseItems(arastirma),
     parseItems(denetleme),
-    parseItems(vizyon),
+    parseItems(moderator),
   ];
 
   const handleNode = (i: number) => {
-    if (!isActive || phase < i + 1) return;
+    if (!isActive || isProcessing) return;
     setActiveNode(activeNode === i ? null : i);
   };
 
   return (
     <div className="px-4 pb-4">
-      {/* Sol tarafa hizalı küçük node'lar */}
+      {/* İkonlar ve Bağlantı Çizgileri */}
       <div className="flex items-center gap-1.5 mb-2">
         {nodeConfig.map((node, i) => {
           const { Icon } = node;
-          const unlocked = isActive && phase >= i + 1;
+          // Eğer işlem sürüyorsa hepsi potansiyel olarak aktifmiş gibi davransın
+          const unlocked = isProcessing || (isActive && apiItems[i].length > 0);
           const selected = activeNode === i;
 
           return (
             <div key={i} className="flex items-center gap-1.5">
               {i > 0 && (
                 <div
-                  className="w-4 h-px rounded-full transition-all duration-700"
+                  className={`w-4 h-px rounded-full transition-all duration-700 ${isProcessing ? 'animate-pulse' : ''}`}
                   style={{
                     background: unlocked
                       ? `linear-gradient(90deg, ${nodeConfig[i - 1].glowColor}, ${node.glowColor})`
@@ -88,15 +109,16 @@ const BattleTimeline = ({ isActive, phase, arastirma, denetleme, vizyon }: Battl
 
               <button
                 onClick={() => handleNode(i)}
-                disabled={!unlocked}
+                disabled={!unlocked || isProcessing}
                 className={`
                   relative flex items-center justify-center w-6 h-6 rounded-full border transition-all duration-400
                   ${unlocked ? node.bgActive + " " + node.borderColor : node.bgIdle + " border-white/10"}
-                  ${selected ? "scale-110" : "scale-100"}
-                  ${unlocked ? "cursor-pointer hover:scale-105" : "cursor-default opacity-30"}
+                  ${selected && !isProcessing ? "scale-110" : "scale-100"}
+                  ${unlocked && !isProcessing ? "cursor-pointer hover:scale-105" : "cursor-default"}
+                  ${isProcessing ? "animate-pulse" : ""}
                 `}
                 style={{
-                  boxShadow: unlocked && selected ? `0 0 10px ${node.glowColor}` : "none",
+                  boxShadow: unlocked && (selected || isProcessing) ? `0 0 10px ${node.glowColor}` : "none",
                 }}
               >
                 <Icon
@@ -104,10 +126,11 @@ const BattleTimeline = ({ isActive, phase, arastirma, denetleme, vizyon }: Battl
                   className={`transition-colors duration-300 ${unlocked ? node.accentClass : "text-muted-foreground/30"}`}
                   strokeWidth={1.75}
                 />
-                {unlocked && !selected && (
+                {/* İşlem sürüyorsa tüm ikonlar etrafında radar gibi dönen bir ping efekti */}
+                {isProcessing && (
                   <span
-                    className="absolute inset-0 rounded-full animate-ping opacity-20"
-                    style={{ border: `1px solid ${node.glowColor}` }}
+                    className="absolute inset-0 rounded-full animate-ping opacity-30"
+                    style={{ border: `1px solid ${node.glowColor}`, animationDuration: '1.5s', animationDelay: `${i * 200}ms` }}
                   />
                 )}
               </button>
@@ -116,9 +139,22 @@ const BattleTimeline = ({ isActive, phase, arastirma, denetleme, vizyon }: Battl
         })}
       </div>
 
-      {activeNode !== null && isActive && (
+      {/* Bekleme Tiyatrosu (Skeleton UI) */}
+      {isProcessing && (
+        <div className="glass rounded-2xl p-4 border border-white/10 mt-2">
+          <div className="h-3 w-32 bg-white/10 rounded animate-pulse mb-4"></div>
+          <div className="space-y-3">
+            <div className="h-2 w-full bg-white/5 rounded animate-pulse"></div>
+            <div className="h-2 w-5/6 bg-white/5 rounded animate-pulse"></div>
+            <div className="h-2 w-4/6 bg-white/5 rounded animate-pulse"></div>
+          </div>
+        </div>
+      )}
+
+      {/* Gerçek Veri Gösterimi */}
+      {activeNode !== null && !isProcessing && isActive && (
         <div
-          className={`glass rounded-2xl p-4 border transition-all duration-300 ${nodeConfig[activeNode].borderColor}`}
+          className={`glass rounded-2xl p-4 border transition-all duration-300 ${nodeConfig[activeNode].borderColor} mt-2`}
           style={{ boxShadow: `0 0 18px ${nodeConfig[activeNode].glowColor}18` }}
         >
           <p className={`text-[10px] font-semibold tracking-widest uppercase mb-3 ${nodeConfig[activeNode].accentClass}`}>
