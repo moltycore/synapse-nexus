@@ -91,8 +91,8 @@ export default function Index() {
               </div>
 
               <div className="flex justify-start">
-                <div className="w-full glass border border-white/[0.07] rounded-2xl px-4 py-2.5">
-                  <p className="text-sm text-foreground/85 leading-relaxed">{item.karar}</p>
+                <div className="w-full glass border border-white/[0.07] rounded-2xl px-4 py-2.5 overflow-hidden">
+                  <p className="text-sm text-foreground/85 leading-relaxed break-words [overflow-wrap:break-word]">{item.karar}</p>
                 </div>
               </div>
             </div>
