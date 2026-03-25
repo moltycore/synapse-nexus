@@ -3,11 +3,10 @@ import SynapseAppBar from "@/components/SynapseAppBar";
 import BattleTimeline from "@/components/BattleTimeline";
 import SynapseInput from "@/components/SynapseInput";
 
-// 1. AŞAMA: Backend'den gelecek yeni yapıya göre Interface'i güncelledik
 interface HistoryItem {
   id: number;
   soru: string;
-  karar: string; // Cohere'in son sentezi (final_karar)
+  karar: string;
   sme?: string;
   arastirma?: string;
   denetleme?: string;
@@ -48,7 +47,6 @@ export default function Index() {
         throw new Error(`HTTP ${response.status}: ${errBody}`);
       }
 
-      // 2. AŞAMA: Gelen JSON'ı karşılıyoruz
       const data = await response.json();
       
       const newItem: HistoryItem = {
@@ -122,16 +120,17 @@ export default function Index() {
           <div ref={bottomRef} />
         </div>
 
-        {/* 3. AŞAMA: BattleTimeline bileşenine yeni propları gönderiyoruz */}
-        {activeItem && !isProcessing && (
+        {/* BÜYÜK DEĞİŞİKLİK BURADA: (activeItem || isProcessing) diyerek animasyonu tetikliyoruz */}
+        {(activeItem || isProcessing) && (
           <div className="mt-4">
             <BattleTimeline
               isActive={true}
-              phase={3} // Phase mantığını gerekirse BattleTimeline içinde de revize ederiz
-              sme={activeItem.sme}
-              arastirma={activeItem.arastirma}
-              denetleme={activeItem.denetleme}
-              moderator={activeItem.moderator}
+              phase={3} 
+              isProcessing={isProcessing} // Animasyon tiyatrosunun anahtarı
+              sme={activeItem?.sme}
+              arastirma={activeItem?.arastirma}
+              denetleme={activeItem?.denetleme}
+              moderator={activeItem?.moderator}
             />
           </div>
         )}
