@@ -85,14 +85,14 @@ export default function Index() {
           {history.map((item) => (
             <div key={item.id} className="space-y-2">
               <div className="flex justify-end">
-                <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 py-2.5">
-                  <p className="text-sm text-foreground/90 leading-relaxed">{item.soru}</p>
+                <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 py-2.5 overflow-hidden">
+                  <p className="text-sm text-foreground/90 leading-relaxed break-words [overflow-wrap:break-word]">{item.soru}</p>
                 </div>
               </div>
 
               <div className="flex justify-start">
-                <div className="w-full glass border border-white/[0.07] rounded-2xl px-4 py-2.5">
-                  <p className="text-sm text-foreground/85 leading-relaxed">{item.karar}</p>
+                <div className="w-full glass border border-white/[0.07] rounded-2xl px-4 py-2.5 overflow-hidden">
+                  <p className="text-sm text-foreground/85 leading-relaxed break-words [overflow-wrap:break-word]">{item.karar}</p>
                 </div>
               </div>
             </div>
@@ -101,8 +101,8 @@ export default function Index() {
           {isProcessing && (
             <div className="space-y-2">
               <div className="flex justify-end">
-                <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 py-2.5">
-                  <p className="text-sm text-foreground/90 leading-relaxed">{currentSoru}</p>
+                <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 py-2.5 overflow-hidden">
+                  <p className="text-sm text-foreground/90 leading-relaxed break-words [overflow-wrap:break-word]">{currentSoru}</p>
                 </div>
               </div>
               <div className="flex justify-start">
