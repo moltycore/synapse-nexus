@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Database, Search, ShieldAlert, Gavel } from "lucide-react";
+import { Database, Search, ShieldAlert, Gavel, Check } from "lucide-react";
 
 interface BattleTimelineProps {
   isActive: boolean;
@@ -218,7 +218,7 @@ const BattleTimeline = ({
                     ${unlocked && !isProcessing ? "cursor-pointer hover:scale-105" : "cursor-default"}
                     ${isCurrentPhase && !isGroq ? "animate-[heartbeat_1s_ease-in-out_infinite]" : ""}
                     ${isCurrentPhase && isGroq ? "animate-[blink_0.6s_ease-in-out_infinite]" : ""}
-                    ${isPastPhase ? "opacity-50" : ""}
+                    ${isPastPhase ? "" : ""}
                   `}
                   style={{
                     boxShadow:
@@ -226,16 +226,28 @@ const BattleTimeline = ({
                         ? `0 0 16px ${node.glowColor}, 0 0 32px ${node.glowColor}40`
                         : unlocked && selected
                         ? `0 0 10px ${node.glowColor}`
+                        : isPastPhase
+                        ? `0 0 8px rgba(16,185,129,0.3)`
                         : "none",
+                    borderColor: isPastPhase ? "rgba(16,185,129,0.5)" : undefined,
+                    background: isPastPhase ? "rgba(16,185,129,0.12)" : undefined,
                   }}
                 >
-                  <Icon
-                    size={14}
-                    className={`transition-colors duration-300 ${
-                      unlocked ? node.accentClass : "text-muted-foreground/30"
-                    }`}
-                    strokeWidth={1.75}
-                  />
+                  {isPastPhase ? (
+                    <Check
+                      size={14}
+                      className="text-emerald-400 animate-scale-in"
+                      strokeWidth={2.5}
+                    />
+                  ) : (
+                    <Icon
+                      size={14}
+                      className={`transition-colors duration-300 ${
+                        unlocked ? node.accentClass : "text-muted-foreground/30"
+                      }`}
+                      strokeWidth={1.75}
+                    />
+                  )}
                   {isCurrentPhase && (
                     <span
                       className="absolute inset-0 rounded-full animate-ping opacity-20"
