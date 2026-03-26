@@ -218,7 +218,7 @@ const BattleTimeline = ({
                     ${unlocked && !isProcessing ? "cursor-pointer hover:scale-105" : "cursor-default"}
                     ${isCurrentPhase && !isGroq ? "animate-[heartbeat_1s_ease-in-out_infinite]" : ""}
                     ${isCurrentPhase && isGroq ? "animate-[blink_0.6s_ease-in-out_infinite]" : ""}
-                    ${isPastPhase ? "opacity-50" : ""}
+                    ${isPastPhase ? "" : ""}
                   `}
                   style={{
                     boxShadow:
@@ -226,7 +226,11 @@ const BattleTimeline = ({
                         ? `0 0 16px ${node.glowColor}, 0 0 32px ${node.glowColor}40`
                         : unlocked && selected
                         ? `0 0 10px ${node.glowColor}`
+                        : isPastPhase
+                        ? `0 0 8px rgba(16,185,129,0.3)`
                         : "none",
+                    borderColor: isPastPhase ? "rgba(16,185,129,0.5)" : undefined,
+                    background: isPastPhase ? "rgba(16,185,129,0.12)" : undefined,
                   }}
                 >
                   <Icon
