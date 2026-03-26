@@ -116,27 +116,27 @@ const BattleTimeline = ({ isActive, phase, isProcessing, sme, arastirma, denetle
     <div className="px-4 pb-4">
       {/* İkonlar ve Bağlantı Çizgileri */}
       <div className="flex items-center gap-1.5 mb-2">
-        {nodeConfig.map((node, i) => {
+        {visibleNodes.map((node, vi) => {
+          const oi = node.originalIndex;
           const { Icon } = node;
-          // Eğer işlem sürüyorsa hepsi potansiyel olarak aktifmiş gibi davransın
-          const unlocked = isProcessing || (isActive && apiItems[i].length > 0);
-          const selected = activeNode === i;
+          const unlocked = isProcessing || (isActive && (apiItems[oi].length > 0 || (rawTexts[oi] && !isPlaceholder(rawTexts[oi]))));
+          const selected = activeNode === oi;
 
           return (
-            <div key={i} className="flex items-center gap-1.5">
-              {i > 0 && (
+            <div key={oi} className="flex items-center gap-1.5">
+              {vi > 0 && (
                 <div
                   className={`w-4 h-px rounded-full transition-all duration-700 ${isProcessing ? 'animate-pulse' : ''}`}
                   style={{
                     background: unlocked
-                      ? `linear-gradient(90deg, ${nodeConfig[i - 1].glowColor}, ${node.glowColor})`
+                      ? `linear-gradient(90deg, ${visibleNodes[vi - 1].glowColor}, ${node.glowColor})`
                       : "rgba(255,255,255,0.08)",
                   }}
                 />
               )}
 
               <button
-                onClick={() => handleNode(i)}
+                onClick={() => handleNode(oi)}
                 disabled={!unlocked || isProcessing}
                 className={`
                   relative flex items-center justify-center w-6 h-6 rounded-full border transition-all duration-400
@@ -154,11 +154,10 @@ const BattleTimeline = ({ isActive, phase, isProcessing, sme, arastirma, denetle
                   className={`transition-colors duration-300 ${unlocked ? node.accentClass : "text-muted-foreground/30"}`}
                   strokeWidth={1.75}
                 />
-                {/* İşlem sürüyorsa tüm ikonlar etrafında radar gibi dönen bir ping efekti */}
                 {isProcessing && (
                   <span
                     className="absolute inset-0 rounded-full animate-ping opacity-30"
-                    style={{ border: `1px solid ${node.glowColor}`, animationDuration: '1.5s', animationDelay: `${i * 200}ms` }}
+                    style={{ border: `1px solid ${node.glowColor}`, animationDuration: '1.5s', animationDelay: `${vi * 200}ms` }}
                   />
                 )}
               </button>
