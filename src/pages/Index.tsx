@@ -126,7 +126,7 @@ export default function Index() {
           <div className="mt-4">
             <BattleTimeline
               isActive={true}
-              phase={3} 
+              phase={phase} 
               isProcessing={isProcessing} // Animasyon tiyatrosunun anahtarı
               sme={activeItem?.sme}
               arastirma={activeItem?.arastirma}
