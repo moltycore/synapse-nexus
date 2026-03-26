@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
-import { Database, Search, ShieldAlert, Gavel } from "lucide-react";
+import { Database, Search, ShieldAlert, Eye, Gavel } from "lucide-react";
 
 interface BattleTimelineProps {
   isActive: boolean;
   phase: number;
-  isProcessing?: boolean; // Bekleme tiyatrosunu tetikleyecek anahtar
+  isProcessing?: boolean;
   sme?: string;
   arastirma?: string;
   denetleme?: string;
+  vizyoner_puter?: string;
   moderator?: string;
 }
 
