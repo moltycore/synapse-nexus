@@ -75,22 +75,37 @@ function parseItems(text?: string): string[] {
     .filter((line) => line.length > 0);
 }
 
-const BattleTimeline = ({ isActive, phase, isProcessing, sme, arastirma, denetleme, moderator }: BattleTimelineProps) => {
+const PLACEHOLDER_VALUES = ["uykuda.", "pas geçildi."];
+
+function isPlaceholder(text?: string): boolean {
+  if (!text) return true;
+  return PLACEHOLDER_VALUES.includes(text.trim().toLowerCase());
+}
+
+const BattleTimeline = ({ isActive, phase, isProcessing, sme, arastirma, denetleme, vizyoner_puter, moderator }: BattleTimelineProps) => {
   const [activeNode, setActiveNode] = useState<number | null>(null);
 
-  // Veri geldiğinde ilk node'u (SME) otomatik açmak için
   useEffect(() => {
     if (!isProcessing && sme) {
       setActiveNode(0);
     }
   }, [isProcessing, sme]);
 
+  const rawTexts = [sme, arastirma, denetleme, vizyoner_puter, moderator];
+
   const apiItems = [
     parseItems(sme),
     parseItems(arastirma),
     parseItems(denetleme),
+    parseItems(vizyoner_puter),
     parseItems(moderator),
   ];
+
+  // Vizyoner node (index 3) placeholder ise gizle
+  const hiddenNodes = new Set<number>();
+  if (isPlaceholder(vizyoner_puter)) hiddenNodes.add(3);
+
+  const visibleNodes = nodeConfig.map((node, i) => ({ ...node, originalIndex: i })).filter((_, i) => !hiddenNodes.has(i));
 
   const handleNode = (i: number) => {
     if (!isActive || isProcessing) return;
