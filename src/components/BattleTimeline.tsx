@@ -41,7 +41,18 @@ const nodeConfig = [
     borderColor: "border-red-500/40",
     bgActive: "bg-red-500/15",
     bgIdle: "bg-white/5",
-    strikethrough: true, // Denetçi vurdu mu çizer
+    strikethrough: true,
+  },
+  {
+    Icon: Eye,
+    label: "Vizyoner (Puter)",
+    accentClass: "text-amber-400",
+    glowColor: "rgba(245,158,11,0.6)",
+    borderColor: "border-amber-500/40",
+    bgActive: "bg-amber-500/15",
+    bgIdle: "bg-white/5",
+    strikethrough: false,
+    rawText: true,
   },
   {
     Icon: Gavel,
@@ -52,6 +63,7 @@ const nodeConfig = [
     bgActive: "bg-emerald-500/15",
     bgIdle: "bg-white/5",
     strikethrough: false,
+    rawText: true,
   },
 ];
 
