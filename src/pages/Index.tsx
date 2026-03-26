@@ -10,6 +10,7 @@ interface HistoryItem {
   sme?: string;
   arastirma?: string;
   denetleme?: string;
+  vizyoner_puter?: string;
   moderator?: string;
 }
 
