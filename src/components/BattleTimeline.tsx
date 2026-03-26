@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Database, Search, ShieldAlert, Gavel } from "lucide-react";
+import { Database, Search, ShieldAlert, Gavel, Check } from "lucide-react";
 
 interface BattleTimelineProps {
   isActive: boolean;
