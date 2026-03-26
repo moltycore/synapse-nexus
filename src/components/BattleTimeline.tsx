@@ -188,9 +188,9 @@ const BattleTimeline = ({ isActive, phase, isProcessing, sme, arastirma, denetle
             {nodeConfig[activeNode].label}
           </p>
           <div className="space-y-2">
-            {activeNode === 3 && moderator ? (
+            {(nodeConfig[activeNode] as any).rawText && rawTexts[activeNode] ? (
               <p className="text-xs leading-relaxed text-foreground/75 whitespace-pre-wrap break-words [overflow-wrap:break-word]">
-                {moderator}
+                {rawTexts[activeNode]}
               </p>
             ) : (
               apiItems[activeNode].map((item, i) => (
