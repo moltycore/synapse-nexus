@@ -10,6 +10,7 @@ interface HistoryItem {
   sme?: string;
   arastirma?: string;
   denetleme?: string;
+  vizyoner_puter?: string;
   moderator?: string;
 }
 
@@ -56,6 +57,7 @@ export default function Index() {
         sme: data.sme,
         arastirma: data.arastirma,
         denetleme: data.denetleme,
+        vizyoner_puter: data.vizyoner_puter,
         moderator: data.moderator,
       };
       
@@ -126,10 +128,11 @@ export default function Index() {
             <BattleTimeline
               isActive={true}
               phase={3} 
-              isProcessing={isProcessing} // Animasyon tiyatrosunun anahtarı
+              isProcessing={isProcessing}
               sme={activeItem?.sme}
               arastirma={activeItem?.arastirma}
               denetleme={activeItem?.denetleme}
+              vizyoner_puter={activeItem?.vizyoner_puter}
               moderator={activeItem?.moderator}
             />
           </div>

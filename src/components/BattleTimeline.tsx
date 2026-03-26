@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
-import { Database, Search, ShieldAlert, Gavel } from "lucide-react";
+import { Database, Search, ShieldAlert, Eye, Gavel } from "lucide-react";
 
 interface BattleTimelineProps {
   isActive: boolean;
   phase: number;
-  isProcessing?: boolean; // Bekleme tiyatrosunu tetikleyecek anahtar
+  isProcessing?: boolean;
   sme?: string;
   arastirma?: string;
   denetleme?: string;
+  vizyoner_puter?: string;
   moderator?: string;
 }
 
@@ -40,7 +41,18 @@ const nodeConfig = [
     borderColor: "border-red-500/40",
     bgActive: "bg-red-500/15",
     bgIdle: "bg-white/5",
-    strikethrough: true, // Denetçi vurdu mu çizer
+    strikethrough: true,
+  },
+  {
+    Icon: Eye,
+    label: "Vizyoner (Puter)",
+    accentClass: "text-amber-400",
+    glowColor: "rgba(245,158,11,0.6)",
+    borderColor: "border-amber-500/40",
+    bgActive: "bg-amber-500/15",
+    bgIdle: "bg-white/5",
+    strikethrough: false,
+    rawText: true,
   },
   {
     Icon: Gavel,
@@ -51,6 +63,7 @@ const nodeConfig = [
     bgActive: "bg-emerald-500/15",
     bgIdle: "bg-white/5",
     strikethrough: false,
+    rawText: true,
   },
 ];
 
@@ -62,22 +75,37 @@ function parseItems(text?: string): string[] {
     .filter((line) => line.length > 0);
 }
 
-const BattleTimeline = ({ isActive, phase, isProcessing, sme, arastirma, denetleme, moderator }: BattleTimelineProps) => {
+const PLACEHOLDER_VALUES = ["uykuda.", "pas geçildi."];
+
+function isPlaceholder(text?: string): boolean {
+  if (!text) return true;
+  return PLACEHOLDER_VALUES.includes(text.trim().toLowerCase());
+}
+
+const BattleTimeline = ({ isActive, phase, isProcessing, sme, arastirma, denetleme, vizyoner_puter, moderator }: BattleTimelineProps) => {
   const [activeNode, setActiveNode] = useState<number | null>(null);
 
-  // Veri geldiğinde ilk node'u (SME) otomatik açmak için
   useEffect(() => {
     if (!isProcessing && sme) {
       setActiveNode(0);
     }
   }, [isProcessing, sme]);
 
+  const rawTexts = [sme, arastirma, denetleme, vizyoner_puter, moderator];
+
   const apiItems = [
     parseItems(sme),
     parseItems(arastirma),
     parseItems(denetleme),
+    parseItems(vizyoner_puter),
     parseItems(moderator),
   ];
+
+  // Vizyoner node (index 3) placeholder ise gizle
+  const hiddenNodes = new Set<number>();
+  if (isPlaceholder(vizyoner_puter)) hiddenNodes.add(3);
+
+  const visibleNodes = nodeConfig.map((node, i) => ({ ...node, originalIndex: i })).filter((_, i) => !hiddenNodes.has(i));
 
   const handleNode = (i: number) => {
     if (!isActive || isProcessing) return;
@@ -88,27 +116,27 @@ const BattleTimeline = ({ isActive, phase, isProcessing, sme, arastirma, denetle
     <div className="px-4 pb-4">
       {/* İkonlar ve Bağlantı Çizgileri */}
       <div className="flex items-center gap-1.5 mb-2">
-        {nodeConfig.map((node, i) => {
+        {visibleNodes.map((node, vi) => {
+          const oi = node.originalIndex;
           const { Icon } = node;
-          // Eğer işlem sürüyorsa hepsi potansiyel olarak aktifmiş gibi davransın
-          const unlocked = isProcessing || (isActive && apiItems[i].length > 0);
-          const selected = activeNode === i;
+          const unlocked = isProcessing || (isActive && (apiItems[oi].length > 0 || (rawTexts[oi] && !isPlaceholder(rawTexts[oi]))));
+          const selected = activeNode === oi;
 
           return (
-            <div key={i} className="flex items-center gap-1.5">
-              {i > 0 && (
+            <div key={oi} className="flex items-center gap-1.5">
+              {vi > 0 && (
                 <div
                   className={`w-4 h-px rounded-full transition-all duration-700 ${isProcessing ? 'animate-pulse' : ''}`}
                   style={{
                     background: unlocked
-                      ? `linear-gradient(90deg, ${nodeConfig[i - 1].glowColor}, ${node.glowColor})`
+                      ? `linear-gradient(90deg, ${visibleNodes[vi - 1].glowColor}, ${node.glowColor})`
                       : "rgba(255,255,255,0.08)",
                   }}
                 />
               )}
 
               <button
-                onClick={() => handleNode(i)}
+                onClick={() => handleNode(oi)}
                 disabled={!unlocked || isProcessing}
                 className={`
                   relative flex items-center justify-center w-6 h-6 rounded-full border transition-all duration-400
@@ -126,11 +154,10 @@ const BattleTimeline = ({ isActive, phase, isProcessing, sme, arastirma, denetle
                   className={`transition-colors duration-300 ${unlocked ? node.accentClass : "text-muted-foreground/30"}`}
                   strokeWidth={1.75}
                 />
-                {/* İşlem sürüyorsa tüm ikonlar etrafında radar gibi dönen bir ping efekti */}
                 {isProcessing && (
                   <span
                     className="absolute inset-0 rounded-full animate-ping opacity-30"
-                    style={{ border: `1px solid ${node.glowColor}`, animationDuration: '1.5s', animationDelay: `${i * 200}ms` }}
+                    style={{ border: `1px solid ${node.glowColor}`, animationDuration: '1.5s', animationDelay: `${vi * 200}ms` }}
                   />
                 )}
               </button>
@@ -161,9 +188,9 @@ const BattleTimeline = ({ isActive, phase, isProcessing, sme, arastirma, denetle
             {nodeConfig[activeNode].label}
           </p>
           <div className="space-y-2">
-            {activeNode === 3 && moderator ? (
+            {(nodeConfig[activeNode] as any).rawText && rawTexts[activeNode] ? (
               <p className="text-xs leading-relaxed text-foreground/75 whitespace-pre-wrap break-words [overflow-wrap:break-word]">
-                {moderator}
+                {rawTexts[activeNode]}
               </p>
             ) : (
               apiItems[activeNode].map((item, i) => (
