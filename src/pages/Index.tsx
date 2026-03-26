@@ -128,10 +128,11 @@ export default function Index() {
             <BattleTimeline
               isActive={true}
               phase={3} 
-              isProcessing={isProcessing} // Animasyon tiyatrosunun anahtarı
+              isProcessing={isProcessing}
               sme={activeItem?.sme}
               arastirma={activeItem?.arastirma}
               denetleme={activeItem?.denetleme}
+              vizyoner_puter={activeItem?.vizyoner_puter}
               moderator={activeItem?.moderator}
             />
           </div>
