@@ -44,7 +44,7 @@ const nodeConfig = [
   },
   {
     Icon: Gavel,
-    label: "Moderatör (DeepSeek)",
+    label: "Moderatör (Hibrit)",
     accentClass: "text-emerald-400",
     glowColor: "rgba(16,185,129,0.6)",
     borderColor: "border-emerald-500/40",
@@ -161,19 +161,25 @@ const BattleTimeline = ({ isActive, phase, isProcessing, sme, arastirma, denetle
             {nodeConfig[activeNode].label}
           </p>
           <div className="space-y-2">
-            {apiItems[activeNode].map((item, i) => (
-              <div
-                key={i}
-                className={`text-xs leading-relaxed flex items-start gap-2 ${
-                  nodeConfig[activeNode].strikethrough
-                    ? "line-through text-red-400/50 decoration-red-400/30"
-                    : "text-foreground/75"
-                }`}
-              >
-                <span className="text-muted-foreground/30 mt-px shrink-0">·</span>
-                {item}
-              </div>
-            ))}
+            {activeNode === 3 && moderator ? (
+              <p className="text-xs leading-relaxed text-foreground/75 whitespace-pre-wrap break-words [overflow-wrap:break-word]">
+                {moderator}
+              </p>
+            ) : (
+              apiItems[activeNode].map((item, i) => (
+                <div
+                  key={i}
+                  className={`text-xs leading-relaxed flex items-start gap-2 ${
+                    nodeConfig[activeNode].strikethrough
+                      ? "line-through text-red-400/50 decoration-red-400/30"
+                      : "text-foreground/75"
+                  }`}
+                >
+                  <span className="text-muted-foreground/30 mt-px shrink-0">·</span>
+                  {item}
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
