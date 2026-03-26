@@ -33,9 +33,8 @@ export default function Index() {
     setPhase(1);
 
     try {
-      setTimeout(() => setPhase(2), 2500);
-      setTimeout(() => setPhase(3), 5000);
-      setTimeout(() => setPhase(4), 7500);
+      setTimeout(() => setPhase(2), 2000);
+      setTimeout(() => setPhase(3), 4000);
 
       const response = await fetch("https://synapse-api-b8oc.onrender.com/analyze", {
         method: "POST",
@@ -126,7 +125,7 @@ export default function Index() {
           <div className="mt-4">
             <BattleTimeline
               isActive={true}
-              phase={phase} 
+              phase={3} 
               isProcessing={isProcessing} // Animasyon tiyatrosunun anahtarı
               sme={activeItem?.sme}
               arastirma={activeItem?.arastirma}
