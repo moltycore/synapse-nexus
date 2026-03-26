@@ -44,7 +44,7 @@ const nodeConfig = [
   },
   {
     Icon: Gavel,
-    label: "Moderatör (DeepSeek)",
+    label: "Moderatör (Hibrit)",
     accentClass: "text-emerald-400",
     glowColor: "rgba(16,185,129,0.6)",
     borderColor: "border-emerald-500/40",
