@@ -57,6 +57,7 @@ export default function Index() {
         sme: data.sme,
         arastirma: data.arastirma,
         denetleme: data.denetleme,
+        vizyoner_puter: data.vizyoner_puter,
         moderator: data.moderator,
       };
       
