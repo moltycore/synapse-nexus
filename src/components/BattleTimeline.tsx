@@ -233,13 +233,21 @@ const BattleTimeline = ({
                     background: isPastPhase ? "rgba(16,185,129,0.12)" : undefined,
                   }}
                 >
-                  <Icon
-                    size={14}
-                    className={`transition-colors duration-300 ${
-                      unlocked ? node.accentClass : "text-muted-foreground/30"
-                    }`}
-                    strokeWidth={1.75}
-                  />
+                  {isPastPhase ? (
+                    <Check
+                      size={14}
+                      className="text-emerald-400 animate-scale-in"
+                      strokeWidth={2.5}
+                    />
+                  ) : (
+                    <Icon
+                      size={14}
+                      className={`transition-colors duration-300 ${
+                        unlocked ? node.accentClass : "text-muted-foreground/30"
+                      }`}
+                      strokeWidth={1.75}
+                    />
+                  )}
                   {isCurrentPhase && (
                     <span
                       className="absolute inset-0 rounded-full animate-ping opacity-20"
