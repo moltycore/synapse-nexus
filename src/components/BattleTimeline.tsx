@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { Database, Search, ShieldAlert, Eye, Gavel } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { Database, ShieldAlert, Eye, Gavel } from "lucide-react";
 
 interface YargicData {
   karar: string;
@@ -21,17 +20,16 @@ interface BattleTimelineProps {
   yargic?: YargicData;
 }
 
-const AGENT_KEYS = ["sme", "arastirma", "denetleme", "vizyoner", "yargic"];
+const AGENT_KEYS = ["analizci", "denetci", "vizyoner", "yargic"];
 
 const nodeConfig = [
-  { Icon: Database, label: "ANALİZCİ", key: "sme", accentClass: "text-slate-400", glowColor: "rgba(148,163,184,0.6)", borderColor: "border-slate-500/40", bgActive: "bg-slate-500/15" },
-  { Icon: Search, label: "ARAŞTIRMACI", key: "arastirma", accentClass: "text-blue-400", glowColor: "rgba(59,130,246,0.6)", borderColor: "border-blue-500/40", bgActive: "bg-blue-500/15" },
-  { Icon: ShieldAlert, label: "DENETÇİ", key: "denetleme", accentClass: "text-red-400", glowColor: "rgba(239,68,68,0.6)", borderColor: "border-red-500/40", bgActive: "bg-red-500/15", strikethrough: true },
+  { Icon: Database, label: "ANALİZCİ", key: "analizci", accentClass: "text-slate-400", glowColor: "rgba(148,163,184,0.6)", borderColor: "border-slate-500/40", bgActive: "bg-slate-500/15" },
+  { Icon: ShieldAlert, label: "DENETÇİ", key: "denetci", accentClass: "text-red-400", glowColor: "rgba(239,68,68,0.6)", borderColor: "border-red-500/40", bgActive: "bg-red-500/15", strikethrough: true },
   { Icon: Eye, label: "VİZYONER", key: "vizyoner", accentClass: "text-amber-400", glowColor: "rgba(245,158,11,0.6)", borderColor: "border-amber-500/40", bgActive: "bg-amber-500/15" },
   { Icon: Gavel, label: "YARGIÇ", key: "yargic", accentClass: "text-emerald-400", glowColor: "rgba(16,185,129,0.6)", borderColor: "border-emerald-500/40", bgActive: "bg-emerald-500/15" },
 ];
 
-const PLACEHOLDER_VALUES = ["uykuda.", "pas geçildi.", "gerekli görülmedi.", "uykuda", "pas geçildi", "gerekli görülmedi"];
+const PLACEHOLDER_VALUES = ["uykuda.", "pas geçildi.", "gerekli görülmedi.", "uykuda", "pas geçildi", "gerekli görülmedi", "pas.", "pas"];
 
 function isPlaceholder(text?: string): boolean {
   if (!text) return true;
@@ -53,8 +51,8 @@ function getRiskColor(score: number): string {
 }
 
 const BattleTimeline = ({
-  isActive, phase, isProcessing, activeAgent,
-  sme, arastirma, denetleme, vizyoner_puter, moderator, yargic,
+  isActive, isProcessing, activeAgent,
+  sme, denetleme, vizyoner_puter, yargic,
 }: BattleTimelineProps) => {
   const [activeNode, setActiveNode] = useState<number | null>(null);
 
@@ -62,10 +60,10 @@ const BattleTimeline = ({
     if (!isProcessing && sme) setActiveNode(0);
   }, [isProcessing, sme]);
 
-  const rawTexts: (string | undefined)[] = [sme, arastirma, denetleme, vizyoner_puter, undefined];
+  // Yeni 4'lü yapıya göre veriyi diziyoruz
+  const rawTexts: (string | undefined)[] = [sme, denetleme, vizyoner_puter, undefined];
   const apiItems = rawTexts.map((t) => parseItems(t));
 
-  // Determine visibility: hide placeholder agents, yargic visibility depends on data
   const visibleNodes = nodeConfig
     .map((node, i) => ({ ...node, originalIndex: i }))
     .filter((node) => {
@@ -80,13 +78,13 @@ const BattleTimeline = ({
 
   return (
     <div className="px-4 pb-4">
-      {/* Icons */}
       <div className="flex items-center gap-1.5 mb-2">
         {visibleNodes.map((node, vi) => {
           const oi = node.originalIndex;
           const { Icon } = node;
           const isAgentActive = isProcessing && activeAgent === AGENT_KEYS[oi];
-          const unlocked = isProcessing || (isActive && (apiItems[oi]?.length > 0 || (rawTexts[oi] && !isPlaceholder(rawTexts[oi])) || (oi === 4 && !!yargic)));
+          // Yargıç artık index 3
+          const unlocked = isProcessing || (isActive && (apiItems[oi]?.length > 0 || (rawTexts[oi] && !isPlaceholder(rawTexts[oi])) || (oi === 3 && !!yargic)));
           const selected = activeNode === oi;
 
           return (
@@ -131,7 +129,6 @@ const BattleTimeline = ({
         })}
       </div>
 
-      {/* Skeleton while processing */}
       {isProcessing && (
         <div className="glass rounded-2xl p-4 border border-white/10 mt-2">
           <div className="h-3 w-32 bg-white/10 rounded animate-pulse mb-4" />
@@ -143,13 +140,11 @@ const BattleTimeline = ({
         </div>
       )}
 
-      {/* Card content */}
       {activeNode !== null && !isProcessing && isActive && (() => {
         const node = nodeConfig[activeNode];
 
-        // YARGIÇ card
-        if (activeNode === 4 && yargic) {
-          const isGir = yargic.karar.toUpperCase().includes("GİR");
+        if (activeNode === 3 && yargic) {
+          const isGir = yargic.karar.toUpperCase().includes("GİR") || yargic.karar.toUpperCase() === "BİLGİ";
           const riskColor = getRiskColor(yargic.risk_skoru);
           return (
             <div
@@ -160,7 +155,6 @@ const BattleTimeline = ({
                 {node.label}
               </p>
 
-              {/* Karar badge */}
               <div className="flex justify-center mb-4">
                 <span
                   className="px-6 py-2 rounded-full text-sm font-bold tracking-wide text-white"
@@ -173,7 +167,6 @@ const BattleTimeline = ({
                 </span>
               </div>
 
-              {/* Risk skoru */}
               <div className="mb-4">
                 <div className="flex justify-between items-center mb-1.5">
                   <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Risk Skoru</span>
@@ -189,7 +182,6 @@ const BattleTimeline = ({
                 </div>
               </div>
 
-              {/* Racon */}
               <p className="text-sm italic leading-relaxed text-foreground/80 break-words [overflow-wrap:break-word]">
                 "{yargic.racon}"
               </p>
@@ -197,7 +189,6 @@ const BattleTimeline = ({
           );
         }
 
-        // Regular agent cards
         return (
           <div
             className={`glass rounded-2xl p-4 border transition-all duration-300 ${node.borderColor} mt-2 overflow-hidden`}
@@ -212,7 +203,7 @@ const BattleTimeline = ({
                   {rawTexts[activeNode]}
                 </p>
               ) : (
-                apiItems[activeNode].map((item, i) => (
+                apiItems[activeNode]?.map((item, i) => (
                   <div
                     key={i}
                     className={`text-xs leading-relaxed flex items-start gap-2 ${
