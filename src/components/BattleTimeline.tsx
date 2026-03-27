@@ -16,7 +16,6 @@ interface BattleTimelineProps {
   arastirma?: string;
   denetleme?: string;
   vizyoner_puter?: string;
-  moderator?: string;
   yargic?: YargicData;
 }
 
@@ -29,7 +28,7 @@ const nodeConfig = [
   { Icon: Gavel, label: "YARGIÇ", key: "yargic", accentClass: "text-emerald-400", glowColor: "rgba(16,185,129,0.6)", borderColor: "border-emerald-500/40", bgActive: "bg-emerald-500/15" },
 ];
 
-const PLACEHOLDER_VALUES = ["uykuda.", "pas geçildi.", "gerekli görülmedi.", "uykuda", "pas geçildi", "gerekli görülmedi", "pas.", "pas"];
+const PLACEHOLDER_VALUES = ["uykuda.", "pas geçildi.", "gerekli görülmedi.", "pas.", "pas", "uykuda", "gerekli görülmedi"];
 
 function isPlaceholder(text?: string): boolean {
   if (!text) return true;
@@ -57,19 +56,15 @@ const BattleTimeline = ({
   const [activeNode, setActiveNode] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!isProcessing && sme) setActiveNode(0);
-  }, [isProcessing, sme]);
+    if (!isProcessing && yargic) {
+      setActiveNode(3);
+    } else if (!isProcessing && sme && activeNode === null) {
+      setActiveNode(0);
+    }
+  }, [isProcessing, yargic, sme, activeNode]);
 
-  // Yeni 4'lü yapıya göre veriyi diziyoruz
   const rawTexts: (string | undefined)[] = [sme, denetleme, vizyoner_puter, undefined];
   const apiItems = rawTexts.map((t) => parseItems(t));
-
-  const visibleNodes = nodeConfig
-    .map((node, i) => ({ ...node, originalIndex: i }))
-    .filter((node) => {
-      if (node.key === "yargic") return !!yargic;
-      return !isPlaceholder(rawTexts[node.originalIndex]);
-    });
 
   const handleNode = (oi: number) => {
     if (!isActive || isProcessing) return;
@@ -79,26 +74,31 @@ const BattleTimeline = ({
   return (
     <div className="px-4 pb-4">
       <div className="flex items-center gap-1.5 mb-2">
-        {visibleNodes.map((node, vi) => {
-          const oi = node.originalIndex;
+        {nodeConfig.map((node, oi) => {
           const { Icon } = node;
           const isAgentActive = isProcessing && activeAgent === AGENT_KEYS[oi];
-          // Yargıç artık index 3
-          const unlocked = isProcessing || (isActive && (apiItems[oi]?.length > 0 || (rawTexts[oi] && !isPlaceholder(rawTexts[oi])) || (oi === 3 && !!yargic)));
+          
+          const unlocked = isProcessing || (isActive && (
+            (apiItems[oi]?.length > 0) || 
+            (rawTexts[oi] && !isPlaceholder(rawTexts[oi])) || 
+            (oi === 3 && !!yargic)
+          ));
+          
           const selected = activeNode === oi;
 
           return (
-            <div key={oi} className="flex items-center gap-1.5">
-              {vi > 0 && (
+            <div key={oi} className="flex items-center gap-1.5 relative">
+              {oi > 0 && (
                 <div
                   className="w-4 h-px rounded-full transition-all duration-700"
                   style={{
                     background: unlocked
-                      ? `linear-gradient(90deg, ${visibleNodes[vi - 1].glowColor}, ${node.glowColor})`
-                      : "rgba(255,255,255,0.08)",
+                      ? `linear-gradient(90deg, ${nodeConfig[oi - 1].glowColor}, ${node.glowColor})`
+                      : "rgba(255,255,255,0.08)", 
                   }}
                 />
               )}
+              
               <button
                 onClick={() => handleNode(oi)}
                 disabled={!unlocked || isProcessing}
@@ -114,9 +114,10 @@ const BattleTimeline = ({
               >
                 <Icon
                   size={12}
-                  className={`transition-colors duration-300 ${isAgentActive ? node.accentClass : (unlocked ? node.accentClass : "text-muted-foreground/30")}`}
+                  className={`transition-colors duration-300 ${isAgentActive ? node.accentClass : (unlocked ? node.accentClass : "text-white opacity-30")}`} 
                   strokeWidth={1.75}
                 />
+                
                 {isAgentActive && (
                   <span
                     className="absolute inset-0 rounded-full animate-ping opacity-40"
@@ -148,7 +149,7 @@ const BattleTimeline = ({
           const riskColor = getRiskColor(yargic.risk_skoru);
           return (
             <div
-              className={`glass rounded-2xl p-4 border transition-all duration-300 ${node.borderColor} mt-2 overflow-hidden`}
+              className={`glass rounded-2xl p-4 border transition-all duration-300 ${node.borderColor} mt-2 overflow-hidden relative`}
               style={{ boxShadow: `0 0 18px ${node.glowColor}18` }}
             >
               <p className={`text-[10px] font-semibold tracking-widest uppercase mb-4 ${node.accentClass}`}>
@@ -182,7 +183,7 @@ const BattleTimeline = ({
                 </div>
               </div>
 
-              <p className="text-sm italic leading-relaxed text-foreground/80 break-words [overflow-wrap:break-word]">
+              <p className="text-sm italic leading-relaxed text-foreground/80 break-words whitespace-pre-wrap">
                 "{yargic.racon}"
               </p>
             </div>
@@ -199,7 +200,7 @@ const BattleTimeline = ({
             </p>
             <div className="space-y-2">
               {rawTexts[activeNode] ? (
-                <p className="text-xs leading-relaxed text-foreground/75 whitespace-pre-wrap break-words [overflow-wrap:break-word]">
+                <p className="text-xs leading-relaxed text-foreground/75 whitespace-pre-wrap break-words">
                   {rawTexts[activeNode]}
                 </p>
               ) : (
@@ -211,7 +212,7 @@ const BattleTimeline = ({
                     }`}
                   >
                     <span className="text-muted-foreground/30 mt-px shrink-0">·</span>
-                    <span className="break-words [overflow-wrap:break-word]">{item}</span>
+                    <span className="break-words">{item}</span>
                   </div>
                 ))
               )}
