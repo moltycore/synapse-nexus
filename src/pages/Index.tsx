@@ -74,13 +74,15 @@ export default function Index() {
           const jsonStr = trimmed.slice(5).trim();
           if (!jsonStr) continue;
 
-          try {
-            const event = JSON.parse(jsonStr);
+                    try {
+            const eventObj = JSON.parse(jsonStr); // Backend'den gelen objeyi aldık
 
-            if (event.type === "status") {
-              setActiveAgent(event.agent ?? null);
-            } else if (event.type === "done") {
-              const data = event;
+            // HATA BURADAYDI: event.type değil, eventObj.event olmalı!
+            if (eventObj.event === "status") {
+              // HATA 2: event.agent değil, eventObj.data içinde ajan ismi geliyor
+              setActiveAgent(eventObj.data ?? null);
+            } else if (eventObj.event === "done") {
+              const data = eventObj.data; // Asıl veriler burada!
 
               let yargicData: YargicData | undefined;
               if (data.yargic) {
@@ -95,6 +97,23 @@ export default function Index() {
                   yargicData = undefined;
                 }
               }
+
+              // Backend'den artık 'sme', 'denetleme' gelmiyor; 'analiz', 'denetim', 'vizyon' geliyor.
+              finalItem = {
+                id: Date.now(),
+                soru: text,
+                karar: yargicData?.karar ? `KARAR: ${yargicData.karar}` : "Karar alınamadı.",
+                sme: data.analiz, 
+                arastirma: "Birleştirildi.", 
+                denetleme: data.denetim,
+                vizyoner_puter: data.vizyon,
+                moderator: "",
+                yargic: yargicData,
+              };
+            }
+          } catch {
+            // skip malformed JSON
+                    }
 
               finalItem = {
                 id: Date.now(),
