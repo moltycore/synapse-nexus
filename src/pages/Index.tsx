@@ -12,14 +12,24 @@ interface YargicData {
 interface HistoryItem {
   id: number;
   soru: string;
-  karar: string;
+  racon: string; 
+  timestamp: string; 
   sme?: string;
   arastirma?: string;
   denetleme?: string;
   vizyoner_puter?: string;
-  moderator?: string;
   yargic?: YargicData;
 }
+
+const getTurkishTime = () => {
+  const now = new Date();
+  let h = now.getHours();
+  const m = now.getMinutes().toString().padStart(2, '0');
+  const p = h >= 12 ? 'ÖS' : 'ÖÖ';
+  h = h % 12;
+  h = h ? h : 12; 
+  return `${p} ${h}:${m}`;
+};
 
 export default function Index() {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -99,17 +109,17 @@ export default function Index() {
               finalItem = {
                 id: Date.now(),
                 soru: text,
-                karar: yargicData?.karar ? `KARAR: ${yargicData.karar}` : "Karar alınamadı.",
+                racon: yargicData?.racon ?? "Yargıç mühür basamadı.",
+                timestamp: getTurkishTime(),
                 sme: data.analiz,
                 arastirma: "Birleştirildi.",
                 denetleme: data.denetim,
                 vizyoner_puter: data.vizyon,
-                moderator: "",
                 yargic: yargicData,
               };
             }
           } catch (e) {
-            // Hatalı JSON paketini görmezden gel, çökmeyi engelle
+            console.error("JSON Parse Hatası:", e);
           }
         }
       }
@@ -119,8 +129,9 @@ export default function Index() {
         setActiveItem(finalItem);
       }
     } catch (error) {
+      const errorTime = getTurkishTime();
       const errMsg = `⚠️ ${error instanceof Error ? error.message : "Bağlantı koptu."}`;
-      const errItem: HistoryItem = { id: Date.now(), soru: text, karar: errMsg };
+      const errItem: HistoryItem = { id: Date.now(), soru: text, racon: errMsg, timestamp: errorTime };
       setHistory((prev) => [...prev, errItem]);
       setActiveItem(errItem);
     } finally {
@@ -130,21 +141,23 @@ export default function Index() {
   }, [isProcessing]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background relative">
       <SynapseAppBar />
 
       <main className="flex-1 overflow-y-auto pb-24 pt-2">
         <div className="px-4 space-y-3">
           {history.map((item) => (
             <div key={item.id} className="space-y-2">
-              <div className="flex justify-end">
-                <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 py-2.5 overflow-hidden">
-                  <p className="text-sm text-foreground/90 leading-relaxed break-words [overflow-wrap:break-word]">{item.soru}</p>
+              <div className="flex justify-end relative">
+                <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-2 pb-5 overflow-hidden relative">
+                  <p className="text-sm text-foreground/90 leading-relaxed break-words">{item.soru}</p>
+                  <span className="absolute bottom-1 right-2 text-[8px] text-muted-foreground/60">{item.timestamp}</span>
                 </div>
               </div>
-              <div className="flex justify-start">
-                <div className="w-full glass border border-white/[0.07] rounded-2xl px-4 py-2.5 overflow-hidden">
-                  <p className="text-sm text-foreground/85 leading-relaxed break-words [overflow-wrap:break-word]">{item.karar}</p>
+              <div className="flex justify-start relative">
+                <div className="w-full glass border border-white/[0.07] rounded-2xl px-4 pt-2 pb-5 overflow-hidden relative">
+                  <p className="text-sm text-foreground/85 leading-relaxed break-words whitespace-pre-wrap">{item.racon}</p>
+                  <span className="absolute bottom-1 right-2 text-[8px] text-muted-foreground/60">{item.timestamp}</span>
                 </div>
               </div>
             </div>
@@ -152,9 +165,10 @@ export default function Index() {
 
           {isProcessing && (
             <div className="space-y-2">
-              <div className="flex justify-end">
-                <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 py-2.5 overflow-hidden">
-                  <p className="text-sm text-foreground/90 leading-relaxed break-words [overflow-wrap:break-word]">{currentSoru}</p>
+              <div className="flex justify-end relative">
+                <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-2 pb-5 overflow-hidden relative">
+                  <p className="text-sm text-foreground/90 leading-relaxed break-words">{currentSoru}</p>
+                  <span className="absolute bottom-1 right-2 text-[8px] text-muted-foreground/60">{getTurkishTime()}</span>
                 </div>
               </div>
               <div className="flex justify-start">
@@ -183,7 +197,6 @@ export default function Index() {
               arastirma={activeItem?.arastirma}
               denetleme={activeItem?.denetleme}
               vizyoner_puter={activeItem?.vizyoner_puter}
-              moderator={activeItem?.moderator}
               yargic={activeItem?.yargic}
             />
           </div>
@@ -193,4 +206,4 @@ export default function Index() {
       <SynapseInput onSubmit={handleSubmit} isProcessing={isProcessing} />
     </div>
   );
-          }
+}
