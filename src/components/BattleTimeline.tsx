@@ -43,12 +43,6 @@ function parseItems(text?: string): string[] {
     .filter((line) => line.length > 0);
 }
 
-function getRiskColor(score: number): string {
-  if (score <= 3) return "hsl(142, 71%, 45%)";
-  if (score <= 6) return "hsl(45, 93%, 47%)";
-  return "hsl(0, 84%, 60%)";
-}
-
 const BattleTimeline = ({
   isActive, isProcessing, activeAgent,
   sme, denetleme, vizyoner_puter, yargic,
@@ -145,8 +139,6 @@ const BattleTimeline = ({
         const node = nodeConfig[activeNode];
 
         if (activeNode === 3 && yargic) {
-          const isGir = yargic.karar.toUpperCase().includes("GİR") || yargic.karar.toUpperCase() === "BİLGİ";
-          const riskColor = getRiskColor(yargic.risk_skoru);
           return (
             <div
               className={`glass rounded-2xl p-4 border transition-all duration-300 ${node.borderColor} mt-2 overflow-hidden relative`}
@@ -155,33 +147,6 @@ const BattleTimeline = ({
               <p className={`text-[10px] font-semibold tracking-widest uppercase mb-4 ${node.accentClass}`}>
                 {node.label}
               </p>
-
-              <div className="flex justify-center mb-4">
-                <span
-                  className="px-6 py-2 rounded-full text-sm font-bold tracking-wide text-white"
-                  style={{
-                    backgroundColor: isGir ? "hsl(142, 71%, 45%)" : "hsl(0, 84%, 60%)",
-                    boxShadow: `0 0 20px ${isGir ? "rgba(34,197,94,0.4)" : "rgba(239,68,68,0.4)"}`,
-                  }}
-                >
-                  {yargic.karar.toUpperCase()}
-                </span>
-              </div>
-
-              <div className="mb-4">
-                <div className="flex justify-between items-center mb-1.5">
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Risk Skoru</span>
-                  <span className="text-xs font-semibold" style={{ color: riskColor }}>
-                    {yargic.risk_skoru}/10
-                  </span>
-                </div>
-                <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all duration-700"
-                    style={{ width: `${yargic.risk_skoru * 10}%`, backgroundColor: riskColor }}
-                  />
-                </div>
-              </div>
 
               <p className="text-sm italic leading-relaxed text-foreground/80 break-words whitespace-pre-wrap">
                 "{yargic.racon}"
