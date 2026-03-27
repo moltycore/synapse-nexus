@@ -74,15 +74,13 @@ export default function Index() {
           const jsonStr = trimmed.slice(5).trim();
           if (!jsonStr) continue;
 
-                    try {
-            const eventObj = JSON.parse(jsonStr); // Backend'den gelen objeyi aldık
+          try {
+            const eventObj = JSON.parse(jsonStr);
 
-            // HATA BURADAYDI: event.type değil, eventObj.event olmalı!
             if (eventObj.event === "status") {
-              // HATA 2: event.agent değil, eventObj.data içinde ajan ismi geliyor
               setActiveAgent(eventObj.data ?? null);
             } else if (eventObj.event === "done") {
-              const data = eventObj.data; // Asıl veriler burada!
+              const data = eventObj.data;
 
               let yargicData: YargicData | undefined;
               if (data.yargic) {
@@ -93,42 +91,25 @@ export default function Index() {
                     risk_skoru: parsed.risk_skoru ?? 0,
                     racon: parsed.racon ?? "",
                   };
-                } catch {
+                } catch (e) {
                   yargicData = undefined;
                 }
               }
 
-              // Backend'den artık 'sme', 'denetleme' gelmiyor; 'analiz', 'denetim', 'vizyon' geliyor.
               finalItem = {
                 id: Date.now(),
                 soru: text,
                 karar: yargicData?.karar ? `KARAR: ${yargicData.karar}` : "Karar alınamadı.",
-                sme: data.analiz, 
-                arastirma: "Birleştirildi.", 
+                sme: data.analiz,
+                arastirma: "Birleştirildi.",
                 denetleme: data.denetim,
                 vizyoner_puter: data.vizyon,
                 moderator: "",
                 yargic: yargicData,
               };
             }
-          } catch {
-            // skip malformed JSON
-                    }
-
-              finalItem = {
-                id: Date.now(),
-                soru: text,
-                karar: data.final_karar ?? yargicData?.karar ?? "Karar alınamadı.",
-                sme: data.sme,
-                arastirma: data.arastirma,
-                denetleme: data.denetleme,
-                vizyoner_puter: data.vizyoner_puter,
-                moderator: data.moderator,
-                yargic: yargicData,
-              };
-            }
-          } catch {
-            // skip malformed JSON
+          } catch (e) {
+            // Hatalı JSON paketini görmezden gel, çökmeyi engelle
           }
         }
       }
@@ -212,4 +193,4 @@ export default function Index() {
       <SynapseInput onSubmit={handleSubmit} isProcessing={isProcessing} />
     </div>
   );
-}
+          }
