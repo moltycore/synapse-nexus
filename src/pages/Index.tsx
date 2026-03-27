@@ -3,6 +3,12 @@ import SynapseAppBar from "@/components/SynapseAppBar";
 import BattleTimeline from "@/components/BattleTimeline";
 import SynapseInput from "@/components/SynapseInput";
 
+interface YargicData {
+  karar: string;
+  risk_skoru: number;
+  racon: string;
+}
+
 interface HistoryItem {
   id: number;
   soru: string;
@@ -12,14 +18,15 @@ interface HistoryItem {
   denetleme?: string;
   vizyoner_puter?: string;
   moderator?: string;
+  yargic?: YargicData;
 }
 
 export default function Index() {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [phase, setPhase] = useState(0);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [activeItem, setActiveItem] = useState<HistoryItem | null>(null);
   const [currentSoru, setCurrentSoru] = useState<string>("");
+  const [activeAgent, setActiveAgent] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -31,12 +38,9 @@ export default function Index() {
     setIsProcessing(true);
     setActiveItem(null);
     setCurrentSoru(text);
-    setPhase(1);
+    setActiveAgent(null);
 
     try {
-      setTimeout(() => setPhase(2), 2000);
-      setTimeout(() => setPhase(3), 4000);
-
       const response = await fetch("https://synapse-api-b8oc.onrender.com/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -48,33 +52,80 @@ export default function Index() {
         throw new Error(`HTTP ${response.status}: ${errBody}`);
       }
 
-      const data = await response.json();
-      
-      const newItem: HistoryItem = {
-        id: Date.now(),
-        soru: text,
-        karar: data.final_karar ?? "Karar alınamadı.",
-        sme: data.sme,
-        arastirma: data.arastirma,
-        denetleme: data.denetleme,
-        vizyoner_puter: data.vizyoner_puter,
-        moderator: data.moderator,
-      };
-      
-      setHistory((prev) => [...prev, newItem]);
-      setActiveItem(newItem);
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("SSE stream not available");
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let finalItem: HistoryItem | null = null;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith("data:")) continue;
+
+          const jsonStr = trimmed.slice(5).trim();
+          if (!jsonStr) continue;
+
+          try {
+            const event = JSON.parse(jsonStr);
+
+            if (event.type === "status") {
+              setActiveAgent(event.agent ?? null);
+            } else if (event.type === "done") {
+              const data = event;
+
+              let yargicData: YargicData | undefined;
+              if (data.yargic) {
+                try {
+                  const parsed = typeof data.yargic === "string" ? JSON.parse(data.yargic) : data.yargic;
+                  yargicData = {
+                    karar: parsed.karar ?? "",
+                    risk_skoru: parsed.risk_skoru ?? 0,
+                    racon: parsed.racon ?? "",
+                  };
+                } catch {
+                  yargicData = undefined;
+                }
+              }
+
+              finalItem = {
+                id: Date.now(),
+                soru: text,
+                karar: data.final_karar ?? yargicData?.karar ?? "Karar alınamadı.",
+                sme: data.sme,
+                arastirma: data.arastirma,
+                denetleme: data.denetleme,
+                vizyoner_puter: data.vizyoner_puter,
+                moderator: data.moderator,
+                yargic: yargicData,
+              };
+            }
+          } catch {
+            // skip malformed JSON
+          }
+        }
+      }
+
+      if (finalItem) {
+        setHistory((prev) => [...prev, finalItem!]);
+        setActiveItem(finalItem);
+      }
     } catch (error) {
       const errMsg = `⚠️ ${error instanceof Error ? error.message : "Bağlantı koptu."}`;
-      const errItem: HistoryItem = {
-        id: Date.now(),
-        soru: text,
-        karar: errMsg,
-      };
+      const errItem: HistoryItem = { id: Date.now(), soru: text, karar: errMsg };
       setHistory((prev) => [...prev, errItem]);
       setActiveItem(errItem);
     } finally {
       setIsProcessing(false);
-      setPhase(0);
+      setActiveAgent(null);
     }
   }, [isProcessing]);
 
@@ -91,7 +142,6 @@ export default function Index() {
                   <p className="text-sm text-foreground/90 leading-relaxed break-words [overflow-wrap:break-word]">{item.soru}</p>
                 </div>
               </div>
-
               <div className="flex justify-start">
                 <div className="w-full glass border border-white/[0.07] rounded-2xl px-4 py-2.5 overflow-hidden">
                   <p className="text-sm text-foreground/85 leading-relaxed break-words [overflow-wrap:break-word]">{item.karar}</p>
@@ -122,18 +172,19 @@ export default function Index() {
           <div ref={bottomRef} />
         </div>
 
-        {/* BÜYÜK DEĞİŞİKLİK BURADA: (activeItem || isProcessing) diyerek animasyonu tetikliyoruz */}
         {(activeItem || isProcessing) && (
           <div className="mt-4">
             <BattleTimeline
               isActive={true}
-              phase={3} 
+              phase={3}
               isProcessing={isProcessing}
+              activeAgent={activeAgent}
               sme={activeItem?.sme}
               arastirma={activeItem?.arastirma}
               denetleme={activeItem?.denetleme}
               vizyoner_puter={activeItem?.vizyoner_puter}
               moderator={activeItem?.moderator}
+              yargic={activeItem?.yargic}
             />
           </div>
         )}

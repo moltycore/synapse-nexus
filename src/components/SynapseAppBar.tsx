@@ -67,9 +67,10 @@ const SynapseAppBar = () => {
             fontSize: "12px",
             color: "#9CA3AF",
             fontWeight: 400,
+            letterSpacing: "0.5px",
           }}
         >
-          AI assistant
+          nexus v1.0
         </span>
       </div>
 
