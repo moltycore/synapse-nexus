@@ -33,7 +33,7 @@ const getTurkishTime = () => {
 
 export default function Index() {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [mode, setMode] = useState<"triage" | "nexus">("nexus"); // Yeni eklenen state
+  const [mode, setMode] = useState<"triage" | "nexus">("nexus"); // Varsayılan Nexus
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [activeItem, setActiveItem] = useState<HistoryItem | null>(null);
   const [currentSoru, setCurrentSoru] = useState<string>("");
@@ -52,10 +52,10 @@ export default function Index() {
     setActiveAgent(null);
 
     try {
-      const response = await fetch("https://synapse-api-b8oc.onrender.com/analyze", {
+      const response = await fetch("https://synapse-api-b8oc.onrender.com", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, mode }), // Mode bilgisi eklendi
+        body: JSON.stringify({ text, mode }), // Mode API'ye gönderiliyor
       });
 
       if (!response.ok) {
@@ -139,7 +139,7 @@ export default function Index() {
       setIsProcessing(false);
       setActiveAgent(null);
     }
-  }, [isProcessing, mode]); // Bağımlılık dizisine mode eklendi
+  }, [isProcessing, mode]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background relative">
@@ -205,7 +205,13 @@ export default function Index() {
         )}
       </main>
 
-      <SynapseInput onSubmit={handleSubmit} isProcessing={isProcessing} />
+      {/* Güncellenen kısım burası */}
+      <SynapseInput 
+        onSubmit={handleSubmit} 
+        isProcessing={isProcessing} 
+        mode={mode} 
+        setMode={setMode} 
+      />
     </div>
   );
-}
+                  }
