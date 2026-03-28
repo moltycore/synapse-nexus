@@ -50,11 +50,7 @@ const BattleTimeline = ({
   const [activeNode, setActiveNode] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!isProcessing && yargic) {
-      setActiveNode(3);
-    } else if (!isProcessing && sme && activeNode === null) {
-      setActiveNode(0);
-    }
+    // Otomatik kart açma komutları kaldırıldı.
   }, [isProcessing, yargic, sme, activeNode]);
 
   const rawTexts: (string | undefined)[] = [sme, denetleme, vizyoner_puter, undefined];
