@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
+import { Cpu } from "lucide-react";
 import SynapseAppBar from "@/components/SynapseAppBar";
 import BattleTimeline from "@/components/BattleTimeline";
 import SynapseInput from "@/components/SynapseInput";
@@ -157,16 +158,20 @@ export default function Index() {
         <div className="px-4 space-y-3">
           {history.map((item) => (
             <div key={item.id} className="space-y-2">
+              {/* Kullanıcı Mesajı */}
               <div className="flex justify-end relative">
                 <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-2 pb-5 overflow-hidden relative">
-                  <p className="text-sm text-foreground/90 leading-relaxed break-words">{item.soru}</p>
+                  {item.mode === "nexus" && (
+                    <Cpu size={14} className="absolute top-2 right-2 text-synapse-purple/40" />
+                  )}
+                  <p className={`text-sm text-foreground/90 leading-relaxed break-words ${item.mode === "nexus" ? "pr-4" : ""}`}>{item.soru}</p>
                   <span className="absolute bottom-1 right-3 text-[8px] text-muted-foreground/60">{item.timestamp}</span>
                 </div>
               </div>
 
               <div className="flex justify-start relative">
                 <div className="w-fit max-w-[85%] glass border border-white/[0.07] rounded-2xl rounded-tl-sm px-4 pt-2 pb-5 overflow-hidden relative">
-                  <p className="text-sm text-foreground/85 Birden fazla satır desteği için whitespace-pre-wrap">{item.racon}</p>
+                  <p className="text-sm text-foreground/85 whitespace-pre-wrap">{item.racon}</p>
                   <span className="absolute bottom-1 left-3 text-[8px] text-muted-foreground/60">{item.timestamp}</span>
                 </div>
               </div>
@@ -177,7 +182,10 @@ export default function Index() {
             <div className="space-y-2">
               <div className="flex justify-end relative">
                 <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-2 pb-5 overflow-hidden relative">
-                  <p className="text-sm text-foreground/90 leading-relaxed break-words">{currentSoru}</p>
+                  {mode === "nexus" && (
+                    <Cpu size={14} className="absolute top-2 right-2 text-synapse-purple/40" />
+                  )}
+                  <p className={`text-sm text-foreground/90 leading-relaxed break-words ${mode === "nexus" ? "pr-4" : ""}`}>{currentSoru}</p>
                   <span className="absolute bottom-1 right-3 text-[8px] text-muted-foreground/60">{getTurkishTime()}</span>
                 </div>
               </div>
@@ -221,4 +229,4 @@ export default function Index() {
       />
     </div>
   );
-}
+                    }
