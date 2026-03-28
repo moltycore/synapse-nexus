@@ -33,6 +33,7 @@ const getTurkishTime = () => {
 
 export default function Index() {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [mode, setMode] = useState<"triage" | "nexus">("nexus"); // Yeni eklenen state
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [activeItem, setActiveItem] = useState<HistoryItem | null>(null);
   const [currentSoru, setCurrentSoru] = useState<string>("");
@@ -54,7 +55,7 @@ export default function Index() {
       const response = await fetch("https://synapse-api-b8oc.onrender.com/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, mode }), // Mode bilgisi eklendi
       });
 
       if (!response.ok) {
@@ -138,7 +139,7 @@ export default function Index() {
       setIsProcessing(false);
       setActiveAgent(null);
     }
-  }, [isProcessing]);
+  }, [isProcessing, mode]); // Bağımlılık dizisine mode eklendi
 
   return (
     <div className="min-h-screen flex flex-col bg-background relative">
@@ -148,7 +149,6 @@ export default function Index() {
         <div className="px-4 space-y-3">
           {history.map((item) => (
             <div key={item.id} className="space-y-2">
-              {/* Kullanıcı Mesajı */}
               <div className="flex justify-end relative">
                 <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-2 pb-5 overflow-hidden relative">
                   <p className="text-sm text-foreground/90 leading-relaxed break-words">{item.soru}</p>
@@ -156,7 +156,6 @@ export default function Index() {
                 </div>
               </div>
 
-              {/* AI Cevabı (Düzenlenen Kısım) */}
               <div className="flex justify-start relative">
                 <div className="w-fit max-w-[85%] glass border border-white/[0.07] rounded-2xl rounded-tl-sm px-4 pt-2 pb-5 overflow-hidden relative">
                   <p className="text-sm text-foreground/85 leading-relaxed break-words whitespace-pre-wrap">{item.racon}</p>
