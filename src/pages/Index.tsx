@@ -151,13 +151,15 @@ export default function Index() {
               <div className="flex justify-end relative">
                 <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-2 pb-5 overflow-hidden relative">
                   <p className="text-sm text-foreground/90 leading-relaxed break-words">{item.soru}</p>
-                  <span className="absolute bottom-1 right-2 text-[8px] text-muted-foreground/60">{item.timestamp}</span>
+                  {/* Kullanıcı saati sağda */}
+                  <span className="absolute bottom-1 right-3 text-[8px] text-muted-foreground/60">{item.timestamp}</span>
                 </div>
               </div>
               <div className="flex justify-start relative">
                 <div className="w-full glass border border-white/[0.07] rounded-2xl px-4 pt-2 pb-5 overflow-hidden relative">
                   <p className="text-sm text-foreground/85 leading-relaxed break-words whitespace-pre-wrap">{item.racon}</p>
-                  <span className="absolute bottom-1 right-2 text-[8px] text-muted-foreground/60">{item.timestamp}</span>
+                  {/* AI saati Sola alındı */}
+                  <span className="absolute bottom-1 left-3 text-[8px] text-muted-foreground/60">{item.timestamp}</span>
                 </div>
               </div>
             </div>
@@ -168,7 +170,8 @@ export default function Index() {
               <div className="flex justify-end relative">
                 <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-2 pb-5 overflow-hidden relative">
                   <p className="text-sm text-foreground/90 leading-relaxed break-words">{currentSoru}</p>
-                  <span className="absolute bottom-1 right-2 text-[8px] text-muted-foreground/60">{getTurkishTime()}</span>
+                  {/* Kullanıcı saati sağda */}
+                  <span className="absolute bottom-1 right-3 text-[8px] text-muted-foreground/60">{getTurkishTime()}</span>
                 </div>
               </div>
               <div className="flex justify-start">
@@ -206,4 +209,4 @@ export default function Index() {
       <SynapseInput onSubmit={handleSubmit} isProcessing={isProcessing} />
     </div>
   );
-}
+        }
