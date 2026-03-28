@@ -21,11 +21,12 @@ interface BattleTimelineProps {
 
 const AGENT_KEYS = ["analizci", "denetci", "vizyoner", "yargic"];
 
+// Renk cümbüşü iptal edildi. Tamamı sönük/parlak beyaz tonlarında çalışacak.
 const nodeConfig = [
-  { Icon: Database, label: "ANALİZCİ", key: "analizci", accentClass: "text-slate-400", glowColor: "rgba(148,163,184,0.6)", borderColor: "border-slate-500/40", bgActive: "bg-slate-500/15" },
-  { Icon: ShieldAlert, label: "DENETÇİ", key: "denetci", accentClass: "text-red-400", glowColor: "rgba(239,68,68,0.6)", borderColor: "border-red-500/40", bgActive: "bg-red-500/15", strikethrough: true },
-  { Icon: Eye, label: "VİZYONER", key: "vizyoner", accentClass: "text-amber-400", glowColor: "rgba(245,158,11,0.6)", borderColor: "border-amber-500/40", bgActive: "bg-amber-500/15" },
-  { Icon: Gavel, label: "YARGIÇ", key: "yargic", accentClass: "text-emerald-400", glowColor: "rgba(16,185,129,0.6)", borderColor: "border-emerald-500/40", bgActive: "bg-emerald-500/15" },
+  { Icon: Database, label: "ANALİZCİ", key: "analizci", strikethrough: false },
+  { Icon: ShieldAlert, label: "DENETÇİ", key: "denetci", strikethrough: true },
+  { Icon: Eye, label: "VİZYONER", key: "vizyoner", strikethrough: false },
+  { Icon: Gavel, label: "YARGIÇ", key: "yargic", strikethrough: false },
 ];
 
 const PLACEHOLDER_VALUES = ["uykuda.", "pas geçildi.", "gerekli görülmedi.", "pas.", "pas", "uykuda", "gerekli görülmedi"];
@@ -71,11 +72,13 @@ const BattleTimeline = ({
           const hasData = (apiItems[oi]?.length > 0) || (rawTexts[oi] && !isPlaceholder(rawTexts[oi])) || (oi === 3 && !!yargic);
           const selected = activeNode === oi;
 
-          // DİSİPLİN KURALI: Sadece çalışan veya o an seçili olan parlar, gerisi sönük beyazdır.
+          // DİSİPLİN KURALI: Pavyon renkleri yasak. Aktifken parlak beyaz, inaktifken sönük beyaz.
           const isHighlighted = isAgentActive || (selected && hasData);
-          const iconColorClass = isHighlighted ? node.accentClass : "text-white/40";
-          const buttonBgClass = isHighlighted ? `${node.bgActive} ${node.borderColor}` : "bg-white/5 border-white/10";
-          const glowBoxShadow = isAgentActive ? `0 0 14px ${node.glowColor}` : (isHighlighted ? `0 0 10px ${node.glowColor}` : "none");
+          const iconColorClass = isHighlighted ? "text-white" : "text-white/30";
+          const buttonBgClass = isHighlighted ? "bg-white/10 border-white/30" : "bg-white/5 border-white/10";
+          
+          // Ufak bir parlama (Glow) efekti, ama o da beyaz.
+          const glowBoxShadow = isAgentActive ? `0 0 10px rgba(255,255,255,0.3)` : (isHighlighted ? `0 0 6px rgba(255,255,255,0.15)` : "none");
 
           return (
             <div key={oi} className="flex items-center gap-1.5 relative">
@@ -83,9 +86,8 @@ const BattleTimeline = ({
                 <div
                   className="w-4 h-px rounded-full transition-all duration-700"
                   style={{
-                    background: hasData || isAgentActive
-                      ? `linear-gradient(90deg, ${nodeConfig[oi - 1].glowColor}, ${node.glowColor})`
-                      : "rgba(255,255,255,0.08)", 
+                    // Çizgiler artık renkli gradyan değil. Veri varsa belirgin beyaz, yoksa çok şeffaf beyaz.
+                    background: hasData || isAgentActive ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.08)", 
                   }}
                 />
               )}
@@ -97,7 +99,7 @@ const BattleTimeline = ({
                   relative flex items-center justify-center w-6 h-6 rounded-full border transition-all duration-400
                   ${buttonBgClass}
                   ${selected && !isProcessing ? "scale-110" : "scale-100"}
-                  ${hasData && !isProcessing ? "cursor-pointer hover:scale-105" : "cursor-default"}
+                  ${hasData && !isProcessing ? "cursor-pointer hover:scale-105 hover:bg-white/15" : "cursor-default"}
                 `}
                 style={{ boxShadow: glowBoxShadow }}
               >
@@ -110,7 +112,7 @@ const BattleTimeline = ({
                 {isAgentActive && (
                   <span
                     className="absolute inset-0 rounded-full animate-ping opacity-40"
-                    style={{ border: `1.5px solid ${node.glowColor}`, animationDuration: "1.2s" }}
+                    style={{ border: `1.5px solid rgba(255,255,255,0.4)`, animationDuration: "1.2s" }}
                   />
                 )}
               </button>
@@ -136,14 +138,14 @@ const BattleTimeline = ({
         if (activeNode === 3 && yargic) {
           return (
             <div
-              className={`glass rounded-2xl p-4 border transition-all duration-300 ${node.borderColor} mt-2 overflow-hidden relative`}
-              style={{ boxShadow: `0 0 18px ${node.glowColor}18` }}
+              className={`glass rounded-2xl p-4 border transition-all duration-300 border-white/20 mt-2 overflow-hidden relative`}
+              style={{ boxShadow: `0 0 15px rgba(255,255,255,0.05)` }}
             >
-              <p className={`text-[10px] font-semibold tracking-widest uppercase mb-4 ${node.accentClass}`}>
+              <p className={`text-[10px] font-semibold tracking-widest uppercase mb-4 text-white/70`}>
                 {node.label}
               </p>
 
-              <p className="text-sm italic leading-relaxed text-foreground/80 break-words whitespace-pre-wrap">
+              <p className="text-sm italic leading-relaxed text-white/90 break-words whitespace-pre-wrap">
                 "{yargic.racon}"
               </p>
             </div>
@@ -152,15 +154,15 @@ const BattleTimeline = ({
 
         return (
           <div
-            className={`glass rounded-2xl p-4 border transition-all duration-300 ${node.borderColor} mt-2 overflow-hidden`}
-            style={{ boxShadow: `0 0 18px ${node.glowColor}18` }}
+            className={`glass rounded-2xl p-4 border transition-all duration-300 border-white/20 mt-2 overflow-hidden`}
+            style={{ boxShadow: `0 0 15px rgba(255,255,255,0.05)` }}
           >
-            <p className={`text-[10px] font-semibold tracking-widest uppercase mb-3 ${node.accentClass}`}>
+            <p className={`text-[10px] font-semibold tracking-widest uppercase mb-3 text-white/70`}>
               {node.label}
             </p>
             <div className="space-y-2">
               {rawTexts[activeNode] ? (
-                <p className="text-xs leading-relaxed text-foreground/75 whitespace-pre-wrap break-words">
+                <p className="text-xs leading-relaxed text-white/80 whitespace-pre-wrap break-words">
                   {rawTexts[activeNode]}
                 </p>
               ) : (
@@ -168,10 +170,10 @@ const BattleTimeline = ({
                   <div
                     key={i}
                     className={`text-xs leading-relaxed flex items-start gap-2 ${
-                      node.strikethrough ? "line-through text-red-400/50 decoration-red-400/30" : "text-foreground/75"
+                      node.strikethrough ? "line-through text-white/40 decoration-white/30" : "text-white/80"
                     }`}
                   >
-                    <span className="text-muted-foreground/30 mt-px shrink-0">·</span>
+                    <span className="text-white/20 mt-px shrink-0">·</span>
                     <span className="break-words">{item}</span>
                   </div>
                 ))
