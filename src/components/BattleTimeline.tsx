@@ -72,13 +72,14 @@ const BattleTimeline = ({
           const { Icon } = node;
           const isAgentActive = isProcessing && activeAgent === AGENT_KEYS[oi];
           
-          const unlocked = isProcessing || (isActive && (
-            (apiItems[oi]?.length > 0) || 
-            (rawTexts[oi] && !isPlaceholder(rawTexts[oi])) || 
-            (oi === 3 && !!yargic)
-          ));
-          
+          const hasData = (apiItems[oi]?.length > 0) || (rawTexts[oi] && !isPlaceholder(rawTexts[oi])) || (oi === 3 && !!yargic);
           const selected = activeNode === oi;
+
+          // DİSİPLİN KURALI: Sadece çalışan veya o an seçili olan parlar, gerisi sönük beyazdır.
+          const isHighlighted = isAgentActive || (selected && hasData);
+          const iconColorClass = isHighlighted ? node.accentClass : "text-white/40";
+          const buttonBgClass = isHighlighted ? `${node.bgActive} ${node.borderColor}` : "bg-white/5 border-white/10";
+          const glowBoxShadow = isAgentActive ? `0 0 14px ${node.glowColor}` : (isHighlighted ? `0 0 10px ${node.glowColor}` : "none");
 
           return (
             <div key={oi} className="flex items-center gap-1.5 relative">
@@ -86,7 +87,7 @@ const BattleTimeline = ({
                 <div
                   className="w-4 h-px rounded-full transition-all duration-700"
                   style={{
-                    background: unlocked
+                    background: hasData || isAgentActive
                       ? `linear-gradient(90deg, ${nodeConfig[oi - 1].glowColor}, ${node.glowColor})`
                       : "rgba(255,255,255,0.08)", 
                   }}
@@ -95,20 +96,18 @@ const BattleTimeline = ({
               
               <button
                 onClick={() => handleNode(oi)}
-                disabled={!unlocked || isProcessing}
+                disabled={!hasData || isProcessing}
                 className={`
                   relative flex items-center justify-center w-6 h-6 rounded-full border transition-all duration-400
-                  ${unlocked ? node.bgActive + " " + node.borderColor : "bg-white/5 border-white/10"}
+                  ${buttonBgClass}
                   ${selected && !isProcessing ? "scale-110" : "scale-100"}
-                  ${unlocked && !isProcessing ? "cursor-pointer hover:scale-105" : "cursor-default"}
+                  ${hasData && !isProcessing ? "cursor-pointer hover:scale-105" : "cursor-default"}
                 `}
-                style={{
-                  boxShadow: isAgentActive ? `0 0 14px ${node.glowColor}` : (unlocked && selected ? `0 0 10px ${node.glowColor}` : "none"),
-                }}
+                style={{ boxShadow: glowBoxShadow }}
               >
                 <Icon
                   size={12}
-                  className={`transition-colors duration-300 ${isAgentActive ? node.accentClass : (unlocked ? node.accentClass : "text-white opacity-30")}`} 
+                  className={`transition-colors duration-300 ${iconColorClass}`} 
                   strokeWidth={1.75}
                 />
                 
