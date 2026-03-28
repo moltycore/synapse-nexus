@@ -1,8 +1,9 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Cpu, Copy, Share2, MoreHorizontal } from "lucide-react";
+import { Cpu } from "lucide-react";
 import SynapseAppBar from "@/components/SynapseAppBar";
 import BattleTimeline from "@/components/BattleTimeline";
 import SynapseInput from "@/components/SynapseInput";
+import ChatMessage from "@/components/ChatMessage"; // Yeni bileşeni ekledik
 
 interface YargicData {
   karar: string;
@@ -156,43 +157,18 @@ export default function Index() {
 
       <main className="flex-1 overflow-y-auto pb-24 pt-2">
         <div className="px-4 space-y-3">
+          {/* Geçmiş Mesajlar */}
           {history.map((item) => (
-            <div key={item.id} className="space-y-2">
-              {/* Kullanıcı Mesajı */}
-              <div className="flex justify-end relative">
-                <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-2 pb-5 overflow-hidden relative">
-                  {item.mode === "nexus" && (
-                    <Cpu size={14} className="absolute top-2 right-2 text-synapse-purple/40" />
-                  )}
-                  <p className={`text-sm text-foreground/90 leading-relaxed break-words ${item.mode === "nexus" ? "pr-4" : ""}`}>{item.soru}</p>
-                  <span className="absolute bottom-1 right-3 text-[8px] text-muted-foreground/60">{item.timestamp}</span>
-                </div>
-              </div>
-
-              {/* AI Cevap Bloğu ve Aksiyon Çubuğu */}
-              <div className="flex flex-col items-start gap-1.5">
-                <div className="flex justify-start relative">
-                  <div className="w-fit max-w-[85%] glass border border-white/[0.07] rounded-2xl rounded-tl-sm px-4 pt-2 pb-5 overflow-hidden relative">
-                    <p className="text-sm text-foreground/85 leading-relaxed break-words whitespace-pre-wrap">{item.racon}</p>
-                    <span className="absolute bottom-1 left-3 text-[8px] text-muted-foreground/60">{item.timestamp}</span>
-                  </div>
-                </div>
-                {/* Aksiyon Çubuğu */}
-                <div className="flex items-center gap-3 pl-3 text-white/30">
-                  <button className="hover:text-white transition-colors" title="Kopyala">
-                    <Copy size={13} strokeWidth={2} />
-                  </button>
-                  <button className="hover:text-white transition-colors" title="Paylaş">
-                    <Share2 size={13} strokeWidth={2} />
-                  </button>
-                  <button className="hover:text-white transition-colors" title="Daha Fazla">
-                    <MoreHorizontal size={13} strokeWidth={2} />
-                  </button>
-                </div>
-              </div>
-            </div>
+            <ChatMessage 
+              key={item.id}
+              soru={item.soru}
+              racon={item.racon}
+              timestamp={item.timestamp}
+              mode={item.mode}
+            />
           ))}
 
+          {/* Yükleniyor Durumu */}
           {isProcessing && (
             <div className="space-y-2">
               <div className="flex justify-end relative">
@@ -244,4 +220,4 @@ export default function Index() {
       />
     </div>
   );
-          }
+                    }
