@@ -19,6 +19,7 @@ interface HistoryItem {
   denetleme?: string;
   vizyoner_puter?: string;
   yargic?: YargicData;
+  mode: "triage" | "nexus";
 }
 
 const getTurkishTime = () => {
@@ -52,7 +53,6 @@ export default function Index() {
     setActiveAgent(null);
 
     try {
-      // Düzenlenen fetch bloğu
       const response = await fetch("https://synapse-api-b8oc.onrender.com/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -118,6 +118,7 @@ export default function Index() {
                 denetleme: data.denetim,
                 vizyoner_puter: data.vizyon,
                 yargic: yargicData,
+                mode: mode,
               };
             }
           } catch (e) {
@@ -133,7 +134,13 @@ export default function Index() {
     } catch (error) {
       const errorTime = getTurkishTime();
       const errMsg = `⚠️ ${error instanceof Error ? error.message : "Bağlantı koptu."}`;
-      const errItem: HistoryItem = { id: Date.now(), soru: text, racon: errMsg, timestamp: errorTime };
+      const errItem: HistoryItem = { 
+        id: Date.now(), 
+        soru: text, 
+        racon: errMsg, 
+        timestamp: errorTime, 
+        mode: mode 
+      };
       setHistory((prev) => [...prev, errItem]);
       setActiveItem(errItem);
     } finally {
@@ -159,7 +166,7 @@ export default function Index() {
 
               <div className="flex justify-start relative">
                 <div className="w-fit max-w-[85%] glass border border-white/[0.07] rounded-2xl rounded-tl-sm px-4 pt-2 pb-5 overflow-hidden relative">
-                  <p className="text-sm text-foreground/85 leading-relaxed break-words whitespace-pre-wrap">{item.racon}</p>
+                  <p className="text-sm text-foreground/85 Birden fazla satır desteği için whitespace-pre-wrap">{item.racon}</p>
                   <span className="absolute bottom-1 left-3 text-[8px] text-muted-foreground/60">{item.timestamp}</span>
                 </div>
               </div>
@@ -189,7 +196,7 @@ export default function Index() {
           <div ref={bottomRef} />
         </div>
 
-        {(activeItem || isProcessing) && (
+        {((isProcessing && mode === "nexus") || (activeItem?.mode === "nexus")) && (
           <div className="mt-4">
             <BattleTimeline
               isActive={true}
@@ -214,4 +221,4 @@ export default function Index() {
       />
     </div>
   );
-              }
+}
