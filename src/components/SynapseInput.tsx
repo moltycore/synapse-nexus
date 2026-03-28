@@ -10,12 +10,11 @@ const SynapseInput = ({ onSubmit, isProcessing }: SynapseInputProps) => {
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Yazı yazdıkça kutunun boyunu otomatik ayarlar
+  // Yazı yazdıkça kutunun boyunu otomatik ayarlar (Maksimum 120px)
   const adjustHeight = () => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = "auto"; // Önce sıfırla
-      textarea.style.height = `${textarea.scrollHeight}px`; // İçeriğe göre uzat
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
     }
   };
 
@@ -28,14 +27,12 @@ const SynapseInput = ({ onSubmit, isProcessing }: SynapseInputProps) => {
     if (text.trim() && !isProcessing) {
       onSubmit(text.trim());
       setText("");
-      // Gönderdikten sonra kutuyu eski tek satırlık haline döndür
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto";
       }
     }
   };
 
-  // Mobilde "Gönder" tuşunu bozmadan, klavyede Enter ile göndermeyi ve Shift+Enter ile alt satıra inmeyi sağlar
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -53,16 +50,18 @@ const SynapseInput = ({ onSubmit, isProcessing }: SynapseInputProps) => {
           <textarea
             ref={textareaRef}
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => {
+              setText(e.target.value);
+              adjustHeight();
+            }}
             onKeyDown={handleKeyDown}
             disabled={isProcessing}
             placeholder="Analiz için bir metin girin..."
-            // max-h-[120px] ile maksimum yüksekliği sınırlandırdık, fazlası olursa scroll çıkar
             className="flex-1 max-h-[120px] min-h-[40px] bg-transparent border-none focus:ring-0 resize-none text-sm text-foreground/90 placeholder:text-muted-foreground/50 py-2.5 px-4 outline-none overflow-y-auto"
             rows={1}
             style={{
-              scrollbarWidth: 'none', // Firefox için scrollbar gizleme
-              msOverflowStyle: 'none', // IE/Edge için
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
             }}
           />
           <style dangerouslySetInnerHTML={{__html: `
