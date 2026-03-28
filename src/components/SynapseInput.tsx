@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, KeyboardEvent } from "react";
+"import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import { CornerDownLeft } from "lucide-react";
 
 interface SynapseInputProps {
