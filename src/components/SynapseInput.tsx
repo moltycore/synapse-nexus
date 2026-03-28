@@ -1,4 +1,4 @@
-"import { useState, useRef, useEffect, KeyboardEvent } from "react";
+import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import { CornerDownLeft } from "lucide-react";
 
 interface SynapseInputProps {
@@ -6,7 +6,7 @@ interface SynapseInputProps {
   isProcessing: boolean;
 }
 
-"const SynapseInput = ({ onSubmit, isProcessing }: SynapseInputProps) => {
+const SynapseInput = ({ onSubmit, isProcessing }: SynapseInputProps) => {
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -79,4 +79,4 @@ interface SynapseInputProps {
   );
 };
 
-export defaultSynapseInput;
+export default SynapseInput;
