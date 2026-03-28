@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
-import { Send } from "lucide-react";
+import { CornerDownLeft } from "lucide-react";
 
 interface SynapseInputProps {
   onSubmit: (text: string) => void;
@@ -71,7 +71,7 @@ const SynapseInput = ({ onSubmit, isProcessing }: SynapseInputProps) => {
             disabled={!text.trim() || isProcessing}
             className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-synapse-purple/10 text-synapse-purple hover:bg-synapse-purple/20 transition-colors disabled:opacity-50 disabled:hover:bg-synapse-purple/10 mb-0.5 mr-0.5"
           >
-            <Send size={18} className={isProcessing ? "animate-pulse" : ""} />
+            <CornerDownLeft size={18} className={isProcessing ? "animate-pulse" : ""} />
           </button>
         </form>
       </div>
@@ -79,4 +79,4 @@ const SynapseInput = ({ onSubmit, isProcessing }: SynapseInputProps) => {
   );
 };
 
-export default SynapseInput;
+export defaultSynapseInput;
