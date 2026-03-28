@@ -55,7 +55,7 @@ const SynapseInput = ({ onSubmit, isProcessing }: SynapseInputProps) => {
             onKeyDown={handleKeyDown}
             disabled={isProcessing}
             placeholder="Synapse'a yaz..."
-            className="flex-1 max-h-[120px] min-h-[40px] bg-transparent border-none focus:ring-0 resize-none text-sm text-foreground/90 placeholder:text-muted-foreground/50 py-2.5 px-4 outline-none overflow-y-auto"
+            className="flex-1 max-h-[120px] min-h-[40px] bg-transparent border-none focus:ring-0 resize-none text-sm text-foreground/90 placeholder:text-muted-foreground/25 py-2.5 px-4 outline-none overflow-y-auto"
             rows={1}
             style={{
               scrollbarWidth: 'none',
