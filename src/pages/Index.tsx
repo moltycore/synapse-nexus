@@ -51,7 +51,7 @@ export default function Index() {
     setActiveAgent(null);
 
     try {
-      const response = await fetch("https://synapse-api-b8oc.onrender.com/analyze", {
+      const response = await fetch("https://synapse-api-b8oc.onrender.com", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text }),
@@ -148,17 +148,18 @@ export default function Index() {
         <div className="px-4 space-y-3">
           {history.map((item) => (
             <div key={item.id} className="space-y-2">
+              {/* Kullanıcı Mesajı */}
               <div className="flex justify-end relative">
                 <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-2 pb-5 overflow-hidden relative">
                   <p className="text-sm text-foreground/90 leading-relaxed break-words">{item.soru}</p>
-                  {/* Kullanıcı saati sağda */}
                   <span className="absolute bottom-1 right-3 text-[8px] text-muted-foreground/60">{item.timestamp}</span>
                 </div>
               </div>
+
+              {/* AI Cevabı (Düzenlenen Kısım) */}
               <div className="flex justify-start relative">
-                <div className="w-full glass border border-white/[0.07] rounded-2xl px-4 pt-2 pb-5 overflow-hidden relative">
+                <div className="w-fit max-w-[85%] glass border border-white/[0.07] rounded-2xl rounded-tl-sm px-4 pt-2 pb-5 overflow-hidden relative">
                   <p className="text-sm text-foreground/85 leading-relaxed break-words whitespace-pre-wrap">{item.racon}</p>
-                  {/* AI saati Sola alındı */}
                   <span className="absolute bottom-1 left-3 text-[8px] text-muted-foreground/60">{item.timestamp}</span>
                 </div>
               </div>
@@ -170,7 +171,6 @@ export default function Index() {
               <div className="flex justify-end relative">
                 <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-2 pb-5 overflow-hidden relative">
                   <p className="text-sm text-foreground/90 leading-relaxed break-words">{currentSoru}</p>
-                  {/* Kullanıcı saati sağda */}
                   <span className="absolute bottom-1 right-3 text-[8px] text-muted-foreground/60">{getTurkishTime()}</span>
                 </div>
               </div>
@@ -209,4 +209,4 @@ export default function Index() {
       <SynapseInput onSubmit={handleSubmit} isProcessing={isProcessing} />
     </div>
   );
-        }
+}
