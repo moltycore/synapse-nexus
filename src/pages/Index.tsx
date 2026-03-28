@@ -33,7 +33,7 @@ const getTurkishTime = () => {
 
 export default function Index() {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [mode, setMode] = useState<"triage" | "nexus">("nexus"); // Varsayılan Nexus
+  const [mode, setMode] = useState<"triage" | "nexus">("nexus");
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [activeItem, setActiveItem] = useState<HistoryItem | null>(null);
   const [currentSoru, setCurrentSoru] = useState<string>("");
@@ -52,10 +52,11 @@ export default function Index() {
     setActiveAgent(null);
 
     try {
-      const response = await fetch("https://synapse-api-b8oc.onrender.com", {
+      // Düzenlenen fetch bloğu
+      const response = await fetch("https://synapse-api-b8oc.onrender.com/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, mode }), // Mode API'ye gönderiliyor
+        body: JSON.stringify({ text, mode }),
       });
 
       if (!response.ok) {
@@ -205,7 +206,6 @@ export default function Index() {
         )}
       </main>
 
-      {/* Güncellenen kısım burası */}
       <SynapseInput 
         onSubmit={handleSubmit} 
         isProcessing={isProcessing} 
@@ -214,4 +214,4 @@ export default function Index() {
       />
     </div>
   );
-                  }
+              }
