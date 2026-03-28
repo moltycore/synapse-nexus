@@ -70,7 +70,7 @@ const SynapseAppBar = () => {
             letterSpacing: "0.5px",
           }}
         >
-          nexus v1.0
+          Nexus v1.0
         </span>
       </div>
 
