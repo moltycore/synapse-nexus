@@ -34,10 +34,8 @@ const SynapseInput = ({ onSubmit, isProcessing }: SynapseInputProps) => {
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
+    // Enter'ın gönderme yetkisi alındı. 
+    // Artık Enter'a basınca sadece alt satıra geçer, handleSubmit tetiklenmez.
   };
 
   return (
