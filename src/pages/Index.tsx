@@ -51,7 +51,7 @@ export default function Index() {
     setActiveAgent(null);
 
     try {
-      const response = await fetch("https://synapse-api-b8oc.onrender.com", {
+      const response = await fetch("https://synapse-api-b8oc.onrender.com/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text }),
