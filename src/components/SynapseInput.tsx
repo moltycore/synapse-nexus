@@ -6,7 +6,7 @@ interface SynapseInputProps {
   isProcessing: boolean;
 }
 
-const SynapseInput = ({ onSubmit, isProcessing }: SynapseInputProps) => {
+"const SynapseInput = ({ onSubmit, isProcessing }: SynapseInputProps) => {
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
