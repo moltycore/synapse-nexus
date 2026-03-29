@@ -110,18 +110,28 @@ export default function Index() {
                 }
               }
 
-              finalItem = {
-                id: Date.now(),
-                soru: text,
-                racon: yargicData?.racon ?? "Yargıç mühür basamadı.",
-                timestamp: getTurkishTime(),
-                sme: data.analiz,
-                arastirma: "Birleştirildi.",
-                denetleme: data.denetim,
-                vizyoner_puter: data.vizyon,
-                yargic: yargicData,
-                mode: mode,
-              };
+              if (mode === "solo") {
+                finalItem = {
+                  id: Date.now(),
+                  soru: text,
+                  racon: data.solo_cevap ?? "Cevap alınamadı.",
+                  timestamp: getTurkishTime(),
+                  mode: mode,
+                };
+              } else {
+                finalItem = {
+                  id: Date.now(),
+                  soru: text,
+                  racon: yargicData?.racon ?? "Yargıç mühür basamadı.",
+                  timestamp: getTurkishTime(),
+                  sme: data.analiz,
+                  arastirma: "Birleştirildi.",
+                  denetleme: data.denetim,
+                  vizyoner_puter: data.vizyon,
+                  yargic: yargicData,
+                  mode: mode,
+                };
+              }
             }
           } catch (e) {
             console.error("JSON Parse Hatası:", e);
