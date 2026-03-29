@@ -12,11 +12,20 @@ const nodeConfig = [
   { Icon: Gavel, label: "PRIME", key: "prime" },
 ];
 
+interface BattleTimelineProps {
+  isActive: boolean;
+  isProcessing: boolean;
+  activeAgent: string | null;
+  sme: any;
+  denetleme: any;
+  vizyoner_puter: any;
+  yargic: any;
+}
+
 const BattleTimeline = ({
   isActive, isProcessing, activeAgent,
   sme, denetleme, vizyoner_puter, yargic,
 }: BattleTimelineProps) => {
-  // ... parse ve placeholder mantığı aynı kalıyor ...
 
   // UI'da Core Refine olduğunda CORE simgesini parlatmaya devam etmesi için ufak bir trick:
   const getAgentStatus = (key: string) => {
@@ -30,7 +39,11 @@ const BattleTimeline = ({
       <div className="flex items-center gap-1.5 mb-2">
         {nodeConfig.map((node, oi) => {
           const isAgentActive = getAgentStatus(node.key);
-          const hasData = (oi === 0 && activeAgent) || (oi === 1 && sme) || (oi === 2 && denetleme) || (oi === 3 && vizyoner_puter) || (oi === 4 && yargic);
+          const hasData = (oi === 0 && activeAgent) || 
+                          (oi === 1 && sme) || 
+                          (oi === 2 && denetleme) || 
+                          (oi === 3 && vizyoner_puter) || 
+                          (oi === 4 && yargic);
           
           return (
             <div key={oi} className="flex items-center gap-1.5 relative">
@@ -45,7 +58,9 @@ const BattleTimeline = ({
           );
         })}
       </div>
-      {/* Kart içerikleri aynı mantıkla devam ediyor, sadece etiketler CORE, GHOST, VOID, PRIME olarak güncellendi */}
+      {/* Kart içerikleri burada devam ediyor */}
     </div>
   );
 };
+
+export default BattleTimeline;
