@@ -5,7 +5,7 @@ interface ChatMessageProps {
   soru: string;
   racon: string;
   timestamp: string;
-  mode: "triage" | "nexus";
+  mode: "solo" | "nexus";
 }
 
 export default function ChatMessage({ soru, racon, timestamp, mode }: ChatMessageProps) {
@@ -76,4 +76,4 @@ export default function ChatMessage({ soru, racon, timestamp, mode }: ChatMessag
       </div>
     </div>
   );
-              }
+}
