@@ -4,8 +4,8 @@ import { CornerDownLeft, Zap, Cpu } from "lucide-react";
 interface SynapseInputProps {
   onSubmit: (text: string) => void;
   isProcessing: boolean;
-  mode: "triage" | "nexus";
-  setMode: (mode: "triage" | "nexus") => void;
+  mode: "solo" | "nexus";
+  setMode: (mode: "solo" | "nexus") => void;
 }
 
 const SynapseInput = ({ onSubmit, isProcessing, mode, setMode }: SynapseInputProps) => {
@@ -48,17 +48,17 @@ const SynapseInput = ({ onSubmit, isProcessing, mode, setMode }: SynapseInputPro
           className="relative flex items-end gap-2 glass border border-white/10 rounded-3xl p-2 transition-all duration-300 focus-within:border-synapse-purple/50 focus-within:shadow-[0_0_15px_rgba(139,92,246,0.15)]"
         >
           
-          {/* YENİ EKLENEN SOL MOD BUTONU (Triage / Nexus) */}
+          {/* YENİ EKLENEN SOL MOD BUTONU (Solo / Nexus) */}
           <button
             type="button"
             disabled={isProcessing}
-            onClick={() => setMode(mode === "nexus" ? "triage" : "nexus")}
+            onClick={() => setMode(mode === "nexus" ? "solo" : "nexus")}
             className={`shrink-0 w-10 h-10 flex items-center justify-center rounded-full transition-colors mb-0.5 ml-0.5 ${
               mode === "nexus" 
                 ? "bg-synapse-purple/10 text-synapse-purple hover:bg-synapse-purple/20" 
                 : "bg-amber-500/10 text-amber-500 hover:bg-amber-500/20"
             }`}
-            title={mode === "nexus" ? "Nexus Modu" : "Triage Modu"}
+            title={mode === "nexus" ? "Nexus Modu" : "Solo Modu"}
           >
             {mode === "nexus" ? <Cpu size={18} /> : <Zap size={18} />}
           </button>
