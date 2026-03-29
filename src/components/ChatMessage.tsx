@@ -56,7 +56,7 @@ export default function ChatMessage({ soru, racon, timestamp, mode }: ChatMessag
       {/* AI Cevap Bloğu */}
       <div className="flex flex-col items-start gap-1.5">
         <div className="flex justify-start relative">
-          <div className="w-fit <div className="w-fit max-w-[95%] glass border border-white/[0.07] rounded-2xl rounded-tl-sm px-4 pt-2 pb-5 overflow-hidden relative"> glass border border-white/[0.07] rounded-2xl rounded-tl-sm px-4 pt-2 pb-5 overflow-hidden relative">
+          <div className="<div className="w-fit max-w-[95%] glass border border-white/[0.07] rounded-2xl rounded-tl-sm px-4 pt-2 pb-5 overflow-hidden relative"> className="w-fit max-w-[95%] glass border border-white/[0.07] rounded-2xl rounded-tl-sm px-4 pt-2 pb-5 overflow-hidden relative"> glass border border-white/[0.07] rounded-2xl rounded-tl-sm px-4 pt-2 pb-5 overflow-hidden relative">
             <p className="text-sm text-foreground/85 leading-relaxed break-words whitespace-pre-wrap">{racon}</p>
             <span className="absolute bottom-1 left-3 text-[8px] text-muted-foreground/60">{timestamp}</span>
           </div>
