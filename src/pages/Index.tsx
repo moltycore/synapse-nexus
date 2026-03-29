@@ -3,7 +3,7 @@ import { Cpu } from "lucide-react";
 import SynapseAppBar from "@/components/SynapseAppBar";
 import BattleTimeline from "@/components/BattleTimeline";
 import SynapseInput from "@/components/SynapseInput";
-import ChatMessage from "@/components/ChatMessage"; // Yeni bileşeni ekledik
+import ChatMessage from "@/components/ChatMessage"; 
 
 interface YargicData {
   karar: string;
@@ -21,7 +21,7 @@ interface HistoryItem {
   denetleme?: string;
   vizyoner_puter?: string;
   yargic?: YargicData;
-  mode: "triage" | "nexus";
+  mode: "solo" | "nexus";
 }
 
 const getTurkishTime = () => {
@@ -36,7 +36,7 @@ const getTurkishTime = () => {
 
 export default function Index() {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [mode, setMode] = useState<"triage" | "nexus">("nexus");
+  const [mode, setMode] = useState<"solo" | "nexus">("solo");
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [activeItem, setActiveItem] = useState<HistoryItem | null>(null);
   const [currentSoru, setCurrentSoru] = useState<string>("");
@@ -136,13 +136,7 @@ export default function Index() {
     } catch (error) {
       const errorTime = getTurkishTime();
       const errMsg = `⚠️ ${error instanceof Error ? error.message : "Bağlantı koptu."}`;
-      const errItem: HistoryItem = { 
-        id: Date.now(), 
-        soru: text, 
-        racon: errMsg, 
-        timestamp: errorTime, 
-        mode: mode 
-      };
+      const errItem: HistoryItem = { id: Date.now(), soru: text, racon: errMsg, timestamp: errorTime, mode: mode };
       setHistory((prev) => [...prev, errItem]);
       setActiveItem(errItem);
     } finally {
@@ -157,7 +151,6 @@ export default function Index() {
 
       <main className="flex-1 overflow-y-auto pb-24 pt-2">
         <div className="px-4 space-y-3">
-          {/* Geçmiş Mesajlar */}
           {history.map((item) => (
             <ChatMessage 
               key={item.id}
@@ -168,7 +161,6 @@ export default function Index() {
             />
           ))}
 
-          {/* Yükleniyor Durumu */}
           {isProcessing && (
             <div className="space-y-2">
               <div className="flex justify-end relative">
@@ -220,4 +212,4 @@ export default function Index() {
       />
     </div>
   );
-                    }
+}
