@@ -8,19 +8,19 @@ import ChatMessage from "@/components/ChatMessage";
 interface YargicData {
   karar: string;
   risk_skoru: number;
-  racon: string;
-  vizyon_onerisi?: string; // Yeni: Prime'dan gelen öneri
+  nihai_rapor: string;
+  vizyon_onerisi?: string; 
 }
 
 interface HistoryItem {
   id: number;
   soru: string;
-  racon: string; 
+  nihai_rapor: string; 
   timestamp: string; 
-  sme?: string;      // Engine'deki CORE verisi buraya gelir
-  arastirma?: string; // Engine'deki GHOST verisi buraya gelir
-  denetleme?: string; // Engine'deki VOID verisi buraya gelir
-  vizyon_onerisi?: string; // ChatMessage'da göstermek için kolay erişim
+  sme?: string;      
+  arastirma?: string; 
+  denetleme?: string; 
+  vizyon_onerisi?: string; 
   yargic?: YargicData;
   mode: "solo" | "nexus";
 }
@@ -88,7 +88,6 @@ export default function Index() {
             const eventObj = JSON.parse(jsonStr);
 
             if (eventObj.event === "status") {
-              // Engine'den gelen 'gatekeeper', 'core', 'ghost', 'void', 'prime' durumlarını yakalar
               setActiveAgent(eventObj.data ?? null);
             } else if (eventObj.event === "done") {
               const data = eventObj.data;
@@ -100,8 +99,8 @@ export default function Index() {
                   yargicData = {
                     karar: parsed.karar ?? "",
                     risk_skoru: parsed.risk_skoru ?? 0,
-                    racon: parsed.racon ?? "",
-                    vizyon_onerisi: parsed.vizyon_onerisi ?? "" // Prime'ın vizyonunu yakalıyoruz
+                    nihai_rapor: parsed.nihai_rapor ?? "",
+                    vizyon_onerisi: parsed.vizyon_onerisi ?? "" 
                   };
                 } catch (e) {
                   yargicData = undefined;
@@ -111,12 +110,12 @@ export default function Index() {
               finalItem = {
                 id: Date.now(),
                 soru: text,
-                racon: yargicData?.racon ?? data.racon ?? "İşlem tamamlandı.",
+                nihai_rapor: yargicData?.nihai_rapor ?? data.nihai_rapor ?? "İşlem tamamlandı.",
                 timestamp: getTurkishTime(),
                 mode: mode,
-                sme: data.analiz,      // CORE verisi
-                arastirma: data.denetim, // GHOST verisi
-                denetleme: data.vizyon,  // VOID verisi
+                sme: data.analiz,      
+                arastirma: data.denetim, 
+                denetleme: data.vizyon,  
                 vizyon_onerisi: yargicData?.vizyon_onerisi,
                 yargic: yargicData,
               };
@@ -134,7 +133,7 @@ export default function Index() {
     } catch (error) {
       const errorTime = getTurkishTime();
       const errMsg = `⚠️ Hata oluştu: ${error instanceof Error ? error.message : "Bağlantı koptu."}`;
-      const errItem: HistoryItem = { id: Date.now(), soru: text, racon: errMsg, timestamp: errorTime, mode: mode };
+      const errItem: HistoryItem = { id: Date.now(), soru: text, nihai_rapor: errMsg, timestamp: errorTime, mode: mode };
       setHistory((prev) => [...prev, errItem]);
     } finally {
       setIsProcessing(false);
@@ -152,14 +151,13 @@ export default function Index() {
             <ChatMessage 
               key={item.id}
               soru={item.soru}
-              racon={item.racon}
+              nihai_rapor={item.nihai_rapor}
               timestamp={item.timestamp}
               mode={item.mode}
-              vizyon_onerisi={item.vizyon_onerisi} // Artık mesajda öneri var
+              vizyon_onerisi={item.vizyon_onerisi} 
             />
           ))}
 
-          {/* İşleniyor Balonu */}
           {isProcessing && (
             <div className="space-y-2">
               <div className="flex justify-end relative">
@@ -175,7 +173,6 @@ export default function Index() {
           <div ref={bottomRef} />
         </div>
 
-        {/* NEXUS Modu Akış Çizelgesi */}
         {((isProcessing && mode === "nexus") || (activeItem?.mode === "nexus")) && (
           <div className="mt-4">
             <BattleTimeline
@@ -200,4 +197,4 @@ export default function Index() {
       />
     </div>
   );
-                }
+}
