@@ -9,6 +9,7 @@ interface YargicData {
   karar: string;
   risk_skoru: number;
   racon: string;
+  vizyon_onerisi?: string; // Yeni: Prime'dan gelen öneri
 }
 
 interface HistoryItem {
@@ -16,10 +17,10 @@ interface HistoryItem {
   soru: string;
   racon: string; 
   timestamp: string; 
-  sme?: string;
-  arastirma?: string;
-  denetleme?: string;
-  vizyoner_puter?: string;
+  sme?: string;      // Engine'deki CORE verisi buraya gelir
+  arastirma?: string; // Engine'deki GHOST verisi buraya gelir
+  denetleme?: string; // Engine'deki VOID verisi buraya gelir
+  vizyon_onerisi?: string; // ChatMessage'da göstermek için kolay erişim
   yargic?: YargicData;
   mode: "solo" | "nexus";
 }
@@ -61,11 +62,6 @@ export default function Index() {
         body: JSON.stringify({ text, mode }),
       });
 
-      if (!response.ok) {
-        const errBody = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errBody}`);
-      }
-
       const reader = response.body?.getReader();
       if (!reader) throw new Error("SSE stream not available");
 
@@ -92,6 +88,7 @@ export default function Index() {
             const eventObj = JSON.parse(jsonStr);
 
             if (eventObj.event === "status") {
+              // Engine'den gelen 'gatekeeper', 'core', 'ghost', 'void', 'prime' durumlarını yakalar
               setActiveAgent(eventObj.data ?? null);
             } else if (eventObj.event === "done") {
               const data = eventObj.data;
@@ -104,34 +101,25 @@ export default function Index() {
                     karar: parsed.karar ?? "",
                     risk_skoru: parsed.risk_skoru ?? 0,
                     racon: parsed.racon ?? "",
+                    vizyon_onerisi: parsed.vizyon_onerisi ?? "" // Prime'ın vizyonunu yakalıyoruz
                   };
                 } catch (e) {
                   yargicData = undefined;
                 }
               }
 
-              if (mode === "solo") {
-                finalItem = {
-                  id: Date.now(),
-                  soru: text,
-                  racon: data.solo_cevap ?? "Cevap alınamadı.",
-                  timestamp: getTurkishTime(),
-                  mode: mode,
-                };
-              } else {
-                finalItem = {
-                  id: Date.now(),
-                  soru: text,
-                  racon: yargicData?.racon ?? "Yargıç mühür basamadı.",
-                  timestamp: getTurkishTime(),
-                  sme: data.analiz,
-                  arastirma: "Birleştirildi.",
-                  denetleme: data.denetim,
-                  vizyoner_puter: data.vizyon,
-                  yargic: yargicData,
-                  mode: mode,
-                };
-              }
+              finalItem = {
+                id: Date.now(),
+                soru: text,
+                racon: yargicData?.racon ?? data.racon ?? "İşlem tamamlandı.",
+                timestamp: getTurkishTime(),
+                mode: mode,
+                sme: data.analiz,      // CORE verisi
+                arastirma: data.denetim, // GHOST verisi
+                denetleme: data.vizyon,  // VOID verisi
+                vizyon_onerisi: yargicData?.vizyon_onerisi,
+                yargic: yargicData,
+              };
             }
           } catch (e) {
             console.error("JSON Parse Hatası:", e);
@@ -145,10 +133,9 @@ export default function Index() {
       }
     } catch (error) {
       const errorTime = getTurkishTime();
-      const errMsg = `⚠️ ${error instanceof Error ? error.message : "Bağlantı koptu."}`;
+      const errMsg = `⚠️ Hata oluştu: ${error instanceof Error ? error.message : "Bağlantı koptu."}`;
       const errItem: HistoryItem = { id: Date.now(), soru: text, racon: errMsg, timestamp: errorTime, mode: mode };
       setHistory((prev) => [...prev, errItem]);
-      setActiveItem(errItem);
     } finally {
       setIsProcessing(false);
       setActiveAgent(null);
@@ -168,27 +155,18 @@ export default function Index() {
               racon={item.racon}
               timestamp={item.timestamp}
               mode={item.mode}
+              vizyon_onerisi={item.vizyon_onerisi} // Artık mesajda öneri var
             />
           ))}
 
+          {/* İşleniyor Balonu */}
           {isProcessing && (
             <div className="space-y-2">
               <div className="flex justify-end relative">
-                <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-2 pb-5 overflow-hidden relative">
-                  {mode === "nexus" && (
-                    <Cpu size={14} className="absolute top-2 right-2 text-synapse-purple/40" />
-                  )}
-                  <p className={`text-sm text-foreground/90 leading-relaxed break-words ${mode === "nexus" ? "pr-4" : ""}`}>{currentSoru}</p>
+                <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-2 pb-5 relative">
+                  {mode === "nexus" && <Cpu size={14} className="absolute top-2 right-2 text-synapse-purple/40" />}
+                  <p className="text-sm text-foreground/90 leading-relaxed pr-4">{currentSoru}</p>
                   <span className="absolute bottom-1 right-3 text-[8px] text-muted-foreground/60">{getTurkishTime()}</span>
-                </div>
-              </div>
-              <div className="flex justify-start">
-                <div className="glass border border-white/[0.07] rounded-2xl rounded-tl-sm px-4 py-3">
-                  <div className="flex gap-1.5 items-center">
-                    <span className="w-1.5 h-1.5 rounded-full bg-synapse-purple/60 animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="w-1.5 h-1.5 rounded-full bg-synapse-purple/60 animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="w-1.5 h-1.5 rounded-full bg-synapse-purple/60 animate-bounce" style={{ animationDelay: "300ms" }} />
-                  </div>
                 </div>
               </div>
             </div>
@@ -197,6 +175,7 @@ export default function Index() {
           <div ref={bottomRef} />
         </div>
 
+        {/* NEXUS Modu Akış Çizelgesi */}
         {((isProcessing && mode === "nexus") || (activeItem?.mode === "nexus")) && (
           <div className="mt-4">
             <BattleTimeline
@@ -207,7 +186,6 @@ export default function Index() {
               sme={activeItem?.sme}
               arastirma={activeItem?.arastirma}
               denetleme={activeItem?.denetleme}
-              vizyoner_puter={activeItem?.vizyoner_puter}
               yargic={activeItem?.yargic}
             />
           </div>
@@ -222,4 +200,4 @@ export default function Index() {
       />
     </div>
   );
-}
+                }
