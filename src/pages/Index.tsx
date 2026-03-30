@@ -17,9 +17,9 @@ interface HistoryItem {
   soru: string;
   nihai_rapor: string; 
   timestamp: string; 
-  sme?: string;      
-  arastirma?: string; 
-  denetleme?: string; 
+  core_data?: string;   // Siber terminolojiye güncellendi
+  ghost_data?: string;  // Siber terminolojiye güncellendi
+  void_data?: string;   // Siber terminolojiye güncellendi
   vizyon_onerisi?: string; 
   yargic?: YargicData;
   mode: "solo" | "nexus";
@@ -113,9 +113,9 @@ export default function Index() {
                 nihai_rapor: yargicData?.nihai_rapor ?? data.nihai_rapor ?? "İşlem tamamlandı.",
                 timestamp: getTurkishTime(),
                 mode: mode,
-                sme: data.analiz,      
-                arastirma: data.denetim, 
-                denetleme: data.vizyon,  
+                core_data: data.analiz,      
+                ghost_data: data.denetim, 
+                void_data: data.vizyon,  
                 vizyon_onerisi: yargicData?.vizyon_onerisi,
                 yargic: yargicData,
               };
@@ -142,7 +142,8 @@ export default function Index() {
   }, [isProcessing, mode]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background relative">
+    // select-none ile global metin seçimi kapatıldı, sadece izin verilen alt bileşenler seçilebilecek
+    <div className="min-h-screen flex flex-col bg-background relative select-none">
       <SynapseAppBar />
 
       <main className="flex-1 overflow-y-auto pb-24 pt-2">
@@ -160,8 +161,8 @@ export default function Index() {
 
           {isProcessing && (
             <div className="space-y-2">
-              <div className="flex justify-end relative">
-                <div className="max-w-[78%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-2 pb-5 relative">
+              <div className="flex justify-end relative select-none">
+                <div className="max-w-[95%] w-fit bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-2 pb-5 relative">
                   {mode === "nexus" && <Cpu size={14} className="absolute top-2 right-2 text-synapse-purple/40" />}
                   <p className="text-sm text-foreground/90 leading-relaxed pr-4">{currentSoru}</p>
                   <span className="absolute bottom-1 right-3 text-[8px] text-muted-foreground/60">{getTurkishTime()}</span>
@@ -180,9 +181,9 @@ export default function Index() {
               phase={3}
               isProcessing={isProcessing}
               activeAgent={activeAgent}
-              sme={activeItem?.sme}
-              arastirma={activeItem?.arastirma}
-              denetleme={activeItem?.denetleme}
+              core_data={activeItem?.core_data}
+              ghost_data={activeItem?.ghost_data}
+              void_data={activeItem?.void_data}
               yargic={activeItem?.yargic}
             />
           </div>
