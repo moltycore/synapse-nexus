@@ -5,23 +5,14 @@ import BattleTimeline from "@/components/BattleTimeline";
 import SynapseInput from "@/components/SynapseInput";
 import ChatMessage from "@/components/ChatMessage"; 
 
-interface YargicData {
-  karar: string;
-  risk_skoru: number;
-  nihai_rapor: string;
-  vizyon_onerisi?: string; 
-}
-
 interface HistoryItem {
   id: number;
   soru: string;
-  nihai_rapor: string; 
+  prime_result: string; 
   timestamp: string; 
-  core_data?: string;   // Siber terminolojiye güncellendi
-  ghost_data?: string;  // Siber terminolojiye güncellendi
-  void_data?: string;   // Siber terminolojiye güncellendi
-  vizyon_onerisi?: string; 
-  yargic?: YargicData;
+  core_data?: string;   
+  ghost_data?: string;  
+  void_data?: string;   
   mode: "solo" | "nexus";
 }
 
@@ -92,36 +83,19 @@ export default function Index() {
             } else if (eventObj.event === "done") {
               const data = eventObj.data;
 
-              let yargicData: YargicData | undefined;
-              if (data.yargic) {
-                try {
-                  const parsed = typeof data.yargic === "string" ? JSON.parse(data.yargic) : data.yargic;
-                  yargicData = {
-                    karar: parsed.karar ?? "",
-                    risk_skoru: parsed.risk_skoru ?? 0,
-                    nihai_rapor: parsed.nihai_rapor ?? "",
-                    vizyon_onerisi: parsed.vizyon_onerisi ?? "" 
-                  };
-                } catch (e) {
-                  yargicData = undefined;
-                }
-              }
-
               finalItem = {
                 id: Date.now(),
                 soru: text,
-                nihai_rapor: yargicData?.nihai_rapor ?? data.nihai_rapor ?? "İşlem tamamlandı.",
+                prime_result: data.prime_result ?? "İşlem tamamlandı.",
                 timestamp: getTurkishTime(),
                 mode: mode,
-                core_data: data.analiz,      
-                ghost_data: data.denetim, 
-                void_data: data.vizyon,  
-                vizyon_onerisi: yargicData?.vizyon_onerisi,
-                yargic: yargicData,
+                core_data: data.core_data,      
+                ghost_data: data.ghost_data, 
+                void_data: data.void_data,  
               };
             }
           } catch (e) {
-            console.error("JSON Parse Hatası:", e);
+            console.error("Parse Error:", e);
           }
         }
       }
@@ -132,8 +106,8 @@ export default function Index() {
       }
     } catch (error) {
       const errorTime = getTurkishTime();
-      const errMsg = `⚠️ Hata oluştu: ${error instanceof Error ? error.message : "Bağlantı koptu."}`;
-      const errItem: HistoryItem = { id: Date.now(), soru: text, nihai_rapor: errMsg, timestamp: errorTime, mode: mode };
+      const errMsg = `⚠️ Hata: ${error instanceof Error ? error.message : "Bağlantı koptu."}`;
+      const errItem: HistoryItem = { id: Date.now(), soru: text, prime_result: errMsg, timestamp: errorTime, mode: mode };
       setHistory((prev) => [...prev, errItem]);
     } finally {
       setIsProcessing(false);
@@ -142,7 +116,6 @@ export default function Index() {
   }, [isProcessing, mode]);
 
   return (
-    // select-none ile global metin seçimi kapatıldı, sadece izin verilen alt bileşenler seçilebilecek
     <div className="min-h-screen flex flex-col bg-background relative select-none">
       <SynapseAppBar />
 
@@ -152,10 +125,9 @@ export default function Index() {
             <ChatMessage 
               key={item.id}
               soru={item.soru}
-              nihai_rapor={item.nihai_rapor}
+              nihai_rapor={item.prime_result}
               timestamp={item.timestamp}
               mode={item.mode}
-              vizyon_onerisi={item.vizyon_onerisi} 
             />
           ))}
 
@@ -184,7 +156,6 @@ export default function Index() {
               core_data={activeItem?.core_data}
               ghost_data={activeItem?.ghost_data}
               void_data={activeItem?.void_data}
-              yargic={activeItem?.yargic}
             />
           </div>
         )}
