@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Cpu, Fingerprint, Zap, Gavel, Search } from "lucide-react";
 
-// Motor (engine) ile tam senkronize ajan sıralaması
 const AGENT_KEYS = ["gatekeeper", "core", "ghost", "void", "core_refine", "prime"];
 
 const nodeConfig = [
@@ -12,13 +11,6 @@ const nodeConfig = [
   { Icon: Gavel,       label: "PRIME",      key: "prime"      },
 ];
 
-interface YargicData {
-  karar: string;
-  risk_skoru: number;
-  nihai_rapor: string;
-  vizyon_onerisi?: string;
-}
-
 interface BattleTimelineProps {
   isActive: boolean;
   isProcessing: boolean;
@@ -26,31 +18,30 @@ interface BattleTimelineProps {
   core_data?: string;
   ghost_data?: string;
   void_data?: string;
-  yargic?: YargicData;
-}
-
-function parseLines(text?: string): string[] {
-  if (!text) return [];
-  return text
-    .split("\n")
-    .map((l) => l.replace(/^\s*[\d\-\*\•]+[\.\):]?\s*/, "").replace(/\*\*/g, "").trim())
-    .filter((l) => l.length > 0);
+  prime_result?: string; // Artık JSON değil, düz metin
 }
 
 const BattleTimeline = ({
   isActive, isProcessing, activeAgent,
-  core_data, ghost_data, void_data, yargic,
+  core_data, ghost_data, void_data, prime_result,
 }: BattleTimelineProps) => {
   const [activeNode, setActiveNode] = useState<number | null>(null);
 
-  // O an terleyen ajanı yakalar (Nabız)
+  const safeParse = (data?: string) => {
+    if (!data) return null;
+    try {
+      return typeof data === "string" ? JSON.parse(data) : data;
+    } catch (e) {
+      return null;
+    }
+  };
+
   const getAgentStatus = (key: string) => {
     if (activeAgent === key) return true;
     if (key === "core" && activeAgent === "core_refine") return true; 
     return false;
   };
 
-  // Hafıza Protokolü: Sırası geçen ajanın ışığını açık tutar
   const isNodePassed = (key: string) => {
     if (!isProcessing || !activeAgent) return false;
     const currentIdx = AGENT_KEYS.indexOf(activeAgent);
@@ -58,17 +49,20 @@ const BattleTimeline = ({
     return currentIdx > nodeIdx;
   };
 
-  const nodeData = [
-    parseLines("Niyet analizi tamamlandı."),
-    parseLines(core_data),
-    parseLines(ghost_data),
-    parseLines(void_data),
-    yargic ? [
-      `Karar: ${yargic.karar}`,
-      `Risk: ${yargic.risk_skoru}/100`,
-      yargic.nihai_rapor,
-      ...(yargic.vizyon_onerisi ? [`Vizyon: ${yargic.vizyon_onerisi}`] : []),
-    ] : [],
+  // Backend'den gelen yeni JSON şemasına göre veri eşleme
+  const core = safeParse(core_data);
+  const ghost = safeParse(ghost_data);
+  const void_d = safeParse(void_data);
+
+  const nodeData: string[][] = [
+    ["Intent analysis finalized."], // Gatekeeper
+    core ? [core.architecture_summary, ...(core.core_mechanics || [])] : [], // Core
+    ghost ? [
+      ghost.vulnerability_1?.detail || "Scanning...",
+      ghost.vulnerability_2?.detail || "Scanning..."
+    ] : [], // Ghost
+    void_d ? [...(void_d.directives || [])] : [], // Void
+    prime_result ? [prime_result] : [], // Prime
   ];
 
   const handleNode = (i: number) => {
@@ -82,8 +76,6 @@ const BattleTimeline = ({
         {nodeConfig.map((node, i) => {
           const { Icon } = node;
           const isAgentActive = getAgentStatus(node.key);
-          
-          // Veri geldiyse VEYA ajan işini yapıp sırayı devrettiyse ışığı yak
           const hasData = nodeData[i]?.length > 0 || isNodePassed(node.key);
           const selected = activeNode === i;
 
@@ -113,7 +105,6 @@ const BattleTimeline = ({
           );
         })}
         
-        {/* İşleniyor animasyonu */}
         {isProcessing && (
           <div className="flex gap-0.5 ml-2">
             <span className="w-1 h-1 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: "0ms" }} />
@@ -123,7 +114,6 @@ const BattleTimeline = ({
         )}
       </div>
 
-      {/* Tıklanan kartın içeriği */}
       {activeNode !== null && nodeData[activeNode]?.length > 0 && (
         <div className="glass rounded-2xl p-4 border border-white/[0.1] transition-all duration-300 mt-2">
           <p className="text-[10px] font-semibold tracking-widest uppercase mb-3 text-white/50">
@@ -134,7 +124,7 @@ const BattleTimeline = ({
               <div
                 key={idx}
                 className={`text-xs leading-relaxed flex items-start gap-2 ${
-                  activeNode === 2 ? "text-white/40 italic" : "text-foreground/75"
+                  activeNode === 2 ? "text-red-400/70 italic" : "text-foreground/75"
                 }`}
               >
                 <span className="text-white/20 mt-px shrink-0">·</span>
