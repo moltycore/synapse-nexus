@@ -1,21 +1,19 @@
 import { useState, useRef, useCallback } from "react";
 
 export interface HistoryItem {
-  id: string; // Date.now() yerine çakışmaları önlemek için string (UUID)
-  soru: string;
-  prime_result: string;
+  id: string; 
+  query: string;
+  primeResult: string;
   timestamp: string;
-  core_data?: string;
-  ghost_data?: string;
-  void_data?: string;
+  coreData?: string;
+  ghostData?: string;
+  voidData?: string;
   mode: "solo" | "nexus";
 }
 
 export function useSynapseStream() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeAgent, setActiveAgent] = useState<string | null>(null);
-  
-  // Nexus tartışırken Timeline'a canlı veri basmak için geçici state
   const [streamingData, setStreamingData] = useState<Partial<HistoryItem>>({}); 
   
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -24,7 +22,7 @@ export function useSynapseStream() {
     const now = new Date();
     let h = now.getHours();
     const m = now.getMinutes().toString().padStart(2, '0');
-    return `${h >= 12 ? 'ÖS' : 'ÖÖ'} ${h % 12 || 12}:${m}`;
+    return `${h >= 12 ? 'PM' : 'AM'} ${h % 12 || 12}:${m}`;
   };
 
   const submitQuery = useCallback(async (
@@ -33,7 +31,6 @@ export function useSynapseStream() {
     onComplete: (item: HistoryItem) => void,
     onError: (errItem: HistoryItem) => void
   ) => {
-    // Eğer halihazırda çalışan bir istek varsa, onu iptal et (Sistemi şişirmemek için)
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
@@ -43,7 +40,7 @@ export function useSynapseStream() {
 
     setIsProcessing(true);
     setActiveAgent(null);
-    setStreamingData({}); // Önceki kalıntıları temizle
+    setStreamingData({}); 
 
     const pendingId = crypto.randomUUID();
     let currentData: Partial<HistoryItem> = {};
@@ -57,7 +54,7 @@ export function useSynapseStream() {
       });
 
       const reader = response.body?.getReader();
-      if (!reader) throw new Error("Stream koptu veya alınamadı.");
+      if (!reader) throw new Error("Stream connection failed.");
 
       const decoder = new TextDecoder();
       let buffer = "";
@@ -79,19 +76,25 @@ export function useSynapseStream() {
             if (eventObj.event === "status") {
               setActiveAgent(eventObj.data);
             } else if (eventObj.event === "done") {
-              currentData = { ...currentData, ...eventObj.data };
-              // Nexus akarken Timeline dolsun diye anlık state'e atıyoruz
+              // Map backend snake_case to frontend camelCase
+              const payload = eventObj.data;
+              currentData = { 
+                ...currentData, 
+                primeResult: payload.prime_result,
+                coreData: payload.core_data,
+                ghostData: payload.ghost_data,
+                voidData: payload.void_data
+              };
               setStreamingData(currentData); 
             }
-          } catch (e) { /* Parçalı JSON gelirse sessizce geç */ }
+          } catch (e) { /* Silent ignore for partial chunks */ }
         }
       }
 
-      // Döngü bitti, nihai nesneyi oluştur ve Index'e fırlat
       const finalItem: HistoryItem = {
         id: pendingId,
-        soru: text,
-        prime_result: currentData.prime_result || "İşlem tamamlandı.",
+        query: text,
+        primeResult: currentData.primeResult || "Process completed.",
         timestamp: getTurkishTime(),
         mode: mode,
         ...currentData
@@ -100,12 +103,12 @@ export function useSynapseStream() {
       onComplete(finalItem);
 
     } catch (error: any) {
-      if (error.name === 'AbortError') return; // Kullanıcı bilerek iptal ettiyse hata basma
+      if (error.name === 'AbortError') return; 
       
       const errItem: HistoryItem = {
         id: pendingId,
-        soru: text,
-        prime_result: `⚠️ Hata: ${error.message || "Sunucuya ulaşılamıyor."}`,
+        query: text,
+        primeResult: `⚠️ Error: ${error.message || "Server unreachable."}`,
         timestamp: getTurkishTime(),
         mode: mode
       };
@@ -119,4 +122,4 @@ export function useSynapseStream() {
   }, []);
 
   return { submitQuery, isProcessing, activeAgent, streamingData };
-          }
+}
