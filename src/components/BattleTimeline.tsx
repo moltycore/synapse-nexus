@@ -15,15 +15,20 @@ interface BattleTimelineProps {
   isActive: boolean;
   isProcessing: boolean;
   activeAgent: string | null;
-  core_data?: string;
-  ghost_data?: string;
-  void_data?: string;
-  prime_result?: string; // Artık JSON değil, düz metin
+  coreData?: string;
+  ghostData?: string;
+  voidData?: string;
+  primeResult?: string;
 }
 
 const BattleTimeline = ({
-  isActive, isProcessing, activeAgent,
-  core_data, ghost_data, void_data, prime_result,
+  isActive, 
+  isProcessing, 
+  activeAgent,
+  coreData, 
+  ghostData, 
+  voidData, 
+  primeResult,
 }: BattleTimelineProps) => {
   const [activeNode, setActiveNode] = useState<number | null>(null);
 
@@ -49,20 +54,20 @@ const BattleTimeline = ({
     return currentIdx > nodeIdx;
   };
 
-  // Backend'den gelen yeni JSON şemasına göre veri eşleme
-  const core = safeParse(core_data);
-  const ghost = safeParse(ghost_data);
-  const void_d = safeParse(void_data);
+  // Parsing payloads cleanly without reserved keyword conflicts
+  const parsedCore = safeParse(coreData);
+  const parsedGhost = safeParse(ghostData);
+  const parsedVoid = safeParse(voidData);
 
   const nodeData: string[][] = [
     ["Intent analysis finalized."], // Gatekeeper
-    core ? [core.architecture_summary, ...(core.core_mechanics || [])] : [], // Core
-    ghost ? [
-      ghost.vulnerability_1?.detail || "Scanning...",
-      ghost.vulnerability_2?.detail || "Scanning..."
+    parsedCore ? [parsedCore.architecture_summary, ...(parsedCore.core_mechanics || [])] : [], // Core
+    parsedGhost ? [
+      parsedGhost.vulnerability_1?.detail || "Scanning...",
+      parsedGhost.vulnerability_2?.detail || "Scanning..."
     ] : [], // Ghost
-    void_d ? [...(void_d.directives || [])] : [], // Void
-    prime_result ? [prime_result] : [], // Prime
+    parsedVoid ? [...(parsedVoid.directives || [])] : [], // Void
+    primeResult ? [primeResult] : [], // Prime
   ];
 
   const handleNode = (i: number) => {
