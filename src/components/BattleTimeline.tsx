@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Cpu, Fingerprint, Zap, Gavel, Search } from "lucide-react";
+import { AgentKey } from "@/hooks/synapse/types";
 
-const AGENT_KEYS = ["gatekeeper", "core", "ghost", "void", "core_refine", "prime"];
+const AGENT_KEYS: AgentKey[] = ["gatekeeper", "core", "ghost", "void", "core_refine", "prime"];
 
-const nodeConfig = [
+const nodeConfig: { Icon: any; label: string; key: AgentKey }[] = [
   { Icon: Search,      label: "GATEKEEPER", key: "gatekeeper" },
   { Icon: Cpu,         label: "CORE",       key: "core"       },
   { Icon: Fingerprint, label: "GHOST",      key: "ghost"      },
@@ -14,7 +15,7 @@ const nodeConfig = [
 interface BattleTimelineProps {
   isActive: boolean;
   isProcessing: boolean;
-  activeAgent: string | null;
+  activeAgent: AgentKey | null;
   coreData?: string;
   ghostData?: string;
   voidData?: string;
@@ -36,38 +37,35 @@ const BattleTimeline = ({
     if (!data) return null;
     try {
       return typeof data === "string" ? JSON.parse(data) : data;
-    } catch (e) {
+    } catch {
       return null;
     }
   };
 
-  const getAgentStatus = (key: string) => {
+  const getAgentStatus = (key: AgentKey) => {
     if (activeAgent === key) return true;
     if (key === "core" && activeAgent === "core_refine") return true; 
     return false;
   };
 
-  const isNodePassed = (key: string) => {
+  const isNodePassed = (key: AgentKey) => {
     if (!isProcessing || !activeAgent) return false;
-    const currentIdx = AGENT_KEYS.indexOf(activeAgent);
-    const nodeIdx = AGENT_KEYS.indexOf(key);
-    return currentIdx > nodeIdx;
+    return AGENT_KEYS.indexOf(activeAgent) > AGENT_KEYS.indexOf(key);
   };
 
-  // Parsing payloads cleanly without reserved keyword conflicts
   const parsedCore = safeParse(coreData);
   const parsedGhost = safeParse(ghostData);
   const parsedVoid = safeParse(voidData);
 
   const nodeData: string[][] = [
-    ["Intent analysis finalized."], // Gatekeeper
-    parsedCore ? [parsedCore.architecture_summary, ...(parsedCore.core_mechanics || [])] : [], // Core
+    ["Intent analysis finalized."],
+    parsedCore ? [parsedCore.architecture_summary, ...(parsedCore.core_mechanics || [])] : [],
     parsedGhost ? [
       parsedGhost.vulnerability_1?.detail || "Scanning...",
       parsedGhost.vulnerability_2?.detail || "Scanning..."
-    ] : [], // Ghost
-    parsedVoid ? [...(parsedVoid.directives || [])] : [], // Void
-    primeResult ? [primeResult] : [], // Prime
+    ] : [],
+    parsedVoid ? [...(parsedVoid.directives || [])] : [],
+    primeResult ? [primeResult] : [],
   ];
 
   const handleNode = (i: number) => {
