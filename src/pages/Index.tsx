@@ -38,7 +38,7 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background relative text-foreground">
+    <div className="min-h-[100dvh] flex flex-col bg-background relative text-foreground overflow-x-hidden">
       <SynapseAppBar />
 
       <main className="flex-1 overflow-y-auto pb-24 pt-2">
@@ -46,11 +46,10 @@ export default function Index() {
           {history.map((item) => (
             <ChatMessage 
               key={item.id}
-              query={item.query} 
-              primeResult={item.primeResult} 
+              query={item.soru} 
+              primeResult={item.prime_result} 
               timestamp={item.timestamp}
               mode={item.mode}
-              visionSuggest={item.voidData ? "Deep analysis complete." : undefined}
             />
           ))}
 
@@ -75,9 +74,9 @@ export default function Index() {
               phase={isProcessing ? 2 : 3}
               isProcessing={isProcessing}
               activeAgent={activeAgent}
-              coreData={isProcessing ? streamingData.coreData : activeItem?.coreData}
-              ghostData={isProcessing ? streamingData.ghostData : activeItem?.ghostData}
-              voidData={isProcessing ? streamingData.voidData : activeItem?.voidData}
+              core_data={isProcessing ? streamingData.core_data : activeItem?.core_data}
+              ghost_data={isProcessing ? streamingData.ghost_data : activeItem?.ghost_data}
+              void_data={isProcessing ? streamingData.void_data : activeItem?.void_data}
             />
           </div>
         )}
