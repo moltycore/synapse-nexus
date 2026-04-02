@@ -41,7 +41,6 @@ const SynapseInput = ({ onSubmit, isProcessing, mode, setMode }: SynapseInputPro
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none">
-      {/* Scrim: Perfectly synced with --background CSS variable */}
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-transparent h-[140%] -bottom-10 pointer-events-none" />
       
       <div className="max-w-3xl mx-auto relative w-full px-4 pt-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pointer-events-auto">
