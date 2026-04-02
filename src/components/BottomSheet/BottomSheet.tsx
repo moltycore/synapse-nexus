@@ -23,13 +23,13 @@ export default function BottomSheet() {
 
       {isVisible && (
         <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70]"
           onClick={() => setIsVisible(false)}
         />
       )}
 
       <div 
-        className={`fixed bottom-0 left-0 right-0 min-h-[30vh] bg-[#12141A] border-t border-white/5 rounded-t-3xl z-[70] transform transition-transform duration-300 ease-in-out shadow-2xl ${
+        className={`fixed bottom-0 left-0 right-0 min-h-[30vh] bg-[#12141A] border-t border-white/5 rounded-t-3xl z-[80] transform transition-transform duration-300 ease-in-out shadow-2xl ${
           isVisible ? "translate-y-0" : "translate-y-full"
         }`}
       >
@@ -39,9 +39,7 @@ export default function BottomSheet() {
             <X size={16} />
           </button>
         </div>
-        <div className="p-6 text-center font-mono text-[10px] text-white/20">
-          SYSTEM_TELEMETRY_OFFLINE
-        </div>
+        <div className="p-6 text-center font-mono text-[10px] text-white/20">SYSTEM_TELEMETRY_OFFLINE</div>
       </div>
     </>
   );
