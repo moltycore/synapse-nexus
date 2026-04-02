@@ -24,13 +24,13 @@ export default function Sidebar() {
 
       {isVisible && (
         <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70]"
           onClick={() => setIsVisible(false)}
         />
       )}
 
       <aside 
-        className={`fixed top-0 left-0 h-full w-64 bg-[#0F1115] border-r border-white/5 z-[70] transform transition-transform duration-300 ease-in-out flex flex-col ${
+        className={`fixed top-0 left-0 h-full w-64 bg-[#0F1115] border-r border-white/5 z-[80] transform transition-transform duration-300 ease-in-out flex flex-col ${
           isVisible ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -40,9 +40,7 @@ export default function Sidebar() {
             <X size={18} />
           </button>
         </div>
-        <div className="p-4 flex-1 font-mono text-[10px] text-white/20">
-          AWAITING_UPLINK...
-        </div>
+        <div className="p-4 flex-1 font-mono text-[10px] text-white/20">AWAITING_UPLINK...</div>
       </aside>
     </>
   );
