@@ -1,38 +1,24 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
     <title>Synapse Nexus AI</title>
-    <meta name="description" content="Geleceği Sentezleyen Yapay Zeka Deneyimi" />
-    <meta name="author" content="Beliz" />
-
-    <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#0F1115" />
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="/logo192.png">
-
-    <meta property="og:title" content="Synapse Nexus AI" />
-    <meta property="og:description" content="Karar anında sinaptik bir dokunuş." />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="/logo512.png" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="/logo512.png" />
-
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('Sinaptik bağlantı kuruldu (SW):', reg.scope))
-            .catch(err => console.error('SW Kayıt Hatası:', err));
+            .catch(err => console.error('SW_REG_ERROR:', err));
         });
       }
     </script>
   </head>
-
-  <body style="background-color: #0F1115;">
+  <body style="background-color: #0F1115; margin: 0; padding: 0; overflow-x: hidden;">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
