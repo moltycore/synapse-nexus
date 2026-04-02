@@ -41,8 +41,18 @@ export default function Index() {
     <div className="min-h-[100dvh] flex flex-col bg-background relative text-foreground overflow-x-hidden">
       <SynapseAppBar />
 
-      <main className="flex-1 overflow-y-auto pb-24 pt-2">
-        <div className="px-4 space-y-3">
+      <main className="flex-1 overflow-y-auto pb-24 pt-2 relative flex flex-col">
+        {history.length === 0 && !isProcessing && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center opacity-80 select-none pb-32 pointer-events-none">
+            <div className="w-16 h-16 rounded-2xl bg-[#12141A] border border-white/5 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(139,92,246,0.07)]">
+              <Cpu size={32} className="text-synapse-purple/80" />
+            </div>
+            <h1 className="text-xl font-medium tracking-tight text-[#EDEFF3] mb-2">Synapse Nexus AI</h1>
+            <p className="text-[10px] text-white/30 tracking-[0.2em] uppercase">System Ready</p>
+          </div>
+        )}
+
+        <div className="px-4 space-y-3 z-10 relative">
           {history.map((item) => (
             <ChatMessage 
               key={item.id}
@@ -68,7 +78,7 @@ export default function Index() {
         </div>
 
         {((isProcessing && mode === "nexus") || (activeItem?.mode === "nexus")) && (
-          <div className="mt-4">
+          <div className="mt-4 z-10 relative">
             <BattleTimeline
               isActive={true}
               phase={isProcessing ? 2 : 3}
