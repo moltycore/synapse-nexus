@@ -2,12 +2,12 @@ import { useState, useRef, useCallback } from "react";
 
 export interface HistoryItem {
   id: string; 
-  query: string;
-  primeResult: string;
+  soru: string; // Adjusted to match Index.tsx usage
+  prime_result: string; // Adjusted to match Index.tsx usage
   timestamp: string;
-  coreData?: string;
-  ghostData?: string;
-  voidData?: string;
+  core_data?: string; // Adjusted to match Index.tsx usage
+  ghost_data?: string; // Adjusted to match Index.tsx usage
+  void_data?: string; // Adjusted to match Index.tsx usage
   mode: "solo" | "nexus";
 }
 
@@ -76,14 +76,13 @@ export function useSynapseStream() {
             if (eventObj.event === "status") {
               setActiveAgent(eventObj.data);
             } else if (eventObj.event === "done") {
-              // Map backend snake_case to frontend camelCase
               const payload = eventObj.data;
               currentData = { 
                 ...currentData, 
-                primeResult: payload.prime_result,
-                coreData: payload.core_data,
-                ghostData: payload.ghost_data,
-                voidData: payload.void_data
+                prime_result: payload.prime_result,
+                core_data: payload.core_data,
+                ghost_data: payload.ghost_data,
+                void_data: payload.void_data
               };
               setStreamingData(currentData); 
             }
@@ -93,8 +92,8 @@ export function useSynapseStream() {
 
       const finalItem: HistoryItem = {
         id: pendingId,
-        query: text,
-        primeResult: currentData.primeResult || "Process completed.",
+        soru: text,
+        prime_result: currentData.prime_result || "Process completed.",
         timestamp: getTurkishTime(),
         mode: mode,
         ...currentData
@@ -107,8 +106,8 @@ export function useSynapseStream() {
       
       const errItem: HistoryItem = {
         id: pendingId,
-        query: text,
-        primeResult: `⚠️ Error: ${error.message || "Server unreachable."}`,
+        soru: text,
+        prime_result: `⚠️ Error: ${error.message || "Server unreachable."}`,
         timestamp: getTurkishTime(),
         mode: mode
       };
@@ -122,4 +121,4 @@ export function useSynapseStream() {
   }, []);
 
   return { submitQuery, isProcessing, activeAgent, streamingData };
-}
+    }
