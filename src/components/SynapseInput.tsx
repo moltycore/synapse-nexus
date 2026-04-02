@@ -1,16 +1,31 @@
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import { CornerDownLeft, Zap, Cpu } from "lucide-react";
+import { SynapseMode } from "@/hooks/synapse/types";
 
 interface SynapseInputProps {
   onSubmit: (text: string) => void;
   isProcessing: boolean;
-  mode: "solo" | "nexus";
-  setMode: (mode: "solo" | "nexus") => void;
+  mode: SynapseMode;
+  setMode: (mode: SynapseMode) => void;
 }
 
 const SynapseInput = ({ onSubmit, isProcessing, mode, setMode }: SynapseInputProps) => {
   const [text, setText] = useState("");
+  const [keyboardOffset, setKeyboardOffset] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+
+    const handleResize = () => {
+      const offset = window.innerHeight - viewport.height;
+      setKeyboardOffset(offset > 0 ? offset : 0);
+    };
+
+    viewport.addEventListener("resize", handleResize);
+    return () => viewport.removeEventListener("resize", handleResize);
+  }, []);
 
   const adjustHeight = () => {
     if (textareaRef.current) {
@@ -19,9 +34,7 @@ const SynapseInput = ({ onSubmit, isProcessing, mode, setMode }: SynapseInputPro
     }
   };
 
-  useEffect(() => {
-    adjustHeight();
-  }, [text]);
+  useEffect(() => adjustHeight(), [text]);
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -40,7 +53,10 @@ const SynapseInput = ({ onSubmit, isProcessing, mode, setMode }: SynapseInputPro
   };
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 z-50 pointer-events-none">
+    <div 
+      className="absolute left-0 right-0 z-50 pointer-events-none transition-all duration-150 ease-out"
+      style={{ bottom: `${keyboardOffset}px` }}
+    >
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-transparent h-[140%] -bottom-10 pointer-events-none" />
       
       <div className="max-w-3xl mx-auto relative w-full px-4 pt-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pointer-events-auto">
