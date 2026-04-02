@@ -23,23 +23,27 @@ export default function BottomSheet() {
 
       {isVisible && (
         <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70]"
+          className="fixed inset-0 bg-black/20 z-[70]"
           onClick={() => setIsVisible(false)}
         />
       )}
 
-      <div 
-        className={`fixed bottom-0 left-0 right-0 min-h-[30vh] bg-[#12141A] border-t border-white/5 rounded-t-3xl z-[80] transform transition-transform duration-300 ease-in-out shadow-2xl ${
-          isVisible ? "translate-y-0" : "translate-y-full"
-        }`}
-      >
-        <div className="flex items-center justify-between p-5 border-b border-white/5">
-          <span className="text-sm font-medium text-foreground/80">Telemetry</span>
-          <button onClick={() => setIsVisible(false)} className="text-white/40 p-1 bg-white/5 rounded-full">
-            <X size={16} />
-          </button>
-        </div>
-        <div className="p-6 text-center font-mono text-[10px] text-white/20">SYSTEM_TELEMETRY_OFFLINE</div>
+      {/* Floating Container with Safe Area Padding */}
+      <div className="fixed bottom-0 left-0 right-0 z-[90] pointer-events-none pb-[calc(env(safe-area-inset-bottom)+12px)] px-4">
+        {/* Relative Content Area, transformed below Safe Area Fallback */}
+        <aside 
+          className={`relative bg-[#12141A] border border-white/5 rounded-3xl transform transition-transform duration-300 ease-in-out shadow-2xl pointer-events-auto flex flex-col ${
+            isVisible ? "translate-y-0" : "translate-y-[calc(100%+env(safe-area-inset-bottom)+12px)]"
+          }`}
+        >
+          <div className="flex items-center justify-between p-5 border-b border-white/5">
+            <span className="text-sm font-medium text-foreground/80">Telemetry</span>
+            <button onClick={() => setIsVisible(false)} className="text-white/40 p-1 bg-white/5 rounded-full hover:text-white transition-colors">
+              <X size={16} />
+            </button>
+          </div>
+          <div className="p-6 text-center font-mono text-[10px] text-white/20 flex-1">AWAITING_UPLINK...</div>
+        </aside>
       </div>
     </>
   );
