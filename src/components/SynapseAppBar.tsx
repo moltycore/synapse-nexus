@@ -1,20 +1,46 @@
-import Sidebar from "./Sidebar/Sidebar";
-import BottomSheet from "./BottomSheet/BottomSheet";
-
 interface SynapseAppBarProps {
-  isSidebarOpen: boolean;
-  onSidebarToggle: (state: boolean) => void;
+  onSidebarToggle: () => void;
+  onBottomSheetToggle: () => void;
 }
 
-const SynapseAppBar = ({ isSidebarOpen, onSidebarToggle }: SynapseAppBarProps) => {
+const NavigationIcon = () => (
+  <svg width="24" height="18" viewBox="0 0 28 20" fill="none">
+    <rect x="0" y="0" width="10" height="2" rx="1" fill="#EDEFF3" fillOpacity="0.9" />
+    <circle cx="17" cy="1" r="1.5" fill="#EDEFF3" fillOpacity="0.9" />
+    <rect x="0" y="9" width="18" height="2" rx="1" fill="#EDEFF3" fillOpacity="0.9" />
+    <rect x="0" y="18" width="18" height="2" rx="1" fill="#EDEFF3" fillOpacity="0.9" />
+  </svg>
+);
+
+const ActionIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+    <circle cx="8" cy="2" r="1.5" fill="#EDEFF3" fillOpacity="0.85" />
+    <circle cx="8" cy="8" r="1.5" fill="#EDEFF3" fillOpacity="0.85" />
+    <circle cx="8" cy="14" r="1.5" fill="#EDEFF3" fillOpacity="0.85" />
+  </svg>
+);
+
+const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle }: SynapseAppBarProps) => {
   return (
-    <header className="sticky top-0 z-[60] flex items-center justify-between px-4 h-[52px] bg-[#0F1115]">
-      <Sidebar isOpen={isSidebarOpen} onToggle={onSidebarToggle} />
+    <header className="sticky top-0 z-[40] flex items-center justify-between px-4 h-[52px] bg-[#0F1115]">
+      <button 
+        onClick={onSidebarToggle} 
+        className="flex items-center justify-center min-w-[36px] min-h-[36px] transition-all active:scale-95 active:opacity-70"
+      >
+        <NavigationIcon />
+      </button>
+
       <div className="flex flex-col items-center select-none gap-px">
         <span className="font-semibold text-[17px] text-[#EDEFF3] tracking-tight">Synapse</span>
         <span className="text-[11px] text-[#9CA3AF] tracking-[0.5px]">Nexus v1.2</span>
       </div>
-      <BottomSheet />
+
+      <button 
+        onClick={onBottomSheetToggle} 
+        className="flex items-center justify-center min-w-[36px] min-h-[36px] transition-all active:scale-95 active:opacity-70"
+      >
+        <ActionIcon />
+      </button>
     </header>
   );
 };
