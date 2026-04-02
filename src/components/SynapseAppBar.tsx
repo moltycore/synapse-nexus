@@ -22,7 +22,7 @@ const ActionIcon = () => (
 
 const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle }: SynapseAppBarProps) => {
   return (
-    <header className="sticky top-0 z-[40] flex items-center justify-between px-4 h-[52px] bg-[#0F1115]">
+    <header className="shrink-0 z-[40] flex items-center justify-between px-4 h-[52px] bg-[#0F1115]">
       <button 
         onClick={onSidebarToggle} 
         className="flex items-center justify-center min-w-[36px] min-h-[36px] transition-all active:scale-95 active:opacity-70"
