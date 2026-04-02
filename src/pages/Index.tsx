@@ -4,12 +4,14 @@ import SynapseAppBar from "@/components/SynapseAppBar";
 import BattleTimeline from "@/components/BattleTimeline";
 import SynapseInput from "@/components/SynapseInput";
 import ChatMessage from "@/components/ChatMessage"; 
-import { useSynapseStream, HistoryItem } from "@/hooks/useSynapseStream";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 
+import { useSynapseStream } from "@/hooks/synapse/useSynapseStream";
+import { HistoryItem, SynapseMode } from "@/hooks/synapse/types";
+
 export default function Index() {
-  const [mode, setMode] = useState<"solo" | "nexus">("solo");
+  const [mode, setMode] = useState<SynapseMode>("solo");
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [activeItem, setActiveItem] = useState<HistoryItem | null>(null);
   const [currentQuery, setCurrentQuery] = useState<string>("");
@@ -18,6 +20,7 @@ export default function Index() {
   const [isBottomSheetOpen, setBottomSheetOpen] = useState(false);
   
   const bottomRef = useRef<HTMLDivElement>(null);
+  
   const { submitQuery, isProcessing, activeAgent, streamingData } = useSynapseStream();
 
   useEffect(() => {
@@ -82,9 +85,11 @@ export default function Index() {
             {isProcessing && (
               <div className="space-y-2">
                 <div className="flex justify-end relative select-none">
-                  <div className="max-w-[95%] w-fit bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-3 pb-5 relative">
+                  <div className="max-w-[95%] w-fit bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-3 pb-5 relative hover:bg-synapse-purple/30 transition-colors">
                     {mode === "nexus" && <Cpu size={14} className="absolute top-2 right-2 text-synapse-purple/40" />}
-                    <p className="text-sm text-foreground/90 leading-relaxed pr-4">{currentQuery}</p>
+                    <p className={`text-sm text-foreground/90 leading-relaxed break-words select-text ${mode === "nexus" ? "pr-5" : ""}`}>
+                      {currentQuery}
+                    </p>
                   </div>
                 </div>
               </div>
