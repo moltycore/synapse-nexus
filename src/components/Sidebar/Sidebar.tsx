@@ -1,5 +1,9 @@
-import { useState } from "react";
 import { X } from "lucide-react";
+
+interface SidebarProps {
+  isOpen: boolean;
+  onToggle: (state: boolean) => void;
+}
 
 const NavigationIcon = () => (
   <svg width="24" height="18" viewBox="0 0 28 20" fill="none">
@@ -10,33 +14,31 @@ const NavigationIcon = () => (
   </svg>
 );
 
-export default function Sidebar() {
-  const [isVisible, setIsVisible] = useState(false);
-
+export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
   return (
     <>
       <button
-        onClick={() => setIsVisible(true)}
+        onClick={() => onToggle(true)}
         className="flex items-center justify-center min-w-[36px] min-h-[36px] transition-all active:scale-95 active:opacity-70"
       >
         <NavigationIcon />
       </button>
 
-      {isVisible && (
+      {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70]"
-          onClick={() => setIsVisible(false)}
+          className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[70]"
+          onClick={() => onToggle(false)}
         />
       )}
 
       <aside 
         className={`fixed top-0 left-0 h-full w-64 bg-[#0F1115] border-r border-white/5 z-[80] transform transition-transform duration-300 ease-in-out flex flex-col ${
-          isVisible ? "translate-x-0" : "-translate-x-full"
+          isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="flex items-center justify-between p-4 border-b border-white/5">
           <span className="text-sm font-medium text-foreground/80">Navigation</span>
-          <button onClick={() => setIsVisible(false)} className="text-white/40 p-1">
+          <button onClick={() => onToggle(false)} className="text-white/40 p-1">
             <X size={18} />
           </button>
         </div>
