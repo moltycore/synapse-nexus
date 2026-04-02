@@ -22,7 +22,13 @@ const ActionIcon = () => (
 
 const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle }: SynapseAppBarProps) => {
   return (
-    <header className="shrink-0 z-[40] flex items-center justify-between px-4 pb-2 pt-[calc(env(safe-area-inset-top)+16px)] min-h-[calc(52px+env(safe-area-inset-top))] bg-[#0F1115]">
+    <header 
+      className="shrink-0 z-[40] flex items-center justify-between px-4 bg-[#0F1115] w-full"
+      style={{
+        paddingTop: 'max(env(safe-area-inset-top), 24px)',
+        paddingBottom: '12px'
+      }}
+    >
       <button 
         onClick={onSidebarToggle} 
         className="flex items-center justify-center min-w-[36px] min-h-[36px] transition-all active:scale-95 active:opacity-70"
@@ -30,7 +36,7 @@ const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle }: SynapseAppBarPr
         <NavigationIcon />
       </button>
 
-      <div className="flex flex-col items-center select-none gap-px mt-1">
+      <div className="flex flex-col items-center select-none gap-px">
         <span className="font-semibold text-[17px] text-[#EDEFF3] tracking-tight">Synapse</span>
         <span className="text-[11px] text-[#9CA3AF] tracking-[0.5px]">Nexus v1.2</span>
       </div>
