@@ -6,18 +6,21 @@
 
 @layer base {
   :root {
-    --background: 240 20% 4%;
+    --background: 240 20% 4%; /* #08090A - Your deep theme color */
     --foreground: 0 0% 95%;
-    --primary: 271 91% 65%;
     --synapse-purple: 271 91% 65%;
     --synapse-blue: 217 91% 60%;
     --synapse-glass: 240 15% 12%;
   }
-  body {
+
+  html, body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', sans-serif;
-  }
-  .font-display {
-    font-family: 'Space Grotesk', sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden;
+    /* Forces content to fill the system navigation area */
+    min-height: -webkit-fill-available; 
   }
 }
