@@ -43,15 +43,12 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-background relative text-foreground overflow-hidden w-full">
-      
-      {/* Root-Level Overlays (Escaping Transform Boundaries) */}
+    <div className="fixed inset-0 bg-background text-foreground overflow-hidden w-full">
       <Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
       <BottomSheet isOpen={isBottomSheetOpen} onClose={() => setBottomSheetOpen(false)} />
 
-      {/* Pushable Main App Wrapper */}
       <div 
-        className={`flex flex-col min-h-[100dvh] w-full transition-transform duration-300 ease-in-out ${
+        className={`absolute inset-0 flex flex-col transition-transform duration-300 ease-in-out ${
           isSidebarOpen ? "translate-x-64" : "translate-x-0"
         }`}
       >
