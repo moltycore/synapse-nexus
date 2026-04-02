@@ -42,14 +42,14 @@ export default function Index() {
     <div className="min-h-[100dvh] bg-background relative text-foreground overflow-x-hidden">
       <div 
         className={`flex flex-col min-h-screen transition-transform duration-300 ease-in-out ${
-          isSidebarOpen ? "translate-x-64" : "translate-x-0"
+          isSidebarOpen ? "translate-x-[60px]" : "translate-x-0"
         }`}
       >
         <SynapseAppBar isSidebarOpen={isSidebarOpen} onSidebarToggle={setSidebarOpen} />
 
         <main className="flex-1 overflow-y-auto pb-24 pt-2 relative flex flex-col">
           {history.length === 0 && !isProcessing && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center opacity-80 select-none pb-32 pointer-events-none">
+            <div className="absolute inset-0 flex flex-col items-center justify-center opacity-80 select-none pb-32 pointer-events-none z-10">
               <div className="w-16 h-16 rounded-2xl bg-[#12141A] border border-white/5 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(139,92,246,0.07)]">
                 <Cpu size={32} className="text-synapse-purple/80" />
               </div>
@@ -58,7 +58,7 @@ export default function Index() {
             </div>
           )}
 
-          <div className="px-4 space-y-3 z-10 relative">
+          <div className="px-4 space-y-3 z-10 relative flex-1">
             {history.map((item) => (
               <ChatMessage 
                 key={item.id}
@@ -108,7 +108,7 @@ export default function Index() {
 
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 z-[70] bg-transparent"
+          className="fixed inset-0 z-[70] bg-black/20"
           onClick={() => setSidebarOpen(false)}
         />
       )}
