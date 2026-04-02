@@ -1,3 +1,4 @@
+// src/components/SynapseInput.tsx
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import { CornerDownLeft, Zap, Cpu } from "lucide-react";
 
@@ -39,7 +40,7 @@ const SynapseInput = ({ onSubmit, isProcessing, mode, setMode }: SynapseInputPro
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 px-2 pt-4 pb-6 bg-gradient-to-t from-background via-background/95 to-transparent z-50">
+    <div className="fixed bottom-0 left-0 right-0 px-2 pt-4 pb-2 bg-gradient-to-t from-background via-background/95 to-transparent z-50">
       <div className="max-w-3xl mx-auto relative w-full">
         <form 
           onSubmit={handleSubmit}
