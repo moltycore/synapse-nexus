@@ -9,7 +9,7 @@ interface ChatMessageProps {
   visionSuggest?: string;
 }
 
-export default function ChatMessage({ query, primeResult, timestamp, mode, visionSuggest }: ChatMessageProps) {
+export default function ChatMessage({ query, primeResult, timestamp, mode }: ChatMessageProps) {
   const [aiCopied, setAiCopied] = useState(false);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
 
@@ -52,7 +52,7 @@ export default function ChatMessage({ query, primeResult, timestamp, mode, visio
   }, []);
 
   return (
-    <div className="space-y-5 w-full pb-4">
+    <div className="space-y-5 w-full pb-4 max-w-full">
       {/* 1. User Input Payload */}
       <div className="flex justify-end relative select-none">
         <div 
@@ -77,17 +77,10 @@ export default function ChatMessage({ query, primeResult, timestamp, mode, visio
 
       {/* 2. Synapse Prime Output */}
       <div className="flex flex-col items-start gap-2 w-full select-none pl-1">
-        <div className="w-full">
+        <div className="w-full max-w-full overflow-hidden">
           <p className="text-sm text-foreground/90 leading-relaxed break-words whitespace-pre-wrap select-text">
             {primeResult}
           </p>
-          
-          {visionSuggest && (
-            <div className="mt-4 pt-3 border-t border-white/10 w-full max-w-2xl">
-              <p className="text-[10px] text-white/40 uppercase tracking-tighter mb-1 font-bold italic select-none">Next Move:</p>
-              <p className="text-xs text-synapse-purple/90 italic select-text">{visionSuggest}</p>
-            </div>
-          )}
         </div>
         
         {/* Execution Panel */}
