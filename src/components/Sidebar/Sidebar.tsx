@@ -26,7 +26,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
 
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[70]"
+          className="fixed inset-0 bg-black/20 z-[70]"
           onClick={() => onToggle(false)}
         />
       )}
@@ -38,7 +38,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
       >
         <div className="flex items-center justify-between p-4 border-b border-white/5">
           <span className="text-sm font-medium text-foreground/80">Navigation</span>
-          <button onClick={() => onToggle(false)} className="text-white/40 p-1">
+          <button onClick={() => onToggle(false)} className="text-white/40 p-1 hover:text-white transition-colors">
             <X size={18} />
           </button>
         </div>
