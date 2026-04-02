@@ -11,6 +11,7 @@ export default function Index() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [activeItem, setActiveItem] = useState<HistoryItem | null>(null);
   const [currentQuery, setCurrentQuery] = useState<string>("");
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const { submitQuery, isProcessing, activeAgent, streamingData } = useSynapseStream();
@@ -38,66 +39,79 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-background relative text-foreground overflow-x-hidden">
-      <SynapseAppBar />
+    <div className="min-h-[100dvh] bg-background relative text-foreground overflow-x-hidden">
+      <div 
+        className={`flex flex-col min-h-screen transition-transform duration-300 ease-in-out ${
+          isSidebarOpen ? "translate-x-64" : "translate-x-0"
+        }`}
+      >
+        <SynapseAppBar isSidebarOpen={isSidebarOpen} onSidebarToggle={setSidebarOpen} />
 
-      <main className="flex-1 overflow-y-auto pb-24 pt-2 relative flex flex-col">
-        {history.length === 0 && !isProcessing && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center opacity-80 select-none pb-32 pointer-events-none">
-            <div className="w-16 h-16 rounded-2xl bg-[#12141A] border border-white/5 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(139,92,246,0.07)]">
-              <Cpu size={32} className="text-synapse-purple/80" />
-            </div>
-            <h1 className="text-xl font-medium tracking-tight text-[#EDEFF3] mb-2">Synapse Nexus AI</h1>
-            <p className="text-[10px] text-white/30 tracking-[0.2em] uppercase">System Ready</p>
-          </div>
-        )}
-
-        <div className="px-4 space-y-3 z-10 relative">
-          {history.map((item) => (
-            <ChatMessage 
-              key={item.id}
-              query={item.soru} 
-              primeResult={item.prime_result} 
-              timestamp={item.timestamp}
-              mode={item.mode}
-            />
-          ))}
-
-          {isProcessing && (
-            <div className="space-y-2">
-              <div className="flex justify-end relative select-none">
-                <div className="max-w-[95%] w-fit bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-3 pb-5 relative">
-                  {mode === "nexus" && <Cpu size={14} className="absolute top-2 right-2 text-synapse-purple/40" />}
-                  <p className="text-sm text-foreground/90 leading-relaxed pr-4">{currentQuery}</p>
-                </div>
+        <main className="flex-1 overflow-y-auto pb-24 pt-2 relative flex flex-col">
+          {history.length === 0 && !isProcessing && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center opacity-80 select-none pb-32 pointer-events-none">
+              <div className="w-16 h-16 rounded-2xl bg-[#12141A] border border-white/5 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(139,92,246,0.07)]">
+                <Cpu size={32} className="text-synapse-purple/80" />
               </div>
+              <h1 className="text-xl font-medium tracking-tight text-[#EDEFF3] mb-2">Synapse Nexus AI</h1>
+              <p className="text-[10px] text-white/30 tracking-[0.2em] uppercase">System Ready</p>
             </div>
           )}
 
-          <div ref={bottomRef} />
-        </div>
+          <div className="px-4 space-y-3 z-10 relative">
+            {history.map((item) => (
+              <ChatMessage 
+                key={item.id}
+                query={item.soru} 
+                primeResult={item.prime_result} 
+                timestamp={item.timestamp}
+                mode={item.mode}
+              />
+            ))}
 
-        {((isProcessing && mode === "nexus") || (activeItem?.mode === "nexus")) && (
-          <div className="mt-4 z-10 relative">
-            <BattleTimeline
-              isActive={true}
-              phase={isProcessing ? 2 : 3}
-              isProcessing={isProcessing}
-              activeAgent={activeAgent}
-              core_data={isProcessing ? streamingData.core_data : activeItem?.core_data}
-              ghost_data={isProcessing ? streamingData.ghost_data : activeItem?.ghost_data}
-              void_data={isProcessing ? streamingData.void_data : activeItem?.void_data}
-            />
+            {isProcessing && (
+              <div className="space-y-2">
+                <div className="flex justify-end relative select-none">
+                  <div className="max-w-[95%] w-fit bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-3 pb-5 relative">
+                    {mode === "nexus" && <Cpu size={14} className="absolute top-2 right-2 text-synapse-purple/40" />}
+                    <p className="text-sm text-foreground/90 leading-relaxed pr-4">{currentQuery}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div ref={bottomRef} />
           </div>
-        )}
-      </main>
 
-      <SynapseInput 
-        onSubmit={handleSubmit} 
-        isProcessing={isProcessing} 
-        mode={mode} 
-        setMode={setMode} 
-      />
+          {((isProcessing && mode === "nexus") || (activeItem?.mode === "nexus")) && (
+            <div className="mt-4 z-10 relative">
+              <BattleTimeline
+                isActive={true}
+                phase={isProcessing ? 2 : 3}
+                isProcessing={isProcessing}
+                activeAgent={activeAgent}
+                core_data={isProcessing ? streamingData.core_data : activeItem?.core_data}
+                ghost_data={isProcessing ? streamingData.ghost_data : activeItem?.ghost_data}
+                void_data={isProcessing ? streamingData.void_data : activeItem?.void_data}
+              />
+            </div>
+          )}
+        </main>
+
+        <SynapseInput 
+          onSubmit={handleSubmit} 
+          isProcessing={isProcessing} 
+          mode={mode} 
+          setMode={setMode} 
+        />
+      </div>
+
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 z-[70] bg-transparent"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
     </div>
   );
 }
