@@ -9,7 +9,7 @@ interface ChatMessageProps {
   visionSuggest?: string;
 }
 
-export default function ChatMessage({ query, primeResult, timestamp, mode }: ChatMessageProps) {
+export default function ChatMessage({ query = "", primeResult = "", timestamp = "", mode = "solo" }: ChatMessageProps) {
   const [aiCopied, setAiCopied] = useState(false);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
 
@@ -38,11 +38,9 @@ export default function ChatMessage({ query, primeResult, timestamp, mode }: Cha
 
   const startPress = useCallback(() => {
     pressTimer.current = setTimeout(() => {
-      // Guard: Cancel auto-copy if user is selecting text
       const selection = window.getSelection()?.toString();
-      if (!selection) {
+      if (!selection && query) {
         navigator.clipboard.writeText(query).catch(() => {});
-        // Stealth mode on. No UI clutter.
       }
     }, 500); 
   }, [query]);
@@ -51,52 +49,55 @@ export default function ChatMessage({ query, primeResult, timestamp, mode }: Cha
     if (pressTimer.current) clearTimeout(pressTimer.current);
   }, []);
 
+  if (!query && !primeResult) return null;
+
   return (
     <div className="space-y-5 w-full pb-4 max-w-full">
-      {/* 1. User Input Payload */}
-      <div className="flex justify-end relative select-none">
-        <div 
-          className="w-fit max-w-[95%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-3 pb-5 relative hover:bg-synapse-purple/30 transition-colors"
-          onMouseDown={startPress}
-          onMouseUp={cancelPress}
-          onMouseLeave={cancelPress}
-          onTouchStart={startPress}
-          onTouchEnd={cancelPress}
-          onTouchMove={cancelPress} // Guard: Cancel on scroll
-        >
-          {mode === "nexus" && (
-            <Cpu size={14} className="absolute top-2 right-2 text-synapse-purple/40" />
-          )}
-          
-          <p className={`text-sm text-foreground/90 leading-relaxed break-words select-text ${mode === "nexus" ? "pr-5" : ""}`}>
-            {query}
-          </p>
-          <span className="absolute bottom-1 right-3 text-[9px] text-muted-foreground/60 select-none">{timestamp}</span>
+      {query && (
+        <div className="flex justify-end relative select-none">
+          <div 
+            className="w-fit max-w-[95%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-3 pb-5 relative hover:bg-synapse-purple/30 transition-colors"
+            onMouseDown={startPress}
+            onMouseUp={cancelPress}
+            onMouseLeave={cancelPress}
+            onTouchStart={startPress}
+            onTouchEnd={cancelPress}
+            onTouchMove={cancelPress}
+          >
+            {mode === "nexus" && (
+              <Cpu size={14} className="absolute top-2 right-2 text-synapse-purple/40" />
+            )}
+            
+            <p className={`text-sm text-foreground/90 leading-relaxed break-words select-text ${mode === "nexus" ? "pr-5" : ""}`}>
+              {query}
+            </p>
+            <span className="absolute bottom-1 right-3 text-[9px] text-muted-foreground/60 select-none">{timestamp}</span>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* 2. Synapse Prime Output */}
-      <div className="flex flex-col items-start gap-2 w-full select-none pl-1">
-        <div className="w-full max-w-full overflow-hidden">
-          <p className="text-sm text-foreground/90 leading-relaxed break-words whitespace-pre-wrap select-text">
-            {primeResult}
-          </p>
+      {primeResult && (
+        <div className="flex flex-col items-start gap-2 w-full select-none pl-1">
+          <div className="w-full max-w-full overflow-hidden">
+            <p className="text-sm text-foreground/90 leading-relaxed break-words whitespace-pre-wrap select-text">
+              {primeResult}
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-4 mt-1 text-white/40 select-none">
+            <button onClick={handleAiCopy} className="hover:text-white transition-colors" title="Copy Prime Result">
+              {aiCopied ? <Check size={14} className="text-green-500" /> : <Copy size={14} strokeWidth={2} />}
+            </button>
+            <button onClick={handleShare} className="hover:text-white transition-colors" title="Share Payload">
+              <Share2 size={14} strokeWidth={2} />
+            </button>
+            <button className="hover:text-white transition-colors" title="System Override">
+              <MoreHorizontal size={14} strokeWidth={2} />
+            </button>
+            <span className="text-[10px] text-muted-foreground/50 ml-2">{timestamp}</span>
+          </div>
         </div>
-        
-        {/* Execution Panel */}
-        <div className="flex items-center gap-4 mt-1 text-white/40 select-none">
-          <button onClick={handleAiCopy} className="hover:text-white transition-colors" title="Copy Prime Result">
-            {aiCopied ? <Check size={14} className="text-green-500" /> : <Copy size={14} strokeWidth={2} />}
-          </button>
-          <button onClick={handleShare} className="hover:text-white transition-colors" title="Share Payload">
-            <Share2 size={14} strokeWidth={2} />
-          </button>
-          <button className="hover:text-white transition-colors" title="System Override">
-            <MoreHorizontal size={14} strokeWidth={2} />
-          </button>
-          <span className="text-[10px] text-muted-foreground/50 ml-2">{timestamp}</span>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
