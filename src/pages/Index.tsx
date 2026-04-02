@@ -5,15 +5,19 @@ import BattleTimeline from "@/components/BattleTimeline";
 import SynapseInput from "@/components/SynapseInput";
 import ChatMessage from "@/components/ChatMessage"; 
 import { useSynapseStream, HistoryItem } from "@/hooks/useSynapseStream";
+import Sidebar from "@/components/Sidebar/Sidebar";
+import BottomSheet from "@/components/BottomSheet/BottomSheet";
 
 export default function Index() {
   const [mode, setMode] = useState<"solo" | "nexus">("solo");
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [activeItem, setActiveItem] = useState<HistoryItem | null>(null);
   const [currentQuery, setCurrentQuery] = useState<string>("");
+  
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [isBottomSheetOpen, setBottomSheetOpen] = useState(false);
+  
   const bottomRef = useRef<HTMLDivElement>(null);
-
   const { submitQuery, isProcessing, activeAgent, streamingData } = useSynapseStream();
 
   useEffect(() => {
@@ -39,13 +43,22 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-background relative text-foreground overflow-x-hidden">
+    <div className="min-h-[100dvh] bg-background relative text-foreground overflow-hidden w-full">
+      
+      {/* Root-Level Overlays (Escaping Transform Boundaries) */}
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <BottomSheet isOpen={isBottomSheetOpen} onClose={() => setBottomSheetOpen(false)} />
+
+      {/* Pushable Main App Wrapper */}
       <div 
-        className={`flex flex-col min-h-screen transition-transform duration-300 ease-in-out ${
-          isSidebarOpen ? "translate-x-[60px]" : "translate-x-0"
+        className={`flex flex-col min-h-[100dvh] w-full transition-transform duration-300 ease-in-out ${
+          isSidebarOpen ? "translate-x-64" : "translate-x-0"
         }`}
       >
-        <SynapseAppBar isSidebarOpen={isSidebarOpen} onSidebarToggle={setSidebarOpen} />
+        <SynapseAppBar 
+          onSidebarToggle={() => setSidebarOpen(true)} 
+          onBottomSheetToggle={() => setBottomSheetOpen(true)} 
+        />
 
         <main className="flex-1 overflow-y-auto pb-24 pt-2 relative flex flex-col">
           {history.length === 0 && !isProcessing && (
@@ -79,7 +92,6 @@ export default function Index() {
                 </div>
               </div>
             )}
-
             <div ref={bottomRef} />
           </div>
 
@@ -105,13 +117,6 @@ export default function Index() {
           setMode={setMode} 
         />
       </div>
-
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 z-[70] bg-black/20"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
     </div>
   );
 }
