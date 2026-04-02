@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    --background: 240 20% 4%; /* #08090A - Your deep theme color */
+    --background: 240 20% 4%;
     --foreground: 0 0% 95%;
     --synapse-purple: 271 91% 65%;
     --synapse-blue: 217 91% 60%;
@@ -20,7 +20,6 @@
     padding: 0;
     height: 100%;
     overflow-x: hidden;
-    /* Forces content to fill the system navigation area */
     min-height: -webkit-fill-available; 
   }
 }
