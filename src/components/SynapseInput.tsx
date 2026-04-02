@@ -35,30 +35,26 @@ const SynapseInput = ({ onSubmit, isProcessing, mode, setMode }: SynapseInputPro
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    // Enter'ın gönderme yetkisi alındı. 
+    // Reserved for keybind overrides
   };
 
   return (
-    // Eski bg-gradient yapısı geri getirildi.
-    <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background/95 to-transparent pb-6 z-50">
-      <div className="max-w-3xl mx-auto relative">
+    <div className="fixed bottom-0 left-0 right-0 px-2 pt-4 pb-6 bg-gradient-to-t from-background via-background/95 to-transparent z-50">
+      <div className="max-w-3xl mx-auto relative w-full">
         <form 
           onSubmit={handleSubmit}
-          // Eski class yapısı (glass, rounded-3xl) geri getirildi, w-full eklendi (genişletme için).
-          className="relative flex items-end gap-2 glass border border-white/10 rounded-3xl p-2 transition-all duration-300 focus-within:border-synapse-purple/50 focus-within:shadow-[0_0_15px_rgba(139,92,246,0.15)] w-full"
+          className="relative flex items-end gap-1.5 glass border border-white/10 rounded-3xl p-1.5 transition-all duration-300 focus-within:border-synapse-purple/50 focus-within:shadow-[0_0_15px_rgba(139,92,246,0.15)] w-full"
         >
-          
           <button
             type="button"
             disabled={isProcessing}
             onClick={() => setMode(mode === "nexus" ? "solo" : "nexus")}
-            // Eski rounded-full yapısı geri getirildi.
-            className={`shrink-0 w-10 h-10 flex items-center justify-center rounded-full transition-colors mb-0.5 ml-0.5 ${
+            className={`shrink-0 w-10 h-10 flex items-center justify-center rounded-full transition-colors mb-0.5 ${
               mode === "nexus" 
                 ? "bg-synapse-purple/10 text-synapse-purple hover:bg-synapse-purple/20" 
                 : "bg-amber-500/10 text-amber-500 hover:bg-amber-500/20"
             }`}
-            title={mode === "nexus" ? "Nexus Modu" : "Solo Modu"}
+            title={mode === "nexus" ? "Nexus Mode" : "Solo Mode"}
           >
             {mode === "nexus" ? <Cpu size={18} /> : <Zap size={18} />}
           </button>
@@ -72,9 +68,8 @@ const SynapseInput = ({ onSubmit, isProcessing, mode, setMode }: SynapseInputPro
             }}
             onKeyDown={handleKeyDown}
             disabled={isProcessing}
-            placeholder="Synapse'a yaz..."
-            // Eski py-2.5 px-4 yapısı geri getirildi.
-            className="flex-1 max-h-[120px] min-h-[40px] bg-transparent border-none focus:ring-0 resize-none text-sm text-foreground/90 placeholder:text-white/30 py-2.5 px-4 outline-none overflow-y-auto w-full"
+            placeholder="Awaiting payload..."
+            className="flex-1 max-h-[120px] min-h-[40px] bg-transparent border-none focus:ring-0 resize-none text-sm text-foreground/90 placeholder:text-white/30 py-2.5 px-2 outline-none overflow-y-auto w-full"
             rows={1}
             style={{
               scrollbarWidth: 'none',
@@ -88,8 +83,7 @@ const SynapseInput = ({ onSubmit, isProcessing, mode, setMode }: SynapseInputPro
           <button
             type="submit"
             disabled={!text.trim() || isProcessing}
-            // Eski rounded-full yapısı geri getirildi.
-            className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-synapse-purple/10 text-synapse-purple hover:bg-synapse-purple/20 transition-colors disabled:opacity-50 disabled:hover:bg-synapse-purple/10 mb-0.5 mr-0.5"
+            className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-synapse-purple/10 text-synapse-purple hover:bg-synapse-purple/20 transition-colors disabled:opacity-50 disabled:hover:bg-synapse-purple/10 mb-0.5"
           >
             <CornerDownLeft size={18} className={isProcessing ? "animate-pulse" : ""} />
           </button>
