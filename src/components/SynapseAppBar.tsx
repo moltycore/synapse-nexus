@@ -49,8 +49,8 @@ const SynapseAppBar = () => {
         <CustomHamburger />
       </button>
 
-      {/* Orta: Title */}
-      <div className="flex flex-col items-center" style={{ gap: "2px" }}>
+      {/* Orta: Title (Artık kopyalanamaz / seçilemez) */}
+      <div className="flex flex-col items-center select-none" style={{ gap: "2px" }}>
         <span
           style={{
             fontFamily: "Inter, SF Pro, sans-serif",
