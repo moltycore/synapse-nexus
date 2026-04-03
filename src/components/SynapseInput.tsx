@@ -57,12 +57,14 @@ const SynapseInput = ({ onSubmit, isProcessing, mode, setMode }: SynapseInputPro
       className="absolute left-0 right-0 z-50 pointer-events-none transition-all duration-150 ease-out"
       style={{ bottom: `${keyboardOffset}px` }}
     >
+      {/* Arkadaki gradyan geçişi - Sis efekti olarak kalıyor */}
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-transparent h-[140%] -bottom-10 pointer-events-none" />
       
       <div className="max-w-3xl mx-auto relative w-full px-4 pt-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pointer-events-auto">
         <form 
           onSubmit={handleSubmit}
-          className="relative flex items-end gap-1.5 glass border border-white/10 rounded-3xl p-1.5 transition-all duration-300 focus-within:border-synapse-purple/50 focus-within:shadow-[0_0_20px_rgba(139,92,246,0.15)] w-full"
+          /* glass kaldırıldı, bg-background ve z-10 eklendi. Artık arkasını sızdırmaz. */
+          className="relative flex items-end gap-1.5 bg-background border border-white/10 rounded-3xl p-1.5 shadow-2xl transition-all duration-300 focus-within:border-synapse-purple/50 focus-within:shadow-[0_0_20px_rgba(139,92,246,0.15)] w-full z-10"
         >
           <button
             type="button"
