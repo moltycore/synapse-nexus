@@ -32,7 +32,7 @@ const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle }: SynapseAppBarPr
 
       <div className="flex flex-col items-center select-none gap-px mt-1">
         <span className="font-semibold text-[17px] text-[#EDEFF3] tracking-tight">Synapse</span>
-        <span className="text-[11px] text-[#9CA3AF] tracking-[0.5px]">Nexus v1.2</span>
+        <span className="text-[11px] text-[#9CA3AF] tracking-[0.5px]">Nexus apo amk v1.2</span>
       </div>
 
       <button 
