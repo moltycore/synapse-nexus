@@ -9,8 +9,9 @@ export const parseSSE = (line: string): any | null => {
 };
 
 export const getTurkishTime = (): string => {
-  const now = new Date();
-  const h = now.getHours();
-  const m = now.getMinutes().toString().padStart(2, '0');
-  return `${h >= 12 ? 'PM' : 'AM'} ${h % 12 || 12}:${m}`;
+  return new Date().toLocaleTimeString('tr-TR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
 };
