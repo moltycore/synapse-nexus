@@ -1,6 +1,6 @@
 import { useReducer, useRef, useCallback } from "react";
-import { HistoryItem, SynapseMode, AgentKey, SynapseState } from "./types";
-import { parseSSE, getTurkishTime } from "./utils";
+import { HistoryItem, SynapseMode, AgentKey, SynapseState } from "@/hooks/synapse/types";
+import { parseSSE, getTurkishTime } from "@/hooks/synapse/utils";
 
 const initialState: SynapseState = {
   isProcessing: false,
@@ -109,4 +109,4 @@ export function useSynapseStream() {
   }, []);
 
   return { ...state, submitQuery };
-        }
+}
