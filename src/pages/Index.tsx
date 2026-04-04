@@ -116,12 +116,11 @@ export default function Index() {
               <div className="mt-4 z-10 relative">
                 <BattleTimeline
                   isActive={true}
-                  phase={isProcessing ? 2 : 3}
                   isProcessing={isProcessing}
                   activeAgent={activeAgent}
-                  core_data={isProcessing ? streamingData.core_data : activeItem?.core_data}
-                  ghost_data={isProcessing ? streamingData.ghost_data : activeItem?.ghost_data}
-                  void_data={isProcessing ? streamingData.void_data : activeItem?.void_data}
+                  coreData={isProcessing ? streamingData.core_data : activeItem?.core_data}
+                  ghostData={isProcessing ? streamingData.ghost_data : activeItem?.ghost_data}
+                  voidData={isProcessing ? streamingData.void_data : activeItem?.void_data}
                 />
               </div>
             )}
