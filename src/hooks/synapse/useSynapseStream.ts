@@ -46,6 +46,8 @@ export function useSynapseStream() {
     const pendingId = crypto.randomUUID();
     let currentPayload: any = {};
 
+    const timeoutId = setTimeout(() => controller.abort(), 90000);
+
     try {
       const response = await fetch("https://synapse-api-b8oc.onrender.com/analyze", {
         method: "POST",
@@ -91,7 +93,18 @@ export function useSynapseStream() {
       onComplete(finalItem);
 
     } catch (error: any) {
-      if (error.name === 'AbortError') return;
+      clearTimeout(timeoutId);
+      if (error.name === 'AbortError') {
+        dispatch({ type: 'ERROR', payload: "Connection timed out. Uplink lost." });
+        onError({
+          id: pendingId,
+          soru: text,
+          prime_result: `⚠️ TIMEOUT: Server did not respond in time.`,
+          timestamp: getTurkishTime(),
+          mode
+        });
+        return;
+      }
       const errorMessage = error.message || "Uplink lost.";
       dispatch({ type: 'ERROR', payload: errorMessage });
       
@@ -103,10 +116,11 @@ export function useSynapseStream() {
         mode
       });
     } finally {
+      clearTimeout(timeoutId);
       dispatch({ type: 'RESET' });
       abortControllerRef.current = null;
     }
   }, []);
 
   return { ...state, submitQuery };
-}
+        }
