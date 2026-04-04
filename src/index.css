@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,18 +8,107 @@
   :root {
     --background: 240 20% 4%;
     --foreground: 0 0% 95%;
+
+    --border: 240 10% 16%;
+    --input: 240 10% 16%;
+    --ring: 271 91% 65%;
+    --radius: 0.75rem;
+
+    --primary: 271 91% 65%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 15% 12%;
+    --secondary-foreground: 0 0% 85%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --muted: 240 10% 14%;
+    --muted-foreground: 240 5% 55%;
+
+    --accent: 240 15% 14%;
+    --accent-foreground: 0 0% 95%;
+
+    --popover: 240 20% 6%;
+    --popover-foreground: 0 0% 95%;
+
+    --card: 240 20% 6%;
+    --card-foreground: 0 0% 95%;
+
     --synapse-purple: 271 91% 65%;
     --synapse-blue: 217 91% 60%;
+    --synapse-gold: 43 96% 56%;
+    --synapse-red: 0 84% 60%;
+    --synapse-surface: 240 15% 10%;
     --synapse-glass: 240 15% 12%;
+
+    --sidebar-background: 240 20% 5%;
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 271 91% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 15% 12%;
+    --sidebar-accent-foreground: 0 0% 85%;
+    --sidebar-border: 240 10% 14%;
+    --sidebar-ring: 271 91% 65%;
   }
 
   html, body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', sans-serif;
+    font-family: 'DM Sans', 'Inter', sans-serif;
     margin: 0;
     padding: 0;
     height: 100%;
     overflow-x: hidden;
-    min-height: -webkit-fill-available; 
+    min-height: -webkit-fill-available;
+  }
+}
+
+@layer components {
+  .glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glow-purple {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.08), 0 0 40px rgba(139, 92, 246, 0.04);
+  }
+
+  .glow-purple-active {
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.2), 0 0 60px rgba(139, 92, 246, 0.1);
+  }
+
+  .timeline-connector {
+    width: 1px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.08), transparent);
+    margin-top: 4px;
+  }
+}
+
+@layer utilities {
+  @keyframes float-glow {
+    0%, 100% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.2), 0 0 60px rgba(139, 92, 246, 0.1); transform: translateY(0px); }
+    50%       { box-shadow: 0 0 40px rgba(139, 92, 246, 0.3), 0 0 80px rgba(139, 92, 246, 0.15); transform: translateY(-2px); }
+  }
+
+  @keyframes reveal-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-float-glow {
+    animation: float-glow 3s ease-in-out infinite;
+  }
+
+  .animate-reveal-up {
+    animation: reveal-up 0.4s ease-out forwards;
   }
 }
