@@ -59,11 +59,18 @@ const BattleTimeline = ({
 
   const nodeData: string[][] = [
     ["Intent analysis finalized."],
-    parsedCore ? [parsedCore.architecture_summary, ...(parsedCore.core_mechanics || [])] : [],
-    parsedGhost ? [
-      parsedGhost.vulnerability_1?.detail || "Scanning...",
-      parsedGhost.vulnerability_2?.detail || "Scanning..."
-    ] : [],
+    parsedCore
+      ? [
+          ...(parsedCore.assumptions_destroyed || []),
+          ...(parsedCore.fundamental_truths || []),
+          ...(parsedCore.pure_mechanics || []),
+        ]
+      : [],
+    parsedGhost
+      ? (parsedGhost.vulnerabilities || []).map(
+          (v: { type: string; detail: string }) => v.detail || "Unknown vulnerability"
+        )
+      : [],
     parsedVoid ? [...(parsedVoid.directives || [])] : [],
     primeResult ? [primeResult] : [],
   ];
@@ -127,7 +134,11 @@ const BattleTimeline = ({
               <div
                 key={idx}
                 className={`text-xs leading-relaxed flex items-start gap-2 ${
-                  activeNode === 2 ? "text-red-400/70 italic" : "text-foreground/75"
+                  activeNode === 2
+                    ? "text-red-400/70 italic"
+                    : activeNode === 4
+                    ? "text-synapse-purple/80"
+                    : "text-foreground/75"
                 }`}
               >
                 <span className="text-white/20 mt-px shrink-0">·</span>
