@@ -121,6 +121,7 @@ export default function Index() {
                   coreData={isProcessing ? streamingData.core_data : activeItem?.core_data}
                   ghostData={isProcessing ? streamingData.ghost_data : activeItem?.ghost_data}
                   voidData={isProcessing ? streamingData.void_data : activeItem?.void_data}
+                  primeResult={isProcessing ? undefined : activeItem?.prime_result}
                 />
               </div>
             )}
@@ -136,4 +137,4 @@ export default function Index() {
       </div>
     </ErrorBoundary>
   );
-}
+      }
