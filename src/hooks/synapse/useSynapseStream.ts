@@ -14,6 +14,7 @@ type Action =
   | { type: 'SET_AGENT', payload: AgentKey }
   | { type: 'SET_DATA', payload: any }
   | { type: 'ERROR', payload: string }
+  | { type: 'FINISH' }
   | { type: 'RESET' };
 
 function synapseReducer(state: SynapseState, action: Action): SynapseState {
@@ -21,7 +22,8 @@ function synapseReducer(state: SynapseState, action: Action): SynapseState {
     case 'START': return { ...initialState, isProcessing: true };
     case 'SET_AGENT': return { ...state, activeAgent: action.payload };
     case 'SET_DATA': return { ...state, streamingData: { ...state.streamingData, ...action.payload } };
-    case 'ERROR': return { ...state, isProcessing: false, error: action.payload };
+    case 'ERROR': return { ...state, isProcessing: false, activeAgent: null, error: action.payload };
+    case 'FINISH': return { ...state, isProcessing: false, activeAgent: null };
     case 'RESET': return initialState;
     default: return state;
   }
@@ -94,33 +96,27 @@ export function useSynapseStream() {
 
     } catch (error: any) {
       clearTimeout(timeoutId);
-      if (error.name === 'AbortError') {
-        dispatch({ type: 'ERROR', payload: "Connection timed out. Uplink lost." });
-        onError({
-          id: pendingId,
-          soru: text,
-          prime_result: `⚠️ TIMEOUT: Server did not respond in time.`,
-          timestamp: getTurkishTime(),
-          mode
-        });
-        return;
-      }
-      const errorMessage = error.message || "Uplink lost.";
+      
+      const isTimeout = error.name === 'AbortError';
+      const errorMessage = isTimeout 
+        ? "Connection timeout. Server unresponsive." 
+        : error.message || "Uplink lost.";
+        
       dispatch({ type: 'ERROR', payload: errorMessage });
       
       onError({
         id: pendingId,
         soru: text,
-        prime_result: `⚠️ CRITICAL_ERROR: ${errorMessage}`,
+        prime_result: `⚠️ ${isTimeout ? "TIMEOUT" : "CRITICAL_ERROR"}: ${errorMessage}`,
         timestamp: getTurkishTime(),
         mode
       });
     } finally {
       clearTimeout(timeoutId);
-      dispatch({ type: 'RESET' });
+      dispatch({ type: 'FINISH' });
       abortControllerRef.current = null;
     }
   }, []);
 
   return { ...state, submitQuery };
-        }
+}
