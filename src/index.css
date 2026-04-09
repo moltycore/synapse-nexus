@@ -11,10 +11,13 @@
 
     --border: 240 10% 16%;
     --input: 240 10% 16%;
-    --ring: 271 91% 65%;
     --radius: 0.75rem;
 
-    --primary: 271 91% 65%;
+    /* ── ACCENT: Çelik gri (soğuk ton, göz yormaz) ── */
+    /* ESKİ: 271 91% 65% (canlı mor) */
+    /* YENİ: 220 8% 65%  (soğuk, düşük doygunluklu gri) */
+    --ring:    220 8% 65%;
+    --primary: 220 8% 65%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 240 15% 12%;
@@ -35,21 +38,22 @@
     --card: 240 20% 6%;
     --card-foreground: 0 0% 95%;
 
-    --synapse-purple: 271 91% 65%;
-    --synapse-blue: 217 91% 60%;
-    --synapse-gold: 43 96% 56%;
-    --synapse-red: 0 84% 60%;
+    /* ── SYNAPSE TOKEN'LARI ── */
+    --synapse-purple: 220 8% 65%;   /* artık "grey" ama isim korundu (component'ler bunu kullanıyor) */
+    --synapse-blue:   217 91% 60%;
+    --synapse-gold:    43 96% 56%;
+    --synapse-red:      0 84% 60%;
     --synapse-surface: 240 15% 10%;
-    --synapse-glass: 240 15% 12%;
+    --synapse-glass:   240 15% 12%;
 
     --sidebar-background: 240 20% 5%;
     --sidebar-foreground: 0 0% 85%;
-    --sidebar-primary: 271 91% 65%;
+    --sidebar-primary: 220 8% 65%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 15% 12%;
     --sidebar-accent-foreground: 0 0% 85%;
     --sidebar-border: 240 10% 14%;
-    --sidebar-ring: 271 91% 65%;
+    --sidebar-ring: 220 8% 65%;
   }
 
   html, body {
@@ -78,12 +82,14 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
+  /* ESKİ: rgba(139, 92, 246, ...) — mor parıltı */
+  /* YENİ: rgba(160, 168, 185, ...) — çelik gri parıltı */
   .glow-purple {
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.08), 0 0 40px rgba(139, 92, 246, 0.04);
+    box-shadow: 0 0 20px rgba(160, 168, 185, 0.07), 0 0 40px rgba(160, 168, 185, 0.03);
   }
 
   .glow-purple-active {
-    box-shadow: 0 0 30px rgba(139, 92, 246, 0.2), 0 0 60px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 0 30px rgba(160, 168, 185, 0.16), 0 0 60px rgba(160, 168, 185, 0.08);
   }
 
   .timeline-connector {
@@ -95,8 +101,14 @@
 
 @layer utilities {
   @keyframes float-glow {
-    0%, 100% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.2), 0 0 60px rgba(139, 92, 246, 0.1); transform: translateY(0px); }
-    50%       { box-shadow: 0 0 40px rgba(139, 92, 246, 0.3), 0 0 80px rgba(139, 92, 246, 0.15); transform: translateY(-2px); }
+    0%, 100% {
+      box-shadow: 0 0 30px rgba(160, 168, 185, 0.16), 0 0 60px rgba(160, 168, 185, 0.08);
+      transform: translateY(0px);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(160, 168, 185, 0.22), 0 0 80px rgba(160, 168, 185, 0.11);
+      transform: translateY(-2px);
+    }
   }
 
   @keyframes reveal-up {
