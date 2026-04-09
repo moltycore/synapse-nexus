@@ -46,34 +46,32 @@ const SynapseInput = ({ onSubmit, isProcessing, mode, setMode }: SynapseInputPro
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
     }
   };
 
   return (
-    <div 
+    <div
       className="absolute left-0 right-0 z-50 pointer-events-none transition-all duration-150 ease-out"
       style={{ bottom: `${keyboardOffset}px` }}
     >
-      {/* Arkadaki gradyan geçişi - Sis efekti olarak kalıyor */}
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-transparent h-[140%] -bottom-10 pointer-events-none" />
-      
+
       <div className="max-w-3xl mx-auto relative w-full px-4 pt-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pointer-events-auto">
-        <form 
+        <form
           onSubmit={handleSubmit}
-          /* glass kaldırıldı, bg-background ve z-10 eklendi. Artık arkasını sızdırmaz. */
-          className="relative flex items-end gap-1.5 bg-background border border-white/10 rounded-3xl p-1.5 shadow-2xl transition-all duration-300 focus-within:border-synapse-purple/50 focus-within:shadow-[0_0_20px_rgba(139,92,246,0.15)] w-full z-10"
+          className="relative flex items-end gap-1.5 bg-background border rounded-3xl p-1.5 shadow-2xl transition-all duration-300 w-full z-10 border-white/10 focus-within:border-white/25 focus-within:shadow-[0_0_20px_rgba(160,168,185,0.10)]"
         >
           <button
             type="button"
             disabled={isProcessing}
             onClick={() => setMode(mode === "nexus" ? "solo" : "nexus")}
             className={`shrink-0 w-10 h-10 flex items-center justify-center rounded-full transition-colors mb-0.5 ${
-              mode === "nexus" 
-                ? "bg-synapse-purple/10 text-synapse-purple hover:bg-synapse-purple/20" 
-                : "bg-amber-500/10 text-amber-500 hover:bg-amber-500/20"
+              mode === "nexus"
+                ? "bg-white/8 text-white/60 hover:bg-white/12 hover:text-white/80"
+                : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/60"
             }`}
           >
             {mode === "nexus" ? <Cpu size={18} /> : <Zap size={18} />}
@@ -91,14 +89,14 @@ const SynapseInput = ({ onSubmit, isProcessing, mode, setMode }: SynapseInputPro
             placeholder="Awaiting payload..."
             className="flex-1 max-h-[120px] min-h-[40px] bg-transparent border-none focus:ring-0 resize-none text-sm text-foreground/90 placeholder:text-white/30 py-2.5 px-2 outline-none overflow-y-auto w-full"
             rows={1}
-            style={{ scrollbarWidth: 'none' }}
+            style={{ scrollbarWidth: "none" }}
           />
-          <style dangerouslySetInnerHTML={{__html: `textarea::-webkit-scrollbar { display: none; }`}} />
-          
+          <style dangerouslySetInnerHTML={{ __html: `textarea::-webkit-scrollbar { display: none; }` }} />
+
           <button
             type="submit"
             disabled={!text.trim() || isProcessing}
-            className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-synapse-purple/10 text-synapse-purple hover:bg-synapse-purple/20 transition-colors disabled:opacity-50 mb-0.5"
+            className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-white/8 text-white/60 hover:bg-white/15 hover:text-white/90 transition-colors disabled:opacity-30 mb-0.5"
           >
             <CornerDownLeft size={18} className={isProcessing ? "animate-pulse" : ""} />
           </button>
