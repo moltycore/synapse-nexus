@@ -13,10 +13,7 @@
     --input: 240 10% 16%;
     --radius: 0.75rem;
 
-    /* ── ACCENT: Çelik gri (soğuk ton, göz yormaz) ── */
-    /* ESKİ: 271 91% 65% (canlı mor) */
-    /* YENİ: 220 8% 65%  (soğuk, düşük doygunluklu gri) */
-    --ring:    220 8% 65%;
+    --ring: 220 8% 65%;
     --primary: 220 8% 65%;
     --primary-foreground: 0 0% 100%;
 
@@ -38,13 +35,13 @@
     --card: 240 20% 6%;
     --card-foreground: 0 0% 95%;
 
-    /* ── SYNAPSE TOKEN'LARI ── */
-    --synapse-purple: 220 8% 65%;   /* artık "grey" ama isim korundu (component'ler bunu kullanıyor) */
-    --synapse-blue:   217 91% 60%;
-    --synapse-gold:    43 96% 56%;
-    --synapse-red:      0 84% 60%;
+    /* Synapse Theme Tokens */
+    --synapse-purple: 220 8% 65%;
+    --synapse-blue: 217 91% 60%;
+    --synapse-gold: 43 96% 56%;
+    --synapse-red: 0 84% 60%;
     --synapse-surface: 240 15% 10%;
-    --synapse-glass:   240 15% 12%;
+    --synapse-glass: 240 15% 12%;
 
     --sidebar-background: 240 20% 5%;
     --sidebar-foreground: 0 0% 85%;
@@ -82,8 +79,6 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
-  /* ESKİ: rgba(139, 92, 246, ...) — mor parıltı */
-  /* YENİ: rgba(160, 168, 185, ...) — çelik gri parıltı */
   .glow-purple {
     box-shadow: 0 0 20px rgba(160, 168, 185, 0.07), 0 0 40px rgba(160, 168, 185, 0.03);
   }
@@ -94,7 +89,7 @@
 
   .timeline-connector {
     width: 1px;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.08), transparent);
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.08), transparent);
     margin-top: 4px;
   }
 }
