@@ -104,7 +104,7 @@ export default function ChatMessage({ query = "", primeResult = "", timestamp = 
       {query && (
         <div className="flex justify-end relative select-none">
           <div 
-            className="w-fit max-w-[95%] bg-synapse-purple/20 border border-synapse-purple/30 rounded-2xl rounded-tr-sm px-4 pt-3 pb-5 relative hover:bg-synapse-purple/30 transition-colors"
+            className="w-fit max-w-[95%] bg-white/10 border border-white/15 rounded-2xl rounded-tr-sm px-4 pt-3 pb-5 relative hover:bg-white/14 transition-colors"
             onMouseDown={startPress}
             onMouseUp={cancelPress}
             onMouseLeave={cancelPress}
@@ -113,7 +113,7 @@ export default function ChatMessage({ query = "", primeResult = "", timestamp = 
             onTouchMove={cancelPress}
           >
             {mode === "nexus" && (
-              <Cpu size={14} className="absolute top-2 right-2 text-synapse-purple/40" />
+              <Cpu size={14} className="absolute top-2 right-2 text-white/25" />
             )}
             
             <p className={`text-sm text-foreground/90 leading-relaxed break-words select-text ${mode === "nexus" ? "pr-5" : ""}`}>
@@ -148,4 +148,4 @@ export default function ChatMessage({ query = "", primeResult = "", timestamp = 
       )}
     </div>
   );
-}
+                    }
