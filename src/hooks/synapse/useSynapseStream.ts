@@ -51,7 +51,7 @@ export function useSynapseStream() {
     const timeoutId = setTimeout(() => controller.abort(), 90000);
 
     try {
-      const response = await fetch("https://synapse-api-b8oc.onrender.com/analyze", {
+      const response = await fetch(import.meta.env.VITE_API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, mode }),
