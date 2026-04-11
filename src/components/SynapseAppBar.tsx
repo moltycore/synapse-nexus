@@ -1,3 +1,5 @@
+import { APP_VERSION } from "@/config/constants";
+
 interface SynapseAppBarProps {
   onSidebarToggle: () => void;
   onBottomSheetToggle: () => void;
@@ -23,8 +25,8 @@ const ActionIcon = () => (
 const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle }: SynapseAppBarProps) => {
   return (
     <header className="shrink-0 z-[40] flex items-center justify-between px-4 pb-2 pt-[calc(env(safe-area-inset-top,0px)+36px)] bg-[#0F1115] w-full">
-      <button 
-        onClick={onSidebarToggle} 
+      <button
+        onClick={onSidebarToggle}
         className="flex items-center justify-center min-w-[36px] min-h-[36px] transition-all active:scale-95 active:opacity-70"
       >
         <NavigationIcon />
@@ -32,11 +34,11 @@ const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle }: SynapseAppBarPr
 
       <div className="flex flex-col items-center select-none gap-px mt-1">
         <span className="font-semibold text-[17px] text-[#EDEFF3] tracking-tight">Synapse</span>
-        <span className="text-[11px] text-[#9CA3AF] tracking-[0.5px]">Nexus V1.2.16</span>
+        <span className="text-[11px] text-[#9CA3AF] tracking-[0.5px]">Nexus {APP_VERSION}</span>
       </div>
 
-      <button 
-        onClick={onBottomSheetToggle} 
+      <button
+        onClick={onBottomSheetToggle}
         className="flex items-center justify-center min-w-[36px] min-h-[36px] transition-all active:scale-95 active:opacity-70"
       >
         <ActionIcon />
