@@ -1,6 +1,7 @@
 import { useReducer, useRef, useCallback } from "react";
 import { HistoryItem, SynapseMode, AgentKey, SynapseState } from "@/hooks/synapse/types";
 import { parseSSE, getTurkishTime } from "@/hooks/synapse/utils";
+import { API_URL, STREAM_TIMEOUT_MS } from "@/config/constants";
 
 const initialState: SynapseState = {
   isProcessing: false,
@@ -9,23 +10,23 @@ const initialState: SynapseState = {
   error: null
 };
 
-type Action = 
-  | { type: 'START' }
-  | { type: 'SET_AGENT', payload: AgentKey }
-  | { type: 'SET_DATA', payload: any }
-  | { type: 'ERROR', payload: string }
-  | { type: 'FINISH' }
-  | { type: 'RESET' };
+type Action =
+  | { type: "START" }
+  | { type: "SET_AGENT"; payload: AgentKey }
+  | { type: "SET_DATA"; payload: any }
+  | { type: "ERROR"; payload: string }
+  | { type: "FINISH" }
+  | { type: "RESET" };
 
 function synapseReducer(state: SynapseState, action: Action): SynapseState {
   switch (action.type) {
-    case 'START': return { ...initialState, isProcessing: true };
-    case 'SET_AGENT': return { ...state, activeAgent: action.payload };
-    case 'SET_DATA': return { ...state, streamingData: { ...state.streamingData, ...action.payload } };
-    case 'ERROR': return { ...state, isProcessing: false, activeAgent: null, error: action.payload };
-    case 'FINISH': return { ...state, isProcessing: false, activeAgent: null };
-    case 'RESET': return initialState;
-    default: return state;
+    case "START":     return { ...initialState, isProcessing: true };
+    case "SET_AGENT": return { ...state, activeAgent: action.payload };
+    case "SET_DATA":  return { ...state, streamingData: { ...state.streamingData, ...action.payload } };
+    case "ERROR":     return { ...state, isProcessing: false, activeAgent: null, error: action.payload };
+    case "FINISH":    return { ...state, isProcessing: false, activeAgent: null };
+    case "RESET":     return initialState;
+    default:          return state;
   }
 }
 
@@ -34,24 +35,24 @@ export function useSynapseStream() {
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const submitQuery = useCallback(async (
-    text: string, 
-    mode: SynapseMode, 
+    text: string,
+    mode: SynapseMode,
     onComplete: (item: HistoryItem) => void,
     onError: (errItem: HistoryItem) => void
   ) => {
     if (abortControllerRef.current) abortControllerRef.current.abort();
-    
+
     const controller = new AbortController();
     abortControllerRef.current = controller;
-    dispatch({ type: 'START' });
+    dispatch({ type: "START" });
 
     const pendingId = crypto.randomUUID();
     let currentPayload: any = {};
 
-    const timeoutId = setTimeout(() => controller.abort(), 90000);
+    const timeoutId = setTimeout(() => controller.abort(), STREAM_TIMEOUT_MS);
 
     try {
-      const response = await fetch(import.meta.env.VITE_API_URL, {
+      const response = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, mode }),
@@ -76,10 +77,10 @@ export function useSynapseStream() {
           if (!eventObj) continue;
 
           if (eventObj.event === "status") {
-            dispatch({ type: 'SET_AGENT', payload: eventObj.data });
+            dispatch({ type: "SET_AGENT", payload: eventObj.data });
           } else if (eventObj.event === "done") {
             currentPayload = eventObj.data;
-            dispatch({ type: 'SET_DATA', payload: currentPayload });
+            dispatch({ type: "SET_DATA", payload: currentPayload });
           }
         }
       }
@@ -96,14 +97,14 @@ export function useSynapseStream() {
 
     } catch (error: any) {
       clearTimeout(timeoutId);
-      
-      const isTimeout = error.name === 'AbortError';
-      const errorMessage = isTimeout 
-        ? "Connection timeout. Server unresponsive." 
+
+      const isTimeout = error.name === "AbortError";
+      const errorMessage = isTimeout
+        ? "Connection timeout. Server unresponsive."
         : error.message || "Uplink lost.";
-        
-      dispatch({ type: 'ERROR', payload: errorMessage });
-      
+
+      dispatch({ type: "ERROR", payload: errorMessage });
+
       onError({
         id: pendingId,
         soru: text,
@@ -111,9 +112,10 @@ export function useSynapseStream() {
         timestamp: getTurkishTime(),
         mode
       });
+
     } finally {
       clearTimeout(timeoutId);
-      dispatch({ type: 'FINISH' });
+      dispatch({ type: "FINISH" });
       abortControllerRef.current = null;
     }
   }, []);
