@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { Cpu, AlertTriangle } from "lucide-react";
-import SynapseAppBar from "../components/SynapseAppBar";
-import BattleTimeline from "../components/BattleTimeline";
-import SynapseInput from "../components/SynapseInput";
-import ChatMessage from "../components/ChatMessage"; 
+
+import SynapseAppBar from "../components/common/SynapseAppBar";
+import BattleTimeline from "../components/chat/BattleTimeline";
+import SynapseInput from "../components/chat/SynapseInput";
+import ChatMessage from "../components/chat/ChatMessage"; 
 import Sidebar from "../components/Sidebar/Sidebar";
 import BottomSheet from "../components/BottomSheet/BottomSheet";
-import { ErrorBoundary } from "../components/ErrorBoundary";
+import { ErrorBoundary } from "../components/common/ErrorBoundary";
 
 import { useSynapseStream } from "../hooks/synapse/useSynapseStream";
 import { HistoryItem, SynapseMode } from "../hooks/synapse/types";
@@ -139,4 +140,4 @@ export default function Index() {
       </div>
     </ErrorBoundary>
   );
-}
+      }
