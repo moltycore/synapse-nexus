@@ -2,6 +2,7 @@ import { useReducer, useRef, useCallback } from "react";
 import { HistoryItem, SynapseMode, AgentKey, SynapseState } from "@/hooks/synapse/types";
 import { parseSSE, getTurkishTime } from "@/hooks/synapse/utils";
 import { API_URL, STREAM_TIMEOUT_MS } from "@/config/constants";
+import { logger } from "@/utils/logger";
 
 const initialState: SynapseState = {
   isProcessing: false,
@@ -40,7 +41,10 @@ export function useSynapseStream() {
     onComplete: (item: HistoryItem) => void,
     onError: (errItem: HistoryItem) => void
   ) => {
-    if (abortControllerRef.current) abortControllerRef.current.abort();
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      logger.warn("Previous stream aborted by new request.");
+    }
 
     const controller = new AbortController();
     abortControllerRef.current = controller;
@@ -49,7 +53,12 @@ export function useSynapseStream() {
     const pendingId = crypto.randomUUID();
     let currentPayload: any = {};
 
-    const timeoutId = setTimeout(() => controller.abort(), STREAM_TIMEOUT_MS);
+    logger.info("Stream initialized", { pendingId, mode, textLength: text.length });
+
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+      logger.warn("Stream aborted (Timeout threshold reached)", { pendingId, timeoutMs: STREAM_TIMEOUT_MS });
+    }, STREAM_TIMEOUT_MS);
 
     try {
       const response = await fetch(API_URL, {
@@ -59,7 +68,16 @@ export function useSynapseStream() {
         signal: controller.signal
       });
 
-      if (!response.body) throw new Error("Stream connection failed.");
+      if (!response.ok) {
+        logger.error("Uplink rejected", { status: response.status, statusText: response.statusText });
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      if (!response.body) {
+        logger.error("No payload stream received");
+        throw new Error("Stream connection failed.");
+      }
+
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
@@ -93,6 +111,8 @@ export function useSynapseStream() {
         mode,
         ...currentPayload
       };
+      
+      logger.info("Stream completed successfully", { pendingId, hasPrime: !!currentPayload.prime_result });
       onComplete(finalItem);
 
     } catch (error: any) {
@@ -102,6 +122,10 @@ export function useSynapseStream() {
       const errorMessage = isTimeout
         ? "Connection timeout. Server unresponsive."
         : error.message || "Uplink lost.";
+
+      if (!isTimeout) {
+        logger.error("Stream execution failed", { pendingId, error: error.message });
+      }
 
       dispatch({ type: "ERROR", payload: errorMessage });
 
@@ -121,4 +145,4 @@ export function useSynapseStream() {
   }, []);
 
   return { ...state, submitQuery };
-}
+  }
