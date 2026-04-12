@@ -9,6 +9,7 @@ interface LogEntry {
 
 class SynapseLogger {
   private static instance: SynapseLogger;
+  private isProd = import.meta.env.PROD;
 
   private constructor() {}
 
@@ -32,17 +33,23 @@ class SynapseLogger {
     };
 
     const formattedMessage = this.formatMessage(entry);
+    const logArgs = context ? [formattedMessage, context] : [formattedMessage];
 
     switch (level) {
       case 'info':
-        console.info(formattedMessage, context || '');
+        if (!this.isProd) console.info(...logArgs);
         break;
       case 'warn':
-        console.warn(formattedMessage, context || '');
+        if (!this.isProd) console.warn(...logArgs);
         break;
       case 'error':
+        console.error(...logArgs);
+        break;
       case 'critical':
-        console.error(formattedMessage, context || '');
+        console.error('[CRITICAL_FAILURE]', ...logArgs);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('synapse-critical', { detail: entry }));
+        }
         break;
     }
   }
