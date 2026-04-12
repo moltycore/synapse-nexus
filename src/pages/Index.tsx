@@ -8,6 +8,7 @@ import ChatMessage from "../components/chat/ChatMessage";
 import Sidebar from "../components/Sidebar/Sidebar";
 import BottomSheet from "../components/BottomSheet/BottomSheet";
 import { ErrorBoundary } from "../components/common/ErrorBoundary";
+import PromptFab from "../components/prompts/PromptFab";
 
 import { useSynapseStream } from "../hooks/synapse/useSynapseStream";
 import { HistoryItem, SynapseMode } from "../hooks/synapse/types";
@@ -20,6 +21,8 @@ export default function Index() {
   
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isBottomSheetOpen, setBottomSheetOpen] = useState(false);
+  
+  const [injectedPrompt, setInjectedPrompt] = useState<string>("");
   
   const bottomRef = useRef<HTMLDivElement>(null);
   
@@ -130,14 +133,18 @@ export default function Index() {
             )}
           </main>
 
+          <PromptFab onSelect={(text) => setInjectedPrompt(text)} />
+
           <SynapseInput 
             onSubmit={handleSubmit} 
             isProcessing={isProcessing} 
             mode={mode} 
-            setMode={setMode} 
+            setMode={setMode}
+            injectedPrompt={injectedPrompt}
+            clearInjectedPrompt={() => setInjectedPrompt("")}
           />
         </div>
       </div>
     </ErrorBoundary>
   );
-      }
+}
