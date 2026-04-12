@@ -7,12 +7,28 @@ interface SynapseInputProps {
   isProcessing: boolean;
   mode: SynapseMode;
   setMode: (mode: SynapseMode) => void;
+  injectedPrompt?: string;
+  clearInjectedPrompt?: () => void;
 }
 
-const SynapseInput = ({ onSubmit, isProcessing, mode, setMode }: SynapseInputProps) => {
+const SynapseInput = ({ 
+  onSubmit, 
+  isProcessing, 
+  mode, 
+  setMode, 
+  injectedPrompt, 
+  clearInjectedPrompt 
+}: SynapseInputProps) => {
   const [text, setText] = useState("");
   const [keyboardOffset, setKeyboardOffset] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (injectedPrompt) {
+      setText((prev) => (prev ? `${prev}\n${injectedPrompt}` : injectedPrompt));
+      if (clearInjectedPrompt) clearInjectedPrompt();
+    }
+  }, [injectedPrompt, clearInjectedPrompt]);
 
   useEffect(() => {
     const viewport = window.visualViewport;
