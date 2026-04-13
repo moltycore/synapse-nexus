@@ -5,6 +5,7 @@ import { dbService } from "@/services/db";
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  onSelectWorkspace: (id: string) => void;
 }
 
 interface WorkspaceNode {
@@ -15,7 +16,7 @@ interface WorkspaceNode {
   children?: { id: string; title: string }[];
 }
 
-export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+export default function Sidebar({ isOpen, onClose, onSelectWorkspace }: SidebarProps) {
   const [workspaces, setWorkspaces] = useState<WorkspaceNode[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -110,7 +111,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             workspaces.map(workspace => (
               <div key={workspace.id} className="flex flex-col">
                 <button 
-                  onClick={() => toggleWorkspace(workspace.id)}
+                  onClick={() => {
+                    toggleWorkspace(workspace.id);
+                    onSelectWorkspace(workspace.id);
+                  }}
                   className="flex items-center gap-2 w-full p-2 rounded-md hover:bg-white/5 transition-colors text-left group"
                 >
                   {workspace.isLoadingChildren ? (
@@ -134,7 +138,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                       workspace.children.map(child => (
                         <button 
                           key={child.id}
-                          className="flex items-center gap-2 w-full p-2 rounded-md hover:bg-white/5 transition-colors text-left group"
+                          className="flex items-center gap-2 w-full p-2 rounded-md hover:bg-white/5 transition-colors text-left group cursor-default"
                         >
                           <MessageSquare size={12} className="text-white/30 group-hover:text-white/60 shrink-0" />
                           <span className="text-[11px] text-white/50 group-hover:text-white/80 truncate">
@@ -156,4 +160,4 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       </aside>
     </>
   );
-}
+      }
