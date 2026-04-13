@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { APP_VERSION } from "@/config/constants";
-import { Code2, X } from "lucide-react";
+import { Code2, X, FileTerminal, Loader2 } from "lucide-react";
+import { dbService } from "@/services/db";
+import { HistoryItem } from "@/hooks/synapse/types";
 
 interface SynapseAppBarProps {
   onSidebarToggle: () => void;
   onBottomSheetToggle: () => void;
+  activeWorkspaceId?: string | null;
 }
 
 const NavigationIcon = () => (
@@ -24,8 +27,30 @@ const ActionIcon = () => (
   </svg>
 );
 
-const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle }: SynapseAppBarProps) => {
+const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle, activeWorkspaceId }: SynapseAppBarProps) => {
   const [isIslandExpanded, setIsIslandExpanded] = useState(false);
+  const [artifacts, setArtifacts] = useState<HistoryItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchArtifacts = async () => {
+      if (!isIslandExpanded || !activeWorkspaceId) return;
+      
+      try {
+        setIsLoading(true);
+        const messages = await dbService.getMessages(activeWorkspaceId);
+        // İçinde kod bloğu (```) olan sonuçları Artifact olarak filtrele
+        const extracted = messages.filter(m => m.prime_result?.includes("```"));
+        setArtifacts(extracted);
+      } catch (error) {
+        console.error("Artifact extraction failed:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchArtifacts();
+  }, [isIslandExpanded, activeWorkspaceId]);
 
   return (
     <>
@@ -60,7 +85,7 @@ const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle }: SynapseAppBarPr
               </div>
             ) : (
               <div className="flex flex-col h-full w-full opacity-100 animate-in fade-in duration-300 delay-100">
-                <div className="flex items-center justify-between mb-4 border-b border-gray-800 pb-3">
+                <div className="flex items-center justify-between mb-4 border-b border-gray-800 pb-3 shrink-0">
                   <div className="flex items-center gap-2 px-1">
                     <Code2 size={16} className="text-gray-400" />
                     <span className="text-sm font-medium text-gray-200">Artifacts Storage</span>
@@ -76,8 +101,27 @@ const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle }: SynapseAppBarPr
                   </button>
                 </div>
                 
-                <div className="flex-1 overflow-y-auto flex flex-col items-center justify-center">
-                  <span className="text-xs font-mono text-gray-600 uppercase tracking-widest">Storage_Empty</span>
+                <div className="flex-1 overflow-y-auto flex flex-col">
+                  {isLoading ? (
+                    <div className="flex-1 flex items-center justify-center">
+                      <Loader2 size={16} className="text-emerald-500/50 animate-spin" />
+                    </div>
+                  ) : artifacts.length === 0 ? (
+                    <div className="flex-1 flex items-center justify-center">
+                      <span className="text-xs font-mono text-gray-600 uppercase tracking-widest">Storage_Empty</span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-2 pb-2 pr-1" style={{ scrollbarWidth: "none" }}>
+                      {artifacts.map(art => (
+                        <div key={art.id} className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 flex flex-col gap-1.5 hover:border-gray-700 transition-colors cursor-pointer group">
+                          <div className="flex items-center gap-2">
+                            <FileTerminal size={12} className="text-emerald-500/70" />
+                            <span className="text-[10px] font-mono text-gray-400 truncate">{art.soru}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
