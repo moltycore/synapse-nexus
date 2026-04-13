@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Cpu, AlertTriangle } from "lucide-react";
+import { Cpu, AlertTriangle, Loader2 } from "lucide-react";
 
 import SynapseAppBar from "../components/common/SynapseAppBar";
 import BattleTimeline from "../components/chat/BattleTimeline";
@@ -12,6 +12,10 @@ import PromptFab from "../components/prompts/PromptFab";
 
 import { useSynapseStream } from "../hooks/synapse/useSynapseStream";
 import { HistoryItem, SynapseMode } from "../hooks/synapse/types";
+import { dbService } from "../services/db";
+import { logger } from "../utils/logger";
+
+const DEFAULT_WORKSPACE_ID = "w-default";
 
 export default function Index() {
   const [mode, setMode] = useState<SynapseMode>("solo");
@@ -21,12 +25,39 @@ export default function Index() {
   
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isBottomSheetOpen, setBottomSheetOpen] = useState(false);
-  
   const [injectedPrompt, setInjectedPrompt] = useState<string>("");
+  
+  const [activeWorkspaceId, setActiveWorkspaceId] = useState<string | null>(null);
+  const [isInit, setIsInit] = useState(true);
   
   const bottomRef = useRef<HTMLDivElement>(null);
   
   const { submitQuery, isProcessing, activeAgent, streamingData, error } = useSynapseStream();
+
+  useEffect(() => {
+    const initWorkspace = async () => {
+      try {
+        const workspaces = await dbService.getWorkspaces();
+        const defaultWs = workspaces.find(w => w.id === DEFAULT_WORKSPACE_ID);
+        
+        if (!defaultWs) {
+          await dbService.createWorkspace(DEFAULT_WORKSPACE_ID, "Geçici Oturum");
+          logger.info("Default workspace created");
+        }
+        
+        setActiveWorkspaceId(DEFAULT_WORKSPACE_ID);
+        
+        const messages = await dbService.getMessages(DEFAULT_WORKSPACE_ID);
+        setHistory(messages);
+      } catch (err) {
+        logger.error("Workspace initialization failed", { error: err });
+      } finally {
+        setIsInit(false);
+      }
+    };
+
+    initWorkspace();
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -40,6 +71,7 @@ export default function Index() {
     submitQuery(
       text, 
       mode, 
+      activeWorkspaceId,
       (finalItem) => {
         setHistory((prev) => [...prev, finalItem]);
         setActiveItem(finalItem);
@@ -50,10 +82,38 @@ export default function Index() {
     );
   };
 
+  const handleWorkspaceSelect = async (id: string) => {
+    setIsInit(true);
+    setSidebarOpen(false);
+    try {
+      setActiveWorkspaceId(id);
+      const messages = await dbService.getMessages(id);
+      setHistory(messages);
+      setActiveItem(null);
+    } catch (err) {
+      logger.error("Failed to load workspace messages", { workspaceId: id, error: err });
+    } finally {
+      setIsInit(false);
+    }
+  };
+
+  if (isInit) {
+    return (
+      <div className="fixed inset-0 bg-[#0F1115] flex flex-col items-center justify-center gap-4 z-[100]">
+        <Loader2 size={32} className="text-emerald-500/50 animate-spin" />
+        <span className="font-mono text-xs text-white/40 tracking-widest uppercase">Initializing Core...</span>
+      </div>
+    );
+  }
+
   return (
     <ErrorBoundary>
       <div className="fixed inset-0 bg-background text-foreground overflow-hidden w-full">
-        <Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <Sidebar 
+          isOpen={isSidebarOpen} 
+          onClose={() => setSidebarOpen(false)} 
+          onSelectWorkspace={handleWorkspaceSelect}
+        />
         <BottomSheet isOpen={isBottomSheetOpen} onClose={() => setBottomSheetOpen(false)} />
 
         <div 
@@ -147,4 +207,4 @@ export default function Index() {
       </div>
     </ErrorBoundary>
   );
-}
+            }
