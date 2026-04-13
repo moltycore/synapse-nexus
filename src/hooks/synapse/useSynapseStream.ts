@@ -3,6 +3,7 @@ import { HistoryItem, SynapseMode, AgentKey, SynapseState } from "@/hooks/synaps
 import { parseSSE, getTurkishTime } from "@/hooks/synapse/utils";
 import { API_URL, STREAM_TIMEOUT_MS } from "@/config/constants";
 import { logger } from "@/utils/logger";
+import { dbService } from "@/services/db";
 
 const initialState: SynapseState = {
   isProcessing: false,
@@ -38,6 +39,7 @@ export function useSynapseStream() {
   const submitQuery = useCallback(async (
     text: string,
     mode: SynapseMode,
+    workspaceId: string | null,
     onComplete: (item: HistoryItem) => void,
     onError: (errItem: HistoryItem) => void
   ) => {
@@ -53,7 +55,7 @@ export function useSynapseStream() {
     const pendingId = crypto.randomUUID();
     let currentPayload: any = {};
 
-    logger.info("Stream initialized", { pendingId, mode, textLength: text.length });
+    logger.info("Stream initialized", { pendingId, mode, workspaceId, textLength: text.length });
 
     const timeoutId = setTimeout(() => {
       controller.abort();
@@ -113,6 +115,16 @@ export function useSynapseStream() {
       };
       
       logger.info("Stream completed successfully", { pendingId, hasPrime: !!currentPayload.prime_result });
+      
+      if (workspaceId) {
+        try {
+          await dbService.saveMessage(workspaceId, finalItem);
+          logger.info("Payload synced to DB", { pendingId, workspaceId });
+        } catch (dbErr: any) {
+          logger.error("DB sync failed", { pendingId, workspaceId, error: dbErr.message });
+        }
+      }
+
       onComplete(finalItem);
 
     } catch (error: any) {
@@ -129,13 +141,23 @@ export function useSynapseStream() {
 
       dispatch({ type: "ERROR", payload: errorMessage });
 
-      onError({
+      const errItem: HistoryItem = {
         id: pendingId,
         soru: text,
         prime_result: `⚠️ ${isTimeout ? "TIMEOUT" : "CRITICAL_ERROR"}: ${errorMessage}`,
         timestamp: getTurkishTime(),
         mode
-      });
+      };
+
+      if (workspaceId) {
+        try {
+          await dbService.saveMessage(workspaceId, errItem);
+        } catch (dbErr) {
+          // Sessizce yut, ana hatayı bozma
+        }
+      }
+
+      onError(errItem);
 
     } finally {
       clearTimeout(timeoutId);
@@ -145,4 +167,4 @@ export function useSynapseStream() {
   }, []);
 
   return { ...state, submitQuery };
-  }
+              }
