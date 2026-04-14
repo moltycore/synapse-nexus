@@ -97,6 +97,31 @@ export default function Index() {
     }
   };
 
+  const handleFork = async (messageId: string) => {
+    const targetIndex = history.findIndex(item => item.id === messageId);
+    if (targetIndex === -1) return;
+
+    const title = prompt("Yeni dal (branch) için isim girin:");
+    if (!title?.trim()) return;
+
+    setIsInit(true);
+    try {
+      const messagesToClone = history.slice(0, targetIndex + 1);
+      const newWorkspaceId = `w-${crypto.randomUUID().slice(0,8)}`;
+      
+      await dbService.forkWorkspace(newWorkspaceId, title.trim(), messagesToClone);
+      
+      setActiveWorkspaceId(newWorkspaceId);
+      setHistory(messagesToClone);
+      setActiveItem(null);
+      logger.info("Workspace forked successfully", { originalId: activeWorkspaceId, newWorkspaceId });
+    } catch (err) {
+      logger.error("Fork operation failed", { error: err });
+    } finally {
+      setIsInit(false);
+    }
+  };
+
   if (isInit) {
     return (
       <div className="fixed inset-0 bg-[#0F1115] flex flex-col items-center justify-center gap-4 z-[100]">
@@ -124,6 +149,7 @@ export default function Index() {
           <SynapseAppBar 
             onSidebarToggle={() => setSidebarOpen(true)} 
             onBottomSheetToggle={() => setBottomSheetOpen(true)} 
+            activeWorkspaceId={activeWorkspaceId}
           />
 
           <main className="flex-1 overflow-y-auto pb-24 pt-2 relative flex flex-col">
@@ -141,10 +167,12 @@ export default function Index() {
               {history.map((item) => (
                 <ChatMessage 
                   key={item.id}
+                  id={item.id}
                   query={item.soru} 
                   primeResult={item.prime_result} 
                   timestamp={item.timestamp}
                   mode={item.mode}
+                  onFork={handleFork}
                 />
               ))}
 
@@ -207,4 +235,4 @@ export default function Index() {
       </div>
     </ErrorBoundary>
   );
-            }
+                                                    }
