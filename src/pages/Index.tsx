@@ -63,15 +63,18 @@ export default function Index() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [history, isProcessing, error]);
 
-  const handleSubmit = (text: string) => {
+  const handleSubmit = (text: string, fileData?: { name: string; content: string } | null) => {
     if (isProcessing) return;
-    setCurrentQuery(text);
+    
+    const displayQuery = fileData ? `${text}\n[Dosya eklendi: ${fileData.name}]` : text;
+    setCurrentQuery(displayQuery);
     setActiveItem(null);
 
     submitQuery(
       text, 
       mode, 
       activeWorkspaceId,
+      fileData,
       (finalItem) => {
         setHistory((prev) => [...prev, finalItem]);
         setActiveItem(finalItem);
@@ -183,7 +186,7 @@ export default function Index() {
                       {mode === "nexus" && (
                         <Cpu size={14} className="absolute top-2 right-2 text-white/25" />
                       )}
-                      <p className={`text-sm text-foreground/90 leading-relaxed break-words select-text ${mode === "nexus" ? "pr-5" : ""}`}>
+                      <p className={`text-sm text-foreground/90 leading-relaxed break-words select-text whitespace-pre-wrap ${mode === "nexus" ? "pr-5" : ""}`}>
                         {currentQuery}
                       </p>
                     </div>
@@ -235,4 +238,4 @@ export default function Index() {
       </div>
     </ErrorBoundary>
   );
-                                                    }
+            }
