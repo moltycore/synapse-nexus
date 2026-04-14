@@ -1,12 +1,14 @@
 import { useState, useRef, useCallback } from "react";
-import { Cpu, Copy, Share2, MoreHorizontal, Check } from "lucide-react";
+import { Cpu, Copy, Share2, MoreHorizontal, Check, GitFork } from "lucide-react";
 
 interface ChatMessageProps {
+  id?: string;
   query: string;
   primeResult: string;
   timestamp: string;
   mode: "solo" | "nexus";
   visionSuggest?: string;
+  onFork?: (id: string) => void;
 }
 
 const CodeBlock = ({ content }: { content: string }) => {
@@ -57,7 +59,7 @@ const renderMessage = (text: string) => {
   });
 };
 
-export default function ChatMessage({ query = "", primeResult = "", timestamp = "", mode = "solo" }: ChatMessageProps) {
+export default function ChatMessage({ id, query = "", primeResult = "", timestamp = "", mode = "solo", onFork }: ChatMessageProps) {
   const [aiCopied, setAiCopied] = useState(false);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
 
@@ -139,6 +141,11 @@ export default function ChatMessage({ query = "", primeResult = "", timestamp = 
             <button onClick={handleShare} className="hover:text-white transition-colors" title="Share Payload">
               <Share2 size={14} strokeWidth={2} />
             </button>
+            {onFork && id && (
+              <button onClick={() => onFork(id)} className="hover:text-emerald-500 transition-colors" title="Buradan Dallandır (Fork Path)">
+                <GitFork size={14} strokeWidth={2} />
+              </button>
+            )}
             <button className="hover:text-white transition-colors" title="System Override">
               <MoreHorizontal size={14} strokeWidth={2} />
             </button>
@@ -148,4 +155,4 @@ export default function ChatMessage({ query = "", primeResult = "", timestamp = 
       )}
     </div>
   );
-                    }
+      }
