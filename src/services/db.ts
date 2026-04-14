@@ -39,5 +39,17 @@ export const dbService = {
     const q = query(getMessagesCol(workspaceId), orderBy("savedAt", "asc"));
     const snap = await getDocs(q);
     return snap.docs.map(d => d.data() as HistoryItem);
+  },
+
+  async forkWorkspace(targetWorkspaceId: string, newTitle: string, messagesToClone: HistoryItem[]): Promise<void> {
+    await this.createWorkspace(targetWorkspaceId, newTitle);
+
+    for (const item of messagesToClone) {
+      const ref = doc(getMessagesCol(targetWorkspaceId), item.id);
+      await setDoc(ref, {
+        ...item,
+        savedAt: serverTimestamp() 
+      });
+    }
   }
 };
