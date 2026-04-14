@@ -40,6 +40,7 @@ export function useSynapseStream() {
     text: string,
     mode: SynapseMode,
     workspaceId: string | null,
+    fileData: { name: string; content: string } | null | undefined,
     onComplete: (item: HistoryItem) => void,
     onError: (errItem: HistoryItem) => void
   ) => {
@@ -55,7 +56,7 @@ export function useSynapseStream() {
     const pendingId = crypto.randomUUID();
     let currentPayload: any = {};
 
-    logger.info("Stream initialized", { pendingId, mode, workspaceId, textLength: text.length });
+    logger.info("Stream initialized", { pendingId, mode, workspaceId, hasFile: !!fileData, textLength: text.length });
 
     const timeoutId = setTimeout(() => {
       controller.abort();
@@ -63,10 +64,15 @@ export function useSynapseStream() {
     }, STREAM_TIMEOUT_MS);
 
     try {
+      const payloadBody: any = { text, mode };
+      if (fileData) {
+        payloadBody.fileContext = fileData;
+      }
+
       const response = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, mode }),
+        body: JSON.stringify(payloadBody),
         signal: controller.signal
       });
 
@@ -105,9 +111,11 @@ export function useSynapseStream() {
         }
       }
 
+      const displaySoru = fileData ? `${text}\n[Dosya eklendi: ${fileData.name}]` : text;
+
       const finalItem: HistoryItem = {
         id: pendingId,
-        soru: text,
+        soru: displaySoru,
         prime_result: currentPayload.prime_result || "Payload decoded.",
         timestamp: getTurkishTime(),
         mode,
@@ -141,9 +149,11 @@ export function useSynapseStream() {
 
       dispatch({ type: "ERROR", payload: errorMessage });
 
+      const displaySoru = fileData ? `${text}\n[Dosya eklendi: ${fileData.name}]` : text;
+
       const errItem: HistoryItem = {
         id: pendingId,
-        soru: text,
+        soru: displaySoru,
         prime_result: `⚠️ ${isTimeout ? "TIMEOUT" : "CRITICAL_ERROR"}: ${errorMessage}`,
         timestamp: getTurkishTime(),
         mode
@@ -153,7 +163,6 @@ export function useSynapseStream() {
         try {
           await dbService.saveMessage(workspaceId, errItem);
         } catch (dbErr) {
-          // Sessizce yut, ana hatayı bozma
         }
       }
 
@@ -167,4 +176,4 @@ export function useSynapseStream() {
   }, []);
 
   return { ...state, submitQuery };
-              }
+        }
