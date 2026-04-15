@@ -6,17 +6,19 @@ export interface WorkspaceMeta {
   id: string;
   title: string;
   createdAt: any;
+  parentId?: string | null;
 }
 
 const getWorkspacesCol = () => collection(db, "workspaces");
 const getMessagesCol = (workspaceId: string) => collection(db, `workspaces/${workspaceId}/messages`);
 
 export const dbService = {
-  async createWorkspace(id: string, title: string): Promise<void> {
+  async createWorkspace(id: string, title: string, parentId: string | null = null): Promise<void> {
     const ref = doc(getWorkspacesCol(), id);
     await setDoc(ref, {
       id,
       title,
+      parentId,
       createdAt: serverTimestamp()
     });
   },
@@ -41,8 +43,8 @@ export const dbService = {
     return snap.docs.map(d => d.data() as HistoryItem);
   },
 
-  async forkWorkspace(targetWorkspaceId: string, newTitle: string, messagesToClone: HistoryItem[]): Promise<void> {
-    await this.createWorkspace(targetWorkspaceId, newTitle);
+  async forkWorkspace(targetWorkspaceId: string, newTitle: string, messagesToClone: HistoryItem[], parentId: string | null = null): Promise<void> {
+    await this.createWorkspace(targetWorkspaceId, newTitle, parentId);
 
     for (const item of messagesToClone) {
       const ref = doc(getMessagesCol(targetWorkspaceId), item.id);
