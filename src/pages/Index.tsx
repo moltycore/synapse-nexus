@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Cpu, AlertTriangle, Loader2 } from "lucide-react";
+import { Cpu, AlertTriangle, Loader2, GitFork } from "lucide-react";
 
 import SynapseAppBar from "../components/common/SynapseAppBar";
 import BattleTimeline from "../components/chat/BattleTimeline";
@@ -15,6 +15,12 @@ import { HistoryItem, SynapseMode } from "../hooks/synapse/types";
 import { dbService } from "../services/db";
 import { logger } from "../utils/logger";
 
+interface FileData {
+  name: string;
+  content: string;
+  size: number;
+}
+
 const DEFAULT_WORKSPACE_ID = "w-default";
 
 export default function Index() {
@@ -29,6 +35,7 @@ export default function Index() {
   
   const [activeWorkspaceId, setActiveWorkspaceId] = useState<string | null>(null);
   const [isInit, setIsInit] = useState(true);
+  const [pendingForkId, setPendingForkId] = useState<string | null>(null);
   
   const bottomRef = useRef<HTMLDivElement>(null);
   
@@ -63,18 +70,52 @@ export default function Index() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [history, isProcessing, error]);
 
-  const handleSubmit = (text: string, fileData?: { name: string; content: string } | null) => {
+  const handleSubmit = async (text: string, files?: FileData[] | null) => {
     if (isProcessing) return;
-    
-    const displayQuery = fileData ? `${text}\n[Dosya eklendi: ${fileData.name}]` : text;
+
+    let targetWorkspaceId = activeWorkspaceId;
+
+    if (pendingForkId) {
+      const targetIndex = history.findIndex(item => item.id === pendingForkId);
+      if (targetIndex !== -1) {
+        setIsInit(true);
+        try {
+          const cleanText = text.trim();
+          const titleWords = cleanText.split(/\s+/).slice(0, 3).join(" ");
+          const newTitle = titleWords ? `${titleWords}...` : "Yeni Dal";
+          
+          const messagesToClone = history.slice(0, targetIndex + 1);
+          const newWorkspaceId = `w-${crypto.randomUUID().slice(0,8)}`;
+          
+          await dbService.forkWorkspace(newWorkspaceId, newTitle, messagesToClone);
+          
+          targetWorkspaceId = newWorkspaceId;
+          setActiveWorkspaceId(newWorkspaceId);
+          setHistory(messagesToClone);
+          logger.info("Auto-fork created", { originalId: activeWorkspaceId, newWorkspaceId });
+        } catch (err) {
+          logger.error("Auto-fork failed", { error: err });
+        } finally {
+          setIsInit(false);
+          setPendingForkId(null);
+        }
+      } else {
+        setPendingForkId(null);
+      }
+    }
+
+    const displayQuery = files && files.length > 0 
+      ? `${text}\n[Eklenen Dosyalar: ${files.map(f => f.name).join(', ')}]` 
+      : text;
+
     setCurrentQuery(displayQuery);
     setActiveItem(null);
 
     submitQuery(
       text, 
       mode, 
-      activeWorkspaceId,
-      fileData,
+      targetWorkspaceId,
+      files,
       (finalItem) => {
         setHistory((prev) => [...prev, finalItem]);
         setActiveItem(finalItem);
@@ -93,6 +134,7 @@ export default function Index() {
       const messages = await dbService.getMessages(id);
       setHistory(messages);
       setActiveItem(null);
+      setPendingForkId(null);
     } catch (err) {
       logger.error("Failed to load workspace messages", { workspaceId: id, error: err });
     } finally {
@@ -100,29 +142,8 @@ export default function Index() {
     }
   };
 
-  const handleFork = async (messageId: string) => {
-    const targetIndex = history.findIndex(item => item.id === messageId);
-    if (targetIndex === -1) return;
-
-    const title = prompt("Yeni dal (branch) için isim girin:");
-    if (!title?.trim()) return;
-
-    setIsInit(true);
-    try {
-      const messagesToClone = history.slice(0, targetIndex + 1);
-      const newWorkspaceId = `w-${crypto.randomUUID().slice(0,8)}`;
-      
-      await dbService.forkWorkspace(newWorkspaceId, title.trim(), messagesToClone);
-      
-      setActiveWorkspaceId(newWorkspaceId);
-      setHistory(messagesToClone);
-      setActiveItem(null);
-      logger.info("Workspace forked successfully", { originalId: activeWorkspaceId, newWorkspaceId });
-    } catch (err) {
-      logger.error("Fork operation failed", { error: err });
-    } finally {
-      setIsInit(false);
-    }
+  const handleFork = (messageId: string) => {
+    setPendingForkId(messageId);
   };
 
   if (isInit) {
@@ -224,6 +245,16 @@ export default function Index() {
             )}
           </main>
 
+          {pendingForkId && (
+            <div 
+              onClick={() => setPendingForkId(null)}
+              className="fixed bottom-[100px] left-1/2 -translate-x-1/2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] px-4 py-2 rounded-full flex items-center gap-2 shadow-lg animate-in slide-in-from-bottom-2 fade-in duration-200 z-[60] cursor-pointer hover:bg-emerald-500/20 transition-colors"
+            >
+              <GitFork size={14} />
+              Dallandırma modu devrede. İptal için tıkla.
+            </div>
+          )}
+
           <PromptFab onSelect={(text) => setInjectedPrompt(text)} />
 
           <SynapseInput 
@@ -238,4 +269,4 @@ export default function Index() {
       </div>
     </ErrorBoundary>
   );
-            }
+      }
