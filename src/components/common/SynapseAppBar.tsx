@@ -39,7 +39,6 @@ const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle, activeWorkspaceId
       try {
         setIsLoading(true);
         const messages = await dbService.getMessages(activeWorkspaceId);
-        // İçinde kod bloğu (```) olan sonuçları Artifact olarak filtrele
         const extracted = messages.filter(m => m.prime_result?.includes("```"));
         setArtifacts(extracted);
       } catch (error) {
@@ -54,13 +53,6 @@ const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle, activeWorkspaceId
 
   return (
     <>
-      {isIslandExpanded && (
-        <div 
-          className="fixed inset-0 z-[45] bg-black/40 backdrop-blur-sm transition-opacity"
-          onClick={() => setIsIslandExpanded(false)}
-        />
-      )}
-      
       <header className="shrink-0 z-[50] flex items-center justify-between px-4 pb-2 pt-[calc(env(safe-area-inset-top,0px)+36px)] bg-[#0F1115] w-full relative">
         <button
           onClick={onSidebarToggle}
@@ -69,63 +61,20 @@ const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle, activeWorkspaceId
           <NavigationIcon />
         </button>
 
-        <div className="flex flex-col items-center select-none relative w-[140px] h-[44px]">
-          <div
-            onClick={() => !isIslandExpanded && setIsIslandExpanded(true)}
-            className={`absolute top-0 left-1/2 -translate-x-1/2 flex flex-col overflow-hidden bg-black border border-gray-800 transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] shadow-[0_0_40px_rgba(0,0,0,0.8)] ${
-              isIslandExpanded
-                ? "w-[320px] h-[420px] rounded-[24px] p-4 cursor-default mt-2" 
-                : "w-[140px] h-[44px] rounded-[22px] items-center justify-center cursor-pointer hover:border-gray-600"
-            }`}
-          >
-            {!isIslandExpanded ? (
-              <div className="flex flex-col items-center justify-center h-full w-full gap-[2px]">
-                <span className="font-semibold text-[15px] text-gray-200 tracking-tight leading-none">Synapse</span>
-                <span className="text-[10px] text-gray-500 tracking-[0.5px] leading-none">Nexus {APP_VERSION}</span>
-              </div>
-            ) : (
-              <div className="flex flex-col h-full w-full opacity-100 animate-in fade-in duration-300 delay-100">
-                <div className="flex items-center justify-between mb-4 border-b border-gray-800 pb-3 shrink-0">
-                  <div className="flex items-center gap-2 px-1">
-                    <Code2 size={16} className="text-gray-400" />
-                    <span className="text-sm font-medium text-gray-200">Artifacts Storage</span>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsIslandExpanded(false);
-                    }}
-                    className="text-gray-500 hover:text-gray-300 transition-colors p-1.5 bg-gray-900 rounded-full hover:bg-gray-800"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-                
-                <div className="flex-1 overflow-y-auto flex flex-col">
-                  {isLoading ? (
-                    <div className="flex-1 flex items-center justify-center">
-                      <Loader2 size={16} className="text-emerald-500/50 animate-spin" />
-                    </div>
-                  ) : artifacts.length === 0 ? (
-                    <div className="flex-1 flex items-center justify-center">
-                      <span className="text-xs font-mono text-gray-600 uppercase tracking-widest">Storage_Empty</span>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-2 pb-2 pr-1" style={{ scrollbarWidth: "none" }}>
-                      {artifacts.map(art => (
-                        <div key={art.id} className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 flex flex-col gap-1.5 hover:border-gray-700 transition-colors cursor-pointer group">
-                          <div className="flex items-center gap-2">
-                            <FileTerminal size={12} className="text-emerald-500/70" />
-                            <span className="text-[10px] font-mono text-gray-400 truncate">{art.soru}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
+          {/* Merkezi Synapse Kutusu */}
+          <div className="flex flex-col items-center justify-center w-[120px] h-[40px] bg-black border border-gray-800 rounded-[20px] shadow-lg">
+            <span className="font-semibold text-[14px] text-gray-200 tracking-tight leading-none">Synapse</span>
+            <span className="text-[9px] text-gray-500 tracking-[0.5px] leading-none mt-1">Nexus {APP_VERSION}</span>
           </div>
+          {/* Artifacts İkonu (Kutunun Sağında) */}
+          <button
+            onClick={() => setIsIslandExpanded(true)}
+            className="w-10 h-10 flex items-center justify-center bg-black border border-gray-800 rounded-full shadow-lg text-gray-400 hover:text-emerald-400 hover:border-gray-700 transition-colors"
+            title="Artifacts"
+          >
+            <Code2 size={16} />
+          </button>
         </div>
 
         <button
@@ -135,6 +84,53 @@ const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle, activeWorkspaceId
           <ActionIcon />
         </button>
       </header>
+
+      {/* Artifacts Açılır Paneli */}
+      {isIslandExpanded && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center pt-[calc(env(safe-area-inset-top,0px)+36px)] px-4">
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsIslandExpanded(false)}
+          />
+          <div className="relative w-full max-w-[340px] h-[450px] bg-black border border-gray-800 rounded-[24px] p-4 flex flex-col shadow-[0_0_40px_rgba(0,0,0,0.8)] animate-in fade-in zoom-in-95 duration-200 mt-2">
+            <div className="flex items-center justify-between mb-4 border-b border-gray-800 pb-3 shrink-0">
+              <div className="flex items-center gap-2 px-1">
+                <Code2 size={16} className="text-gray-400" />
+                <span className="text-sm font-medium text-gray-200">Artifacts Storage</span>
+              </div>
+              <button
+                onClick={() => setIsIslandExpanded(false)}
+                className="text-gray-500 hover:text-gray-300 transition-colors p-1.5 bg-gray-900 rounded-full hover:bg-gray-800"
+              >
+                <X size={14} />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto flex flex-col">
+              {isLoading ? (
+                <div className="flex-1 flex items-center justify-center">
+                  <Loader2 size={16} className="text-emerald-500/50 animate-spin" />
+                </div>
+              ) : artifacts.length === 0 ? (
+                <div className="flex-1 flex items-center justify-center">
+                  <span className="text-xs font-mono text-gray-600 uppercase tracking-widest">Storage_Empty</span>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2 pb-2 pr-1" style={{ scrollbarWidth: "none" }}>
+                  {artifacts.map(art => (
+                    <div key={art.id} className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 flex flex-col gap-1.5 hover:border-gray-700 transition-colors cursor-pointer group">
+                      <div className="flex items-center gap-2">
+                        <FileTerminal size={12} className="text-emerald-500/70" />
+                        <span className="text-[10px] font-mono text-gray-400 truncate">{art.soru}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
