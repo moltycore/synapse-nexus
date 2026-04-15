@@ -5,6 +5,12 @@ import { API_URL, STREAM_TIMEOUT_MS } from "@/config/constants";
 import { logger } from "@/utils/logger";
 import { dbService } from "@/services/db";
 
+interface FileData {
+  name: string;
+  content: string;
+  size: number;
+}
+
 const initialState: SynapseState = {
   isProcessing: false,
   activeAgent: null,
@@ -40,7 +46,7 @@ export function useSynapseStream() {
     text: string,
     mode: SynapseMode,
     workspaceId: string | null,
-    fileData: { name: string; content: string } | null | undefined,
+    files: FileData[] | null | undefined,
     onComplete: (item: HistoryItem) => void,
     onError: (errItem: HistoryItem) => void
   ) => {
@@ -56,7 +62,7 @@ export function useSynapseStream() {
     const pendingId = crypto.randomUUID();
     let currentPayload: any = {};
 
-    logger.info("Stream initialized", { pendingId, mode, workspaceId, hasFile: !!fileData, textLength: text.length });
+    logger.info("Stream initialized", { pendingId, mode, workspaceId, fileCount: files?.length || 0 });
 
     const timeoutId = setTimeout(() => {
       controller.abort();
@@ -65,8 +71,8 @@ export function useSynapseStream() {
 
     try {
       const payloadBody: any = { text, mode };
-      if (fileData) {
-        payloadBody.fileContext = fileData;
+      if (files && files.length > 0) {
+        payloadBody.fileContext = files;
       }
 
       const response = await fetch(API_URL, {
@@ -111,7 +117,9 @@ export function useSynapseStream() {
         }
       }
 
-      const displaySoru = fileData ? `${text}\n[Dosya eklendi: ${fileData.name}]` : text;
+      const displaySoru = files && files.length > 0 
+        ? `${text}\n[Eklenen Dosyalar: ${files.map(f => f.name).join(', ')}]` 
+        : text;
 
       const finalItem: HistoryItem = {
         id: pendingId,
@@ -149,7 +157,9 @@ export function useSynapseStream() {
 
       dispatch({ type: "ERROR", payload: errorMessage });
 
-      const displaySoru = fileData ? `${text}\n[Dosya eklendi: ${fileData.name}]` : text;
+      const displaySoru = files && files.length > 0 
+        ? `${text}\n[Eklenen Dosyalar: ${files.map(f => f.name).join(', ')}]` 
+        : text;
 
       const errItem: HistoryItem = {
         id: pendingId,
@@ -176,4 +186,4 @@ export function useSynapseStream() {
   }, []);
 
   return { ...state, submitQuery };
-        }
+  }
