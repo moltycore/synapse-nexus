@@ -1,15 +1,25 @@
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
-import { CornerDownLeft, Zap, Cpu, Paperclip, X, FileText } from "lucide-react";
+import { CornerDownLeft, Zap, Cpu, Paperclip, X, FileText, AlertTriangle } from "lucide-react";
 import { SynapseMode } from "@/hooks/synapse/types";
 
+interface FileData {
+  name: string;
+  content: string;
+  size: number;
+}
+
 interface SynapseInputProps {
-  onSubmit: (text: string, fileData?: { name: string; content: string } | null) => void;
+  onSubmit: (text: string, files?: FileData[] | null) => void;
   isProcessing: boolean;
   mode: SynapseMode;
   setMode: (mode: SynapseMode) => void;
   injectedPrompt?: string;
   clearInjectedPrompt?: () => void;
 }
+
+const MAX_FILES = 5;
+const MAX_TOTAL_SIZE_MB = 10;
+const MAX_TOTAL_SIZE_BYTES = MAX_TOTAL_SIZE_MB * 1024 * 1024;
 
 const SynapseInput = ({ 
   onSubmit, 
@@ -20,7 +30,8 @@ const SynapseInput = ({
   clearInjectedPrompt 
 }: SynapseInputProps) => {
   const [text, setText] = useState("");
-  const [attachedFile, setAttachedFile] = useState<{ name: string; content: string } | null>(null);
+  const [attachedFiles, setAttachedFiles] = useState<FileData[]>([]);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [keyboardOffset, setKeyboardOffset] = useState(0);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -46,6 +57,13 @@ const SynapseInput = ({
     return () => viewport.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    if (errorMsg) {
+      const timer = setTimeout(() => setErrorMsg(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMsg]);
+
   const adjustHeight = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
@@ -55,25 +73,51 @@ const SynapseInput = ({
 
   useEffect(() => adjustHeight(), [text]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const content = event.target?.result as string;
-      setAttachedFile({ name: file.name, content });
-    };
-    reader.readAsText(file);
-    e.target.value = "";
+    setErrorMsg(null);
+
+    if (attachedFiles.length + files.length > MAX_FILES) {
+      setErrorMsg(`Maksimum ${MAX_FILES} dosya yükleyebilirsiniz.`);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    const currentSize = attachedFiles.reduce((acc, f) => acc + f.size, 0);
+    const newFilesSize = files.reduce((acc, f) => acc + f.size, 0);
+
+    if (currentSize + newFilesSize > MAX_TOTAL_SIZE_BYTES) {
+      setErrorMsg(`Toplam dosya boyutu ${MAX_TOTAL_SIZE_MB}MB sınırını geçemez.`);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    const readFiles = await Promise.all(
+      files.map(file => new Promise<FileData>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          resolve({ name: file.name, content: event.target?.result as string, size: file.size });
+        };
+        reader.readAsText(file);
+      }))
+    );
+
+    setAttachedFiles(prev => [...prev, ...readFiles]);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removeFile = (index: number) => {
+    setAttachedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
-    if ((text.trim() || attachedFile) && !isProcessing) {
-      onSubmit(text.trim(), attachedFile);
+    if ((text.trim() || attachedFiles.length > 0) && !isProcessing) {
+      onSubmit(text.trim(), attachedFiles.length > 0 ? attachedFiles : null);
       setText("");
-      setAttachedFile(null);
+      setAttachedFiles([]);
       if (textareaRef.current) textareaRef.current.style.height = "auto";
     }
   };
@@ -92,24 +136,37 @@ const SynapseInput = ({
     >
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-transparent h-[140%] -bottom-10 pointer-events-none" />
 
-      <div className="max-w-3xl mx-auto relative w-full px-4 pt-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pointer-events-auto">
+      <div className="max-w-3xl mx-auto relative w-full px-4 pt-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pointer-events-auto flex flex-col items-center">
+        
+        {/* Hata Mesajı Rozeti */}
+        {errorMsg && (
+          <div className="absolute -top-10 bg-red-500/10 border border-red-500/20 text-red-400 text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg animate-in slide-in-from-bottom-2 fade-in duration-200 whitespace-nowrap z-20">
+            <AlertTriangle size={12} />
+            {errorMsg}
+          </div>
+        )}
+
         <form
           onSubmit={handleSubmit}
           className="relative flex flex-col bg-background border rounded-3xl p-1.5 shadow-2xl transition-all duration-300 w-full z-10 border-white/10 focus-within:border-white/25 focus-within:shadow-[0_0_20px_rgba(160,168,185,0.10)]"
         >
-          {attachedFile && (
-            <div className="flex items-center gap-2 mx-2 mt-1 mb-1 px-3 py-1.5 bg-white/5 border border-white/10 rounded-xl w-fit animate-in fade-in zoom-in-95 duration-200">
-              <FileText size={12} className="text-emerald-500/80 shrink-0" />
-              <span className="text-[11px] text-white/70 font-medium truncate max-w-[150px]">
-                {attachedFile.name}
-              </span>
-              <button
-                type="button"
-                onClick={() => setAttachedFile(null)}
-                className="text-white/40 hover:text-white hover:bg-white/10 p-0.5 rounded-full transition-colors ml-1 shrink-0"
-              >
-                <X size={12} />
-              </button>
+          {attachedFiles.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 mx-2 mt-1 mb-1">
+              {attachedFiles.map((file, idx) => (
+                <div key={idx} className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-xl w-fit animate-in fade-in zoom-in-95 duration-200">
+                  <FileText size={12} className="text-emerald-500/80 shrink-0" />
+                  <span className="text-[11px] text-white/70 font-medium truncate max-w-[120px]">
+                    {file.name}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeFile(idx)}
+                    className="text-white/40 hover:text-white hover:bg-white/10 p-0.5 rounded-full transition-colors ml-1 shrink-0"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              ))}
             </div>
           )}
 
@@ -138,6 +195,7 @@ const SynapseInput = ({
 
             <input
               type="file"
+              multiple
               ref={fileInputRef}
               onChange={handleFileChange}
               accept=".txt,.json,.md,.csv"
@@ -162,7 +220,7 @@ const SynapseInput = ({
 
             <button
               type="submit"
-              disabled={(!text.trim() && !attachedFile) || isProcessing}
+              disabled={(!text.trim() && attachedFiles.length === 0) || isProcessing}
               className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-white/8 text-white/60 hover:bg-white/15 hover:text-white/90 transition-colors disabled:opacity-30 mb-0.5"
             >
               <CornerDownLeft size={18} className={isProcessing ? "animate-pulse" : ""} />
