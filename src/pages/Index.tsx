@@ -87,7 +87,8 @@ export default function Index() {
           const messagesToClone = history.slice(0, targetIndex + 1);
           const newWorkspaceId = `w-${crypto.randomUUID().slice(0,8)}`;
           
-          await dbService.forkWorkspace(newWorkspaceId, newTitle, messagesToClone);
+          // parentId olarak activeWorkspaceId gönderiliyor
+          await dbService.forkWorkspace(newWorkspaceId, newTitle, messagesToClone, activeWorkspaceId);
           
           targetWorkspaceId = newWorkspaceId;
           setActiveWorkspaceId(newWorkspaceId);
@@ -269,4 +270,4 @@ export default function Index() {
       </div>
     </ErrorBoundary>
   );
-      }
+        }
