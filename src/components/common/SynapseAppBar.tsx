@@ -3,6 +3,7 @@ import { APP_VERSION } from "@/config/constants";
 import { Code2, X, FileTerminal, Loader2 } from "lucide-react";
 import { dbService } from "@/services/db";
 import { HistoryItem } from "@/hooks/synapse/types";
+import { logger } from "@/utils/logger";
 
 interface SynapseAppBarProps {
   onSidebarToggle: () => void;
@@ -27,7 +28,11 @@ const ActionIcon = () => (
   </svg>
 );
 
-const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle, activeWorkspaceId }: SynapseAppBarProps) => {
+const SynapseAppBar = ({
+  onSidebarToggle,
+  onBottomSheetToggle,
+  activeWorkspaceId
+}: SynapseAppBarProps) => {
   const [isIslandExpanded, setIsIslandExpanded] = useState(false);
   const [artifacts, setArtifacts] = useState<HistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -35,14 +40,13 @@ const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle, activeWorkspaceId
   useEffect(() => {
     const fetchArtifacts = async () => {
       if (!isIslandExpanded || !activeWorkspaceId) return;
-      
+
       try {
         setIsLoading(true);
         const messages = await dbService.getMessages(activeWorkspaceId);
-        const extracted = messages.filter(m => m.prime_result?.includes("```"));
-        setArtifacts(extracted);
+        setArtifacts(messages.filter(m => m.prime_result?.includes("```")));
       } catch (error) {
-        console.error("Artifact extraction failed:", error);
+        logger.error("Artifact extraction failed", { workspaceId: activeWorkspaceId, error });
       } finally {
         setIsLoading(false);
       }
@@ -62,12 +66,10 @@ const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle, activeWorkspaceId
         </button>
 
         <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
-          {/* Merkezi Synapse Kutusu */}
           <div className="flex flex-col items-center justify-center w-[120px] h-[40px] bg-black border border-gray-800 rounded-[20px] shadow-lg">
             <span className="font-semibold text-[14px] text-gray-200 tracking-tight leading-none">Synapse</span>
             <span className="text-[9px] text-gray-500 tracking-[0.5px] leading-none mt-1">Nexus {APP_VERSION}</span>
           </div>
-          {/* Artifacts İkonu (Kutunun Sağında) */}
           <button
             onClick={() => setIsIslandExpanded(true)}
             className="w-10 h-10 flex items-center justify-center bg-black border border-gray-800 rounded-full shadow-lg text-gray-400 hover:text-emerald-400 hover:border-gray-700 transition-colors"
@@ -85,11 +87,10 @@ const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle, activeWorkspaceId
         </button>
       </header>
 
-      {/* Artifacts Açılır Paneli */}
       {isIslandExpanded && (
         <div className="fixed inset-0 z-[100] flex flex-col items-center pt-[calc(env(safe-area-inset-top,0px)+36px)] px-4">
-          <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setIsIslandExpanded(false)}
           />
           <div className="relative w-full max-w-[340px] h-[450px] bg-black border border-gray-800 rounded-[24px] p-4 flex flex-col shadow-[0_0_40px_rgba(0,0,0,0.8)] animate-in fade-in zoom-in-95 duration-200 mt-2">
@@ -105,7 +106,7 @@ const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle, activeWorkspaceId
                 <X size={14} />
               </button>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto flex flex-col">
               {isLoading ? (
                 <div className="flex-1 flex items-center justify-center">
@@ -118,7 +119,10 @@ const SynapseAppBar = ({ onSidebarToggle, onBottomSheetToggle, activeWorkspaceId
               ) : (
                 <div className="flex flex-col gap-2 pb-2 pr-1" style={{ scrollbarWidth: "none" }}>
                   {artifacts.map(art => (
-                    <div key={art.id} className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 flex flex-col gap-1.5 hover:border-gray-700 transition-colors cursor-pointer group">
+                    <div
+                      key={art.id}
+                      className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 flex flex-col gap-1.5 hover:border-gray-700 transition-colors cursor-pointer group"
+                    >
                       <div className="flex items-center gap-2">
                         <FileTerminal size={12} className="text-emerald-500/70" />
                         <span className="text-[10px] font-mono text-gray-400 truncate">{art.soru}</span>
