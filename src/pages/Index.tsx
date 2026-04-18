@@ -11,37 +11,31 @@ import { ErrorBoundary } from "../components/common/ErrorBoundary";
 import PromptFab from "../components/prompts/PromptFab";
 
 import { useSynapseStream } from "../hooks/synapse/useSynapseStream";
-import { HistoryItem, SynapseMode } from "../hooks/synapse/types";
+import { HistoryItem, FileData } from "../hooks/synapse/types";
 import { dbService } from "../services/db";
 import { logger } from "../utils/logger";
-
-interface FileData {
-  name: string;
-  content: string;
-  size: number;
-}
+import { useSynapseStore } from "../store/synapseStore";
 
 const DEFAULT_WORKSPACE_ID = "w-default";
 
 export default function Index() {
-  const [mode, setMode] = useState<SynapseMode>("solo");
-  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const {
+    mode, setMode,
+    history, setHistory, addHistoryItem,
+    activeWorkspaceId, setActiveWorkspaceId,
+    pendingForkId, setPendingForkId
+  } = useSynapseStore();
+
   const [activeItem, setActiveItem] = useState<HistoryItem | null>(null);
   const [currentQuery, setCurrentQuery] = useState<string>("");
-
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isBottomSheetOpen, setBottomSheetOpen] = useState(false);
   const [injectedPrompt, setInjectedPrompt] = useState<string>("");
-
-  const [activeWorkspaceId, setActiveWorkspaceId] = useState<string | null>(null);
   const [isInit, setIsInit] = useState(true);
-  const [pendingForkId, setPendingForkId] = useState<string | null>(null);
 
   const bottomRef = useRef<HTMLDivElement>(null);
-
   const { submitQuery, isProcessing, activeAgent, streamingData, error } = useSynapseStream();
 
-  // Boot: load or create default workspace
   useEffect(() => {
     const initWorkspace = async () => {
       try {
@@ -61,7 +55,7 @@ export default function Index() {
     };
 
     initWorkspace();
-  }, []);
+  }, [setActiveWorkspaceId, setHistory]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -72,7 +66,6 @@ export default function Index() {
 
     let targetWorkspaceId = activeWorkspaceId;
 
-    // Auto-fork: no isInit lock — avoids flicker between loading and chat screens
     if (pendingForkId) {
       const targetIndex = history.findIndex(item => item.id === pendingForkId);
       setPendingForkId(null);
@@ -92,13 +85,11 @@ export default function Index() {
           logger.info("Auto-fork created", { originalId: activeWorkspaceId, newWorkspaceId });
         } catch (err) {
           logger.error("Auto-fork failed", { error: err });
-          // Fork failed — continue with current workspace
         }
       }
     }
 
-    const displayQuery =
-      files && files.length > 0
+    const displayQuery = files && files.length > 0
         ? `${text}\n[Eklenen Dosyalar: ${files.map(f => f.name).join(", ")}]`
         : text;
 
@@ -111,11 +102,11 @@ export default function Index() {
       targetWorkspaceId,
       files,
       (finalItem) => {
-        setHistory(prev => [...prev, finalItem]);
+        addHistoryItem(finalItem);
         setActiveItem(finalItem);
       },
       (errItem) => {
-        setHistory(prev => [...prev, errItem]);
+        addHistoryItem(errItem);
       }
     );
   };
@@ -169,7 +160,6 @@ export default function Index() {
           <SynapseAppBar
             onSidebarToggle={() => setSidebarOpen(true)}
             onBottomSheetToggle={() => setBottomSheetOpen(true)}
-            activeWorkspaceId={activeWorkspaceId}
           />
 
           <main className="flex-1 overflow-y-auto pb-24 pt-2 relative flex flex-col">
@@ -262,8 +252,6 @@ export default function Index() {
           <SynapseInput
             onSubmit={handleSubmit}
             isProcessing={isProcessing}
-            mode={mode}
-            setMode={setMode}
             injectedPrompt={injectedPrompt}
             clearInjectedPrompt={() => setInjectedPrompt("")}
           />
@@ -271,4 +259,4 @@ export default function Index() {
       </div>
     </ErrorBoundary>
   );
-}
+    }
