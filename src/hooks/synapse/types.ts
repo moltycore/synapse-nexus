@@ -23,3 +23,9 @@ export interface SynapseState {
   streamingData: Partial<HistoryItem>;
   error: string | null;
 }
+
+export interface FileData {
+  name: string;
+  content: string;
+  size: number;
+}
