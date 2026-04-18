@@ -1,5 +1,6 @@
-import { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { Cpu, Copy, Share2, MoreHorizontal, Check, GitFork } from "lucide-react";
+import { logger } from "@/utils/logger";
 
 interface ChatMessageProps {
   id?: string;
@@ -14,16 +15,30 @@ interface ChatMessageProps {
 const CodeBlock = ({ content }: { content: string }) => {
   const [copied, setCopied] = useState(false);
   
-  const lines = content.slice(3, -3).trim().split('\n');
-  const firstLine = lines[0].trim();
-  const hasLang = firstLine && !firstLine.includes(' ');
-  const language = hasLang ? firstLine : 'code';
-  const codeData = hasLang ? lines.slice(1).join('\n') : lines.join('\n');
+  const rawContent = content.replace(/^```|```$/g, '');
+  const firstNewlineIdx = rawContent.indexOf('\n');
+  
+  let language = 'code';
+  let codeData = rawContent;
+
+  if (firstNewlineIdx !== -1) {
+    const firstLine = rawContent.slice(0, firstNewlineIdx).trim();
+    if (/^[a-zA-Z0-9_+-]+$/.test(firstLine)) {
+      language = firstLine;
+      codeData = rawContent.slice(firstNewlineIdx + 1);
+    }
+  }
+
+  codeData = codeData.trim();
 
   const copyCode = async () => {
-    await navigator.clipboard.writeText(codeData);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(codeData);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      logger.error("Clipboard write failed", { error: err });
+    }
   };
 
   return (
@@ -59,9 +74,11 @@ const renderMessage = (text: string) => {
   });
 };
 
-export default function ChatMessage({ id, query = "", primeResult = "", timestamp = "", mode = "solo", onFork }: ChatMessageProps) {
+function ChatMessage({ id, query = "", primeResult = "", timestamp = "", mode = "solo", onFork }: ChatMessageProps) {
   const [aiCopied, setAiCopied] = useState(false);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const canShare = typeof navigator !== 'undefined' && Boolean(navigator.share);
 
   const handleAiCopy = async () => {
     try {
@@ -69,19 +86,19 @@ export default function ChatMessage({ id, query = "", primeResult = "", timestam
       setAiCopied(true);
       setTimeout(() => setAiCopied(false), 2000); 
     } catch (err) {
-      console.error("Clipboard write failed:", err);
+      logger.error("Clipboard write failed", { error: err });
     }
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
+    if (canShare) {
       try {
         await navigator.share({
           title: 'Synapse Prime Result',
           text: primeResult,
         });
       } catch (err) {
-        console.error("Share API failed:", err);
+        logger.error("Share API failed", { error: err });
       }
     }
   };
@@ -138,11 +155,15 @@ export default function ChatMessage({ id, query = "", primeResult = "", timestam
             <button onClick={handleAiCopy} className="hover:text-white transition-colors" title="Copy Full Payload">
               {aiCopied ? <Check size={14} className="text-green-500" /> : <Copy size={14} strokeWidth={2} />}
             </button>
-            <button onClick={handleShare} className="hover:text-white transition-colors" title="Share Payload">
-              <Share2 size={14} strokeWidth={2} />
-            </button>
+            
+            {canShare && (
+              <button onClick={handleShare} className="hover:text-white transition-colors" title="Share Payload">
+                <Share2 size={14} strokeWidth={2} />
+              </button>
+            )}
+            
             {onFork && id && (
-              <button onClick={() => onFork(id)} className="hover:text-emerald-500 transition-colors" title="Buradan Dallandır (Fork Path)">
+              <button onClick={() => onFork(id)} className="hover:text-emerald-500 transition-colors" title="Fork Path">
                 <GitFork size={14} strokeWidth={2} />
               </button>
             )}
@@ -155,4 +176,14 @@ export default function ChatMessage({ id, query = "", primeResult = "", timestam
       )}
     </div>
   );
-      }
+}
+
+export default React.memo(ChatMessage, (prevProps, nextProps) => {
+  return (
+    prevProps.id === nextProps.id &&
+    prevProps.query === nextProps.query &&
+    prevProps.primeResult === nextProps.primeResult &&
+    prevProps.mode === nextProps.mode &&
+    prevProps.onFork === nextProps.onFork
+  );
+});
