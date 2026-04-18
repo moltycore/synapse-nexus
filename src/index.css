@@ -35,7 +35,6 @@
     --card: 240 20% 6%;
     --card-foreground: 0 0% 95%;
 
-    /* Synapse Theme Tokens */
     --synapse-purple: 220 8% 65%;
     --synapse-blue: 217 91% 60%;
     --synapse-gold: 43 96% 56%;
@@ -117,5 +116,23 @@
 
   .animate-reveal-up {
     animation: reveal-up 0.4s ease-out forwards;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(16, 185, 129, 0.6);
   }
 }
