@@ -4,11 +4,11 @@ import { Code2, X, FileTerminal, Loader2 } from "lucide-react";
 import { dbService } from "@/services/db";
 import { HistoryItem } from "@/hooks/synapse/types";
 import { logger } from "@/utils/logger";
+import { useSynapseStore } from "@/store/synapseStore";
 
 interface SynapseAppBarProps {
   onSidebarToggle: () => void;
   onBottomSheetToggle: () => void;
-  activeWorkspaceId?: string | null;
 }
 
 const NavigationIcon = () => (
@@ -31,8 +31,9 @@ const ActionIcon = () => (
 const SynapseAppBar = ({
   onSidebarToggle,
   onBottomSheetToggle,
-  activeWorkspaceId
 }: SynapseAppBarProps) => {
+  const activeWorkspaceId = useSynapseStore(state => state.activeWorkspaceId);
+  
   const [isIslandExpanded, setIsIslandExpanded] = useState(false);
   const [artifacts, setArtifacts] = useState<HistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
