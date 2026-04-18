@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Cpu, AlertTriangle, Loader2, GitFork, PlusSquare, XCircle } from "lucide-react";
 
 import SynapseAppBar from "../components/common/SynapseAppBar";
@@ -31,15 +31,13 @@ export default function Index() {
   const [injectedPrompt, setInjectedPrompt] = useState<string>("");
   const [isInit, setIsInit] = useState(true);
   
-  // KULLANICIYA YÖNELİK HATA BİLDİRİMİ (TOAST)
   const [uiError, setUiError] = useState<string | null>(null);
 
   const bottomRef = useRef<HTMLDivElement>(null);
-  const bootGuard = useRef(false); // STRICT MODE ÇİFT TETİKLEME KORUMASI
+  const bootGuard = useRef(false);
 
   const { submitQuery, isProcessing, activeAgent, streamingData, error } = useSynapseStream();
 
-  // Hata mesajını 3 saniye sonra temizle
   useEffect(() => {
     if (uiError) {
       const timer = setTimeout(() => setUiError(null), 3000);
@@ -47,7 +45,7 @@ export default function Index() {
     }
   }, [uiError]);
 
-  // 1. BOOT MANTIĞI: Strict Mode korumalı Ghost Chat
+  // Boot logic: Ghost Chat initialization
   useEffect(() => {
     if (bootGuard.current) return;
     bootGuard.current = true;
@@ -66,7 +64,6 @@ export default function Index() {
 
     let targetWorkspaceId = activeWorkspaceId;
 
-    // 2. DALLANDIRMA (FORK) MANTIĞI
     if (pendingForkId) {
       const targetIndex = history.findIndex(item => item.id === pendingForkId);
       setPendingForkId(null);
@@ -86,12 +83,10 @@ export default function Index() {
           logger.info("Auto-fork created", { originalId: activeWorkspaceId, newWorkspaceId });
         } catch (err) {
           logger.error("Auto-fork failed", { error: err });
-          setUiError("Dallandırma işlemi başarısız oldu. Lütfen tekrar deneyin.");
+          setUiError("Fork process failed. Please try again.");
         }
       }
-    } 
-    // 3. YENİ SOHBET MANTIĞI
-    else if (!targetWorkspaceId) {
+    } else if (!targetWorkspaceId) {
       try {
         const titleWords = text.trim().split(/\s+/).slice(0, 3).join(" ");
         const newTitle = titleWords ? `${titleWords}...` : "Yeni Sohbet";
@@ -104,8 +99,8 @@ export default function Index() {
         logger.info("Auto-workspace created on first message", { newWorkspaceId });
       } catch (err) {
         logger.error("Failed to create initial workspace", { error: err });
-        setUiError("Sohbet başlatılamadı. Ağ bağlantınızı kontrol edin.");
-        return; // Veritabanı çökükse mesajı API'ye göndermeyi durdur.
+        setUiError("Failed to start chat. Check connection.");
+        return; 
       }
     }
 
@@ -127,7 +122,7 @@ export default function Index() {
       },
       (errItem) => {
         addHistoryItem(errItem);
-        setUiError("Ağ akışında bir kesinti oluştu.");
+        setUiError("Network flow interrupted.");
       }
     );
   };
@@ -143,7 +138,7 @@ export default function Index() {
       setPendingForkId(null);
     } catch (err) {
       logger.error("Failed to load workspace messages", { workspaceId: id, error: err });
-      setUiError("Sohbet geçmişi yüklenemedi.");
+      setUiError("Failed to load chat history.");
     } finally {
       setIsInit(false);
     }
@@ -157,9 +152,9 @@ export default function Index() {
     setSidebarOpen(false);
   };
 
-  const handleFork = (messageId: string) => {
+  const handleFork = useCallback((messageId: string) => {
     setPendingForkId(messageId);
-  };
+  }, [setPendingForkId]);
 
   if (isInit) {
     return (
@@ -176,7 +171,6 @@ export default function Index() {
     <ErrorBoundary>
       <div className="fixed inset-0 bg-background text-foreground overflow-hidden w-full">
         
-        {/* UI TOAST (HATA BİLDİRİMİ) */}
         {uiError && (
           <div className="fixed top-[env(safe-area-inset-top,0px)] left-1/2 -translate-x-1/2 mt-4 z-[200] bg-red-500/10 border border-red-500/20 text-red-400 text-xs px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2 animate-in slide-in-from-top-2 fade-in duration-200 backdrop-blur-md">
             <XCircle size={14} />
@@ -308,4 +302,4 @@ export default function Index() {
       </div>
     </ErrorBoundary>
   );
-            }
+                          }
