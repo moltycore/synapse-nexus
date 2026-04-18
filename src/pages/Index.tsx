@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Cpu, AlertTriangle, Loader2, GitFork } from "lucide-react";
+import { Cpu, AlertTriangle, Loader2, GitFork, PlusSquare, XCircle } from "lucide-react";
 
 import SynapseAppBar from "../components/common/SynapseAppBar";
 import BattleTimeline from "../components/chat/BattleTimeline";
@@ -16,8 +16,6 @@ import { dbService } from "../services/db";
 import { logger } from "../utils/logger";
 import { useSynapseStore } from "../store/synapseStore";
 
-const DEFAULT_WORKSPACE_ID = "w-default";
-
 export default function Index() {
   const {
     mode, setMode,
@@ -32,29 +30,31 @@ export default function Index() {
   const [isBottomSheetOpen, setBottomSheetOpen] = useState(false);
   const [injectedPrompt, setInjectedPrompt] = useState<string>("");
   const [isInit, setIsInit] = useState(true);
+  
+  // KULLANICIYA YÖNELİK HATA BİLDİRİMİ (TOAST)
+  const [uiError, setUiError] = useState<string | null>(null);
 
   const bottomRef = useRef<HTMLDivElement>(null);
+  const bootGuard = useRef(false); // STRICT MODE ÇİFT TETİKLEME KORUMASI
+
   const { submitQuery, isProcessing, activeAgent, streamingData, error } = useSynapseStream();
 
+  // Hata mesajını 3 saniye sonra temizle
   useEffect(() => {
-    const initWorkspace = async () => {
-      try {
-        const workspaces = await dbService.getWorkspaces();
-        if (!workspaces.find(w => w.id === DEFAULT_WORKSPACE_ID)) {
-          await dbService.createWorkspace(DEFAULT_WORKSPACE_ID, "Geçici Oturum");
-          logger.info("Default workspace created");
-        }
-        setActiveWorkspaceId(DEFAULT_WORKSPACE_ID);
-        const messages = await dbService.getMessages(DEFAULT_WORKSPACE_ID);
-        setHistory(messages);
-      } catch (err) {
-        logger.error("Workspace initialization failed", { error: err });
-      } finally {
-        setIsInit(false);
-      }
-    };
+    if (uiError) {
+      const timer = setTimeout(() => setUiError(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [uiError]);
 
-    initWorkspace();
+  // 1. BOOT MANTIĞI: Strict Mode korumalı Ghost Chat
+  useEffect(() => {
+    if (bootGuard.current) return;
+    bootGuard.current = true;
+
+    setActiveWorkspaceId(null);
+    setHistory([]);
+    setIsInit(false);
   }, [setActiveWorkspaceId, setHistory]);
 
   useEffect(() => {
@@ -66,6 +66,7 @@ export default function Index() {
 
     let targetWorkspaceId = activeWorkspaceId;
 
+    // 2. DALLANDIRMA (FORK) MANTIĞI
     if (pendingForkId) {
       const targetIndex = history.findIndex(item => item.id === pendingForkId);
       setPendingForkId(null);
@@ -85,7 +86,26 @@ export default function Index() {
           logger.info("Auto-fork created", { originalId: activeWorkspaceId, newWorkspaceId });
         } catch (err) {
           logger.error("Auto-fork failed", { error: err });
+          setUiError("Dallandırma işlemi başarısız oldu. Lütfen tekrar deneyin.");
         }
+      }
+    } 
+    // 3. YENİ SOHBET MANTIĞI
+    else if (!targetWorkspaceId) {
+      try {
+        const titleWords = text.trim().split(/\s+/).slice(0, 3).join(" ");
+        const newTitle = titleWords ? `${titleWords}...` : "Yeni Sohbet";
+        const newWorkspaceId = `w-${crypto.randomUUID().slice(0, 8)}`;
+
+        await dbService.createWorkspace(newWorkspaceId, newTitle);
+        
+        targetWorkspaceId = newWorkspaceId;
+        setActiveWorkspaceId(newWorkspaceId);
+        logger.info("Auto-workspace created on first message", { newWorkspaceId });
+      } catch (err) {
+        logger.error("Failed to create initial workspace", { error: err });
+        setUiError("Sohbet başlatılamadı. Ağ bağlantınızı kontrol edin.");
+        return; // Veritabanı çökükse mesajı API'ye göndermeyi durdur.
       }
     }
 
@@ -107,6 +127,7 @@ export default function Index() {
       },
       (errItem) => {
         addHistoryItem(errItem);
+        setUiError("Ağ akışında bir kesinti oluştu.");
       }
     );
   };
@@ -122,9 +143,18 @@ export default function Index() {
       setPendingForkId(null);
     } catch (err) {
       logger.error("Failed to load workspace messages", { workspaceId: id, error: err });
+      setUiError("Sohbet geçmişi yüklenemedi.");
     } finally {
       setIsInit(false);
     }
+  };
+
+  const handleStartNewChat = () => {
+    setActiveWorkspaceId(null);
+    setHistory([]);
+    setActiveItem(null);
+    setPendingForkId(null);
+    setSidebarOpen(false);
   };
 
   const handleFork = (messageId: string) => {
@@ -145,6 +175,15 @@ export default function Index() {
   return (
     <ErrorBoundary>
       <div className="fixed inset-0 bg-background text-foreground overflow-hidden w-full">
+        
+        {/* UI TOAST (HATA BİLDİRİMİ) */}
+        {uiError && (
+          <div className="fixed top-[env(safe-area-inset-top,0px)] left-1/2 -translate-x-1/2 mt-4 z-[200] bg-red-500/10 border border-red-500/20 text-red-400 text-xs px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2 animate-in slide-in-from-top-2 fade-in duration-200 backdrop-blur-md">
+            <XCircle size={14} />
+            {uiError}
+          </div>
+        )}
+
         <Sidebar
           isOpen={isSidebarOpen}
           onClose={() => setSidebarOpen(false)}
@@ -163,7 +202,7 @@ export default function Index() {
           />
 
           <main className="flex-1 overflow-y-auto pb-24 pt-2 relative flex flex-col">
-            {history.length === 0 && !isProcessing && (
+            {history.length === 0 && !isProcessing && !activeWorkspaceId && (
               <div className="absolute inset-0 flex flex-col items-center justify-center opacity-80 select-none pb-32 pointer-events-none z-10">
                 <div className="w-16 h-16 rounded-2xl bg-[#12141A] border border-white/5 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(160,168,185,0.06)]">
                   <Cpu size={32} className="text-white/50" />
@@ -173,7 +212,7 @@ export default function Index() {
               </div>
             )}
 
-            <div className="px-4 space-y-3 z-10 relative flex-1">
+            <div className="px-4 space-y-3 z-10 relative flex-1 mt-4">
               {history.map(item => (
                 <ChatMessage
                   key={item.id}
@@ -237,6 +276,16 @@ export default function Index() {
             )}
           </main>
 
+          {activeWorkspaceId && !isProcessing && (
+            <button
+              onClick={handleStartNewChat}
+              className="absolute top-[calc(env(safe-area-inset-top,0px)+80px)] right-4 z-[40] bg-black/50 border border-gray-800 text-gray-400 hover:text-emerald-400 hover:border-gray-700 p-2.5 rounded-full shadow-lg backdrop-blur-sm transition-all active:scale-95"
+              title="Yeni Sohbet Başlat"
+            >
+              <PlusSquare size={16} />
+            </button>
+          )}
+
           {pendingForkId && (
             <div
               onClick={() => setPendingForkId(null)}
@@ -259,4 +308,4 @@ export default function Index() {
       </div>
     </ErrorBoundary>
   );
-    }
+            }
