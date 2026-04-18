@@ -50,7 +50,7 @@ const CodeBlock = ({ content }: { content: string }) => {
         </button>
       </div>
       <div className="p-3">
-        <pre className="text-xs text-foreground/80 font-mono whitespace-pre-wrap break-all leading-relaxed">
+        <pre className="text-xs text-foreground/80 font-mono overflow-x-auto whitespace-pre pb-2 leading-relaxed custom-scrollbar">
           {codeData}
         </pre>
       </div>
