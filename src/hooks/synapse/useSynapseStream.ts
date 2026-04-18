@@ -1,15 +1,9 @@
 import { useReducer, useRef, useCallback } from "react";
-import { HistoryItem, SynapseMode, AgentKey, SynapseState } from "@/hooks/synapse/types";
+import { HistoryItem, SynapseMode, AgentKey, SynapseState, FileData } from "@/hooks/synapse/types";
 import { parseSSE, getTurkishTime } from "@/hooks/synapse/utils";
 import { API_URL, STREAM_TIMEOUT_MS } from "@/config/constants";
 import { logger } from "@/utils/logger";
 import { dbService } from "@/services/db";
-
-interface FileData {
-  name: string;
-  content: string;
-  size: number;
-}
 
 const initialState: SynapseState = {
   isProcessing: false,
@@ -186,4 +180,4 @@ export function useSynapseStream() {
   }, []);
 
   return { ...state, submitQuery };
-  }
+          }
