@@ -1,18 +1,11 @@
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import { CornerDownLeft, Zap, Cpu, Paperclip, X, FileText, AlertTriangle } from "lucide-react";
-import { SynapseMode } from "@/hooks/synapse/types";
-
-interface FileData {
-  name: string;
-  content: string;
-  size: number;
-}
+import { FileData } from "@/hooks/synapse/types";
+import { useSynapseStore } from "@/store/synapseStore";
 
 interface SynapseInputProps {
   onSubmit: (text: string, files?: FileData[] | null) => void;
   isProcessing: boolean;
-  mode: SynapseMode;
-  setMode: (mode: SynapseMode) => void;
   injectedPrompt?: string;
   clearInjectedPrompt?: () => void;
 }
@@ -24,11 +17,11 @@ const MAX_TOTAL_SIZE_BYTES = MAX_TOTAL_SIZE_MB * 1024 * 1024;
 const SynapseInput = ({ 
   onSubmit, 
   isProcessing, 
-  mode, 
-  setMode, 
   injectedPrompt, 
   clearInjectedPrompt 
 }: SynapseInputProps) => {
+  const { mode, setMode } = useSynapseStore();
+  
   const [text, setText] = useState("");
   const [attachedFiles, setAttachedFiles] = useState<FileData[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -138,7 +131,6 @@ const SynapseInput = ({
 
       <div className="max-w-3xl mx-auto relative w-full px-4 pt-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pointer-events-auto flex flex-col items-center">
         
-        {/* Hata Mesajı Rozeti */}
         {errorMsg && (
           <div className="absolute -top-10 bg-red-500/10 border border-red-500/20 text-red-400 text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg animate-in slide-in-from-bottom-2 fade-in duration-200 whitespace-nowrap z-20">
             <AlertTriangle size={12} />
