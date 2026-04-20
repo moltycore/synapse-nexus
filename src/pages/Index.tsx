@@ -21,7 +21,8 @@ export default function Index() {
     mode, setMode,
     history, setHistory, addHistoryItem,
     activeWorkspaceId, setActiveWorkspaceId,
-    pendingForkId, setPendingForkId
+    pendingForkId, setPendingForkId,
+    initAuth
   } = useSynapseStore();
 
   const [activeItem, setActiveItem] = useState<HistoryItem | null>(null);
@@ -37,6 +38,10 @@ export default function Index() {
   const bootGuard = useRef(false);
 
   const { submitQuery, isProcessing, activeAgent, streamingData, error } = useSynapseStream();
+
+  useEffect(() => {
+    initAuth();
+  }, [initAuth]);
 
   useEffect(() => {
     if (uiError) {
@@ -302,4 +307,4 @@ export default function Index() {
       </div>
     </ErrorBoundary>
   );
-                          }
+    }
