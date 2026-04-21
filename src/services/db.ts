@@ -1,6 +1,6 @@
 import {
   collection, doc, setDoc, getDocs,
-  query, where, serverTimestamp
+  query, where, orderBy, serverTimestamp
 } from "firebase/firestore";
 import { db, auth } from "./firebase";
 import { HistoryItem } from "@/hooks/synapse/types";
@@ -42,15 +42,10 @@ export const dbService = {
 
   async getWorkspaces(): Promise<WorkspaceMeta[]> {
     const uid = requireAuth();
-    const q = query(getWorkspacesCol(), where("ownerId", "==", uid));
+    // Sıralama Firestore'a bırakıldı (Composite Index gerektirecek)
+    const q = query(getWorkspacesCol(), where("ownerId", "==", uid), orderBy("createdAt", "desc"));
     const snap = await getDocs(q);
-    
-    const workspaces = snap.docs.map(d => d.data() as WorkspaceMeta);
-    return workspaces.sort((a, b) => {
-      const timeA = a.createdAt?.toMillis?.() || 0;
-      const timeB = b.createdAt?.toMillis?.() || 0;
-      return timeB - timeA;
-    });
+    return snap.docs.map(d => d.data() as WorkspaceMeta);
   },
 
   async saveMessage(workspaceId: string, item: HistoryItem): Promise<void> {
@@ -61,15 +56,9 @@ export const dbService = {
 
   async getMessages(workspaceId: string): Promise<HistoryItem[]> {
     requireAuth();
-    const q = query(getMessagesCol(workspaceId));
+    const q = query(getMessagesCol(workspaceId), orderBy("savedAt", "asc"));
     const snap = await getDocs(q);
-    
-    const messages = snap.docs.map(d => d.data() as HistoryItem);
-    return messages.sort((a, b) => {
-      const timeA = a.savedAt?.toMillis?.() || 0;
-      const timeB = b.savedAt?.toMillis?.() || 0;
-      return timeA - timeB;
-    });
+    return snap.docs.map(d => d.data() as HistoryItem);
   },
 
   async forkWorkspace(
