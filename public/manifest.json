@@ -1,7 +1,17 @@
 {
+  "id": "/",
   "short_name": "Synapse",
   "name": "Synapse Nexus AI",
-  "description": "Çok ajanlı yapay zeka analiz ve karar destek sistemi. Nexus pipeline ile derin düşünce, Solo mod ile hızlı yanıt.",
+  "description": "Multi-agent AI decision support system. Deep analysis via Nexus pipeline, rapid response via Solo mode.",
+  "lang": "tr",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#0F1115",
+  "background_color": "#0F1115",
+  "categories": ["productivity", "utilities"],
   "icons": [
     {
       "src": "/logo192.png",
@@ -16,27 +26,20 @@
       "purpose": "any maskable"
     }
   ],
-  "start_url": "/",
-  "scope": "/",
-  "display": "standalone",
-  "orientation": "portrait",
-  "theme_color": "#0F1115",
-  "background_color": "#0F1115",
-  "lang": "tr",
   "screenshots": [
     {
       "src": "/screenshot1.png",
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Synapse Ana Ekran"
+      "label": "Synapse Home"
     },
     {
       "src": "/screenshot2.png",
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Synapse Nexus Analiz"
+      "label": "Synapse Nexus Analysis"
     }
   ]
 }
