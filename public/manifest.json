@@ -1,5 +1,5 @@
 {
-  "id": "/",
+  "id": "synapse-nexus-ai",
   "short_name": "Synapse",
   "name": "Synapse Nexus AI",
   "description": "Multi-agent AI decision support system. Deep analysis via Nexus pipeline, rapid response via Solo mode.",
@@ -12,30 +12,43 @@
   "theme_color": "#0F1115",
   "background_color": "#0F1115",
   "categories": ["productivity", "utilities"],
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/logo192.png",
+      "src": "logo192.png",
       "type": "image/png",
       "sizes": "192x192",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "/logo512.png",
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "logo512.png",
       "type": "image/png",
       "sizes": "512x512",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ],
   "screenshots": [
     {
-      "src": "/screenshot1.png",
+      "src": "screenshot1.png",
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Synapse Home"
     },
     {
-      "src": "/screenshot2.png",
+      "src": "screenshot2.png",
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
