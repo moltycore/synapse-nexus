@@ -1,37 +1,9 @@
-const CACHE_NAME = 'synapse-v2';
-const STATIC_ASSETS = ['/', '/index.html', '/manifest.json', '/logo192.png', '/logo512.png'];
+const CACHE_NAME = 'synapse-bypass-v1';
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
-  );
-  self.skipWaiting();
-});
+self.addEventListener('install', () => self.skipWaiting());
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
-  );
-  self.clients.claim();
+  event.waitUntil(self.clients.claim());
 });
 
-self.addEventListener('fetch', (event) => {
-  if (
-    event.request.url.includes('onrender.com') ||
-    event.request.url.includes('firestore') ||
-    event.request.url.includes('googleapis')
-  ) return;
-
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        if (response.ok && event.request.method === 'GET') {
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response.clone()));
-        }
-        return response;
-      })
-      .catch(() => caches.match(event.request))
-  );
-});
+self.addEventListener('fetch', () => {});
