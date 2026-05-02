@@ -1,7 +1,8 @@
-import { X, Plus, Loader2, PlusSquare } from "lucide-react";
+import { X, Plus, Loader2, PlusSquare, LogOut, ShieldCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { dbService } from "@/services/db";
 import { logger } from "@/utils/logger";
+import { useSynapseStore } from "@/store/synapseStore";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -50,6 +51,8 @@ export default function Sidebar({ isOpen, onClose, onSelectWorkspace, onNewChat,
   const [roots, setRoots] = useState<WorkspaceNode[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
+
+  const { isAnonymous, profile, upgradeAuth, logoutSession } = useSynapseStore();
 
   useEffect(() => { if (isOpen) loadTree(); }, [isOpen]);
 
@@ -214,12 +217,35 @@ export default function Sidebar({ isOpen, onClose, onSelectWorkspace, onNewChat,
           )}
         </div>
 
-        <div className="px-4 py-3 border-t border-white/5 shrink-0">
-          <p className="text-[9px] text-white/15 tracking-widest uppercase font-mono text-center">
-            {isLoading ? "SYNCING..." : `${roots.length} sohbet`}
-          </p>
+        {/* YENİ EKLENEN PROFİL / AUTH BÖLÜMÜ */}
+        <div className="px-4 py-3 border-t border-white/5 shrink-0 flex items-center justify-between">
+          {isAnonymous ? (
+            <button 
+              onClick={upgradeAuth}
+              className="flex items-center gap-2 text-[11px] font-medium text-emerald-400/80 hover:text-emerald-400 transition-colors w-full bg-emerald-500/10 hover:bg-emerald-500/20 py-1.5 px-3 rounded-md border border-emerald-500/20"
+            >
+              <ShieldCheck size={14} />
+              <span>Bulut Senkronizasyonu Kapalı</span>
+            </button>
+          ) : (
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-2 overflow-hidden">
+                {profile?.photo ? (
+                  <img src={profile.photo} alt="Profile" className="w-6 h-6 rounded-full opacity-80" />
+                ) : (
+                  <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[10px]">
+                    {profile?.name?.charAt(0) || "U"}
+                  </div>
+                )}
+                <span className="text-[11px] text-white/60 truncate max-w-[100px]">{profile?.name}</span>
+              </div>
+              <button onClick={logoutSession} className="text-red-400/60 hover:text-red-400 p-1.5 rounded-md hover:bg-red-500/10 transition-colors" title="Sistemi Kapat">
+                <LogOut size={14} />
+              </button>
+            </div>
+          )}
         </div>
       </aside>
     </>
   );
-                    }
+                        }
