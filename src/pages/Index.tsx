@@ -187,6 +187,8 @@ export default function Index() {
           isOpen={isSidebarOpen}
           onClose={() => setSidebarOpen(false)}
           onSelectWorkspace={handleWorkspaceSelect}
+          onNewChat={handleStartNewChat}
+          activeWorkspaceId={activeWorkspaceId}
         />
         <BottomSheet isOpen={isBottomSheetOpen} onClose={() => setBottomSheetOpen(false)} />
 
@@ -307,4 +309,4 @@ export default function Index() {
       </div>
     </ErrorBoundary>
   );
-    }
+  }
