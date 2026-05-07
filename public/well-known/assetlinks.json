@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.vercel.synapse_nexus_ebon.twa",
+    "sha256_cert_fingerprints": [
+      "1C:4E:61:B1:5C:E2:B6:D9:EA:8F:51:16:F2:CD:51:68:EF:A3:7B:62:16:50:F4:8C:DD:75:5E:C0:5F:17:1B:9D"
+    ]
+  }
+}]
