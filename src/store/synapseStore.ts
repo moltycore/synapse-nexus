@@ -1,6 +1,10 @@
 import { create } from 'zustand';
 import { HistoryItem, SynapseMode } from "@/hooks/synapse/types";
-import { signInAnonymously, onAuthStateChanged, linkWithPopup, signInWithPopup, signOut } from "firebase/auth";
+import {
+  signInAnonymously, onAuthStateChanged,
+  linkWithRedirect, signInWithRedirect,
+  getRedirectResult, signOut
+} from "firebase/auth";
 import { auth, googleProvider } from "@/services/firebase";
 import { logger } from "@/utils/logger";
 
@@ -46,13 +50,32 @@ export const useSynapseStore = create<SynapseStore>((set) => ({
   setPendingForkId: (id) => set({ pendingForkId: id }),
 
   initAuth: () => {
+    // Handle redirect result on app load (after Google sign-in redirect)
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          const u = result.user;
+          set({
+            uid: u.uid,
+            isAnonymous: u.isAnonymous,
+            profile: { name: u.displayName, photo: u.photoURL },
+            isAuthReady: true
+          });
+          logger.info("Redirect auth resolved", { uid: u.uid });
+        }
+      })
+      .catch((error) => {
+        logger.error("Redirect result failed", { error });
+      });
+
+    // Ongoing auth state listener
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        set({ 
-          uid: user.uid, 
+        set({
+          uid: user.uid,
           isAnonymous: user.isAnonymous,
           profile: user.isAnonymous ? null : { name: user.displayName, photo: user.photoURL },
-          isAuthReady: true 
+          isAuthReady: true
         });
       } else {
         signInAnonymously(auth).catch((error) => {
@@ -65,13 +88,14 @@ export const useSynapseStore = create<SynapseStore>((set) => ({
   upgradeAuth: async () => {
     try {
       if (auth.currentUser?.isAnonymous) {
-        await linkWithPopup(auth.currentUser, googleProvider);
-        logger.info("Session elevated to Google Auth");
+        // Link anonymous account to Google — redirects away and back
+        await linkWithRedirect(auth.currentUser, googleProvider);
       } else {
-        await signInWithPopup(auth, googleProvider);
+        await signInWithRedirect(auth, googleProvider);
       }
     } catch (error) {
       logger.error("Auth upgrade failed", { error });
+      throw error;
     }
   },
 
